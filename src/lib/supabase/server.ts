@@ -1,12 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import type { Database } from "@/types/database.types";
 
 // Cliente para Server Components, Server Actions e Route Handlers.
-// Lê e grava a sessão em cookies HTTP-only.
+// Age COMO o usuário logado: a RLS do banco vale em todas as consultas.
 export async function createClient() {
   const cookieStore = await cookies();
 
-  return createServerClient(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -20,8 +21,8 @@ export async function createClient() {
               cookieStore.set(name, value, options),
             );
           } catch {
-            // Chamado de um Server Component (somente leitura de cookies).
-            // É seguro ignorar: o proxy.ts renova a sessão a cada requisição.
+            // Chamado de um Server Component (cookies somente leitura).
+            // Seguro ignorar: o proxy.ts renova a sessão a cada requisição.
           }
         },
       },
