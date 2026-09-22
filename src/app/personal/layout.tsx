@@ -30,6 +30,9 @@ export default async function PersonalLayout({
           <Link href="/personal/alunos" className="underline-offset-4 hover:underline">
             Alunos
           </Link>
+          <Link href="/personal/exercicios" className="underline-offset-4 hover:underline">
+            Exercícios
+          </Link>
         </nav>
       </header>
       <main className="mx-auto w-full max-w-3xl p-4">{children}</main>
