@@ -42,16 +42,26 @@ export default async function AlunosPage() {
         {students?.map((s) => (
           <li key={s.id} className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
             <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="truncate font-semibold">{s.full_name}</p>
+              <Link href={`/personal/alunos/${s.id}`} className="min-w-0 flex-1">
+                <p className="truncate font-semibold underline-offset-4 hover:underline">
+                  {s.full_name}
+                </p>
                 <p className="truncate text-sm text-zinc-500">{s.email}</p>
                 {s.phone && <p className="text-sm text-zinc-500">{s.phone}</p>}
-              </div>
+              </Link>
               <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${STATUS[s.status].cls}`}>
                 {STATUS[s.status].label}
               </span>
             </div>
             {s.status === "convidado" && <InviteButton studentId={s.id} />}
+            {s.status !== "convidado" && (
+              <Link
+                href={`/personal/alunos/${s.id}`}
+                className="mt-3 inline-block text-sm font-medium underline"
+              >
+                Ver perfil e fichas de treino →
+              </Link>
+            )}
           </li>
         ))}
       </ul>
