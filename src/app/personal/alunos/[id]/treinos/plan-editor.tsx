@@ -4,7 +4,13 @@ import { useActionState, useState } from "react";
 import Link from "next/link";
 import ExercisePicker, { type ExerciseOption } from "@/components/exercise-picker";
 import { btnPrimaryCls, btnSecondaryCls, errorCls, inputCls } from "@/lib/ui";
-import { repsLabel } from "@/lib/workout-labels";
+import {
+  repsLabel,
+  TECHNIQUE_DETAIL_FIELD,
+  TECHNIQUE_LABEL,
+  techniqueExplanation,
+  type Technique,
+} from "@/lib/workout-labels";
 import type { PlanFormState } from "./actions";
 import { planSchema, type ExerciseItemInput, type WorkoutInput } from "./schema";
 
@@ -22,6 +28,8 @@ function emptyExercise(exercise_id: string): ExerciseItemInput {
     reps_text: null,
     target_load_kg: null,
     rest_seconds: 60,
+    technique: "normal",
+    technique_detail: null,
     notes: null,
   };
 }
@@ -171,6 +179,8 @@ export default function PlanEditor({
             )}
             {w.exercises.map((ex, ei) => {
               const info = exerciseIndex[ex.exercise_id];
+              const detailField = TECHNIQUE_DETAIL_FIELD[ex.technique];
+              const explanation = techniqueExplanation(ex.technique, ex.technique_detail);
               return (
                 <div key={ei} className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
                   <div className="flex items-start justify-between gap-2">
@@ -273,6 +283,40 @@ export default function PlanEditor({
                   </div>
 
                   <label className="mt-2 block space-y-1 text-xs text-zinc-500">
+                    Técnica
+                    <select
+                      value={ex.technique}
+                      onChange={(e) =>
+                        updateExercise(w.key, ei, {
+                          technique: e.target.value as Technique,
+                          technique_detail: e.target.value === "normal" ? null : ex.technique_detail,
+                        })
+                      }
+                      className={`${inputCls} !h-10`}
+                    >
+                      {(Object.keys(TECHNIQUE_LABEL) as Technique[]).map((t) => (
+                        <option key={t} value={t}>
+                          {TECHNIQUE_LABEL[t]}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  {detailField && (
+                    <label className="mt-2 block space-y-1 text-xs text-zinc-500">
+                      {detailField.label}
+                      <input
+                        value={ex.technique_detail ?? ""}
+                        onChange={(e) =>
+                          updateExercise(w.key, ei, { technique_detail: e.target.value || null })
+                        }
+                        placeholder={detailField.placeholder}
+                        className={`${inputCls} !h-10`}
+                      />
+                    </label>
+                  )}
+
+                  <label className="mt-2 block space-y-1 text-xs text-zinc-500">
                     Observação (opcional)
                     <input
                       value={ex.notes ?? ""}
@@ -287,6 +331,11 @@ export default function PlanEditor({
                     {ex.target_load_kg ? ` · ${ex.target_load_kg} kg` : ""}
                     {ex.rest_seconds ? ` · descanso ${ex.rest_seconds}s` : ""}
                   </p>
+                  {explanation && (
+                    <p className="mt-1 rounded-lg bg-amber-50 px-2 py-1.5 text-xs text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+                      Como o aluno vai ver: {explanation}
+                    </p>
+                  )}
                 </div>
               );
             })}

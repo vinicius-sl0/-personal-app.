@@ -24,8 +24,8 @@ function parsePayload(formData: FormData) {
   return { ok: true, data: parsed.data } as const;
 }
 
-// Grava a ficha (rascunho ou publicada) em uma única transação lógica:
-// 1) upsert do plano  2) apaga treinos/exercícios antigos  3) recria do zero.
+// Grava a ficha (rascunho ou publicada) em uma única passagem:
+// primeiro o plano, depois apaga treinos/exercícios antigos, depois recria do zero.
 // Simples e seguro para o tamanho de uma ficha; evita lidar com diffs parciais.
 async function savePlan(
   studentId: string,
@@ -82,6 +82,8 @@ async function savePlan(
       reps_text: ex.reps_text,
       target_load_kg: ex.target_load_kg,
       rest_seconds: ex.rest_seconds,
+      technique: ex.technique,
+      technique_detail: ex.technique_detail,
       notes: ex.notes,
     }));
     const { error: eErr } = await supabase.from("workout_exercises").insert(rows);
