@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { isMinor } from "@/lib/utils";
+import { btnPrimaryCls } from "@/lib/ui";
 import TermsForm from "./terms-form";
 
 export const metadata = { title: "Meu painel" };
@@ -26,10 +28,13 @@ export default async function AlunoHome() {
   }
 
   return (
-    <section className="space-y-3">
+    <section className="space-y-4">
       <h1 className="text-xl font-bold">Meu painel</h1>
+      <Link href="/aluno/treinos" className={btnPrimaryCls}>
+        Ver meus treinos
+      </Link>
       <p className="text-sm text-zinc-500">
-        Conta ativa. Em breve: seus treinos, avaliações e conversa com o Personal.
+        Em breve: suas avaliações e a conversa com o Personal.
       </p>
     </section>
   );
