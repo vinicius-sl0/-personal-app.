@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
 import { btnPrimaryCls, btnSecondaryCls, errorCls } from "@/lib/ui";
 import { PLAN_STATUS_LABEL } from "@/lib/workout-labels";
+import { formatDate } from "@/lib/assessment";
 
 export const metadata = { title: "Aluno" };
 
@@ -31,12 +32,21 @@ export default async function AlunoDetalhePage({
 
   if (!student) notFound();
 
-  const { data: plans, error } = await supabase
-    .from("workout_plans")
-    .select("id, name, status, created_at")
-    .eq("student_id", id)
-    .eq("is_template", false)
-    .order("created_at", { ascending: false });
+  const [{ data: plans, error }, { data: lastAssessment }] = await Promise.all([
+    supabase
+      .from("workout_plans")
+      .select("id, name, status, created_at")
+      .eq("student_id", id)
+      .eq("is_template", false)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("assessments")
+      .select("assessed_at")
+      .eq("student_id", id)
+      .order("assessed_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
 
   return (
     <section className="space-y-4">
@@ -53,6 +63,21 @@ export default async function AlunoDetalhePage({
         <p className="text-sm text-zinc-500">{student.email}</p>
         {student.goal && <p className="mt-1 text-sm">Objetivo: {student.goal}</p>}
       </div>
+
+      <Link
+        href={`/personal/alunos/${id}/avaliacoes`}
+        className="flex items-center justify-between gap-3 rounded-xl border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+      >
+        <span>
+          <span className="font-semibold">Avaliações e evolução</span>
+          <span className="block text-sm text-zinc-500">
+            {lastAssessment
+              ? `Última avaliação em ${formatDate(lastAssessment.assessed_at)}`
+              : "Nenhuma avaliação ainda"}
+          </span>
+        </span>
+        <span aria-hidden className="text-zinc-400">→</span>
+      </Link>
 
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-semibold">Fichas de treino</h2>

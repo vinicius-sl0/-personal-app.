@@ -30,6 +30,9 @@ export default async function AlunoLayout({
           <Link href="/aluno/treinos" className="underline-offset-4 hover:underline">
             Treinos
           </Link>
+          <Link href="/aluno/avaliacoes" className="underline-offset-4 hover:underline">
+            Evolução
+          </Link>
         </nav>
       </header>
       <main className="mx-auto w-full max-w-md p-4">{children}</main>
