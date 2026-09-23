@@ -79,6 +79,17 @@ export default async function AlunoDetalhePage({
         <span aria-hidden className="text-zinc-400">→</span>
       </Link>
 
+      <Link
+        href={`/personal/alunos/${id}/fotos`}
+        className="flex items-center justify-between gap-3 rounded-xl border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+      >
+        <span>
+          <span className="font-semibold">Fotos de evolução</span>
+          <span className="block text-sm text-zinc-500">Antes e depois, por data e ângulo</span>
+        </span>
+        <span aria-hidden className="text-zinc-400">→</span>
+      </Link>
+
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-semibold">Fichas de treino</h2>
         <Link
