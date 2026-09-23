@@ -96,25 +96,27 @@ rodar comandos locais aplica no banco.
 - Execução do treino pelo aluno: um exercício por vez, vídeo, instruções, explicação da
   técnica, registro de série (reps/carga) com confirmação real no banco, cronômetro de
   descanso, histórico, finalizar sessão.
+- Avaliação física: Personal registra/edita/exclui avaliações por protocolo; IMC, RCQ, massa
+  gorda/magra calculados no servidor; gráficos de evolução por medida; aluno vê só leitura.
+  Usa o catálogo de métricas do seed (ficha real do Personal ainda não recebida).
+- Fotos de evolução (`/aluno/fotos`, `/personal/alunos/[id]/fotos`): aluno autoriza/retira o
+  consentimento `fotos_evolucao` pelo app; envio por data com até 4 ângulos, foto reduzida e
+  regravada no navegador (remove EXIF/GPS) e enviada direto ao bucket privado; registro no
+  banco via Server Action; URLs assinadas de 1h; comparação antes/depois. **Só o aluno exclui
+  fotos** (regra da RLS/Storage). Se o envio do Personal falhar depois do upload, o arquivo
+  fica órfão no bucket (o Personal não tem permissão de apagar) — aceito por ora.
 - Banco de dados completo (32 tabelas), RLS em 100% das tabelas, 08_testes_permissoes.sql com
   122 testes passando (isolamento entre alunos, entre Personal e aluno, consentimento
   controlando acesso a fotos, etc.). **Rode o 08 de novo sempre que alterar RLS ou triggers.**
 
-## Próximo passo combinado (ainda não iniciado)
+## Pendentes do escopo original
 
-**Avaliação física com histórico e gráficos de evolução.** O banco já suporta isso de forma
-flexível: `assessment_metrics` (catálogo de métricas, ex.: peso, IMC, %gordura — pode crescer
-sem migração), `assessment_protocols` (grupos de métricas reutilizáveis), `assessments`
-(uma avaliação, com data), `assessment_values` (os valores lançados), e a view
-`v_student_metric_series` (já filtrada por RLS) para alimentar gráficos. Ainda não peguei a
-ficha de avaliação real que o Personal usa — se ele já passou, comece por ali; se não,
-siga com o catálogo padrão do seed (`05_seed.sql`) e deixe fácil adicionar campos depois.
-
-Depois disso, pendentes do escopo original: fotos de evolução (bucket privado já existe,
-condicionado a consentimento `fotos_evolucao`), chat Personal↔aluno (tabelas já existem,
-Realtime habilitado), feedback semanal (check-in), central de notificações (tabela existe,
-sem tela), landing page final, PWA/offline, textos legais definitivos (Termos e Privacidade
-hoje são placeholders — avisar sempre que isso for relevante).
+Chat Personal↔aluno (tabelas já existem, Realtime habilitado), feedback semanal (check-in),
+central de notificações (tabela existe, sem tela), landing page final, PWA/offline, textos
+legais definitivos (Termos e Privacidade hoje são placeholders — e agora o app guarda fotos
+do corpo dos alunos, então a Política precisa cobrir isso; avisar sempre que for relevante).
+Também pendente: regenerar `src/types/database.types.ts` (está sem `technique_detail`, gera
+44 erros de tipo que não quebram o app).
 
 ## Convenções ao gerar código
 
