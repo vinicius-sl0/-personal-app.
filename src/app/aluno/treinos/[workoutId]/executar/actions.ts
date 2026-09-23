@@ -87,16 +87,22 @@ export async function logSet(input: unknown): Promise<{ error?: string }> {
   return {};
 }
 
-export async function finishSession(formData: FormData) {
+export async function finishSession(formData: FormData): Promise<{ error?: string }> {
   await requireRole("aluno");
   const sessionId = String(formData.get("session_id") ?? "");
-  if (!z.uuid().safeParse(sessionId).success) return;
+  if (!z.uuid().safeParse(sessionId).success) return { error: "Sessão de treino inválida." };
 
   const supabase = await createClient();
-  await supabase
+  // .select() para saber se alguma linha foi de fato alterada (a RLS bloqueia sem dar erro).
+  const { data, error } = await supabase
     .from("workout_sessions")
     .update({ status: "concluida", finished_at: new Date().toISOString() })
-    .eq("id", sessionId);
+    .eq("id", sessionId)
+    .select("id")
+    .maybeSingle();
+
+  if (error) return { error: "Não foi possível finalizar o treino: " + error.message };
+  if (!data) return { error: "Sessão de treino não encontrada." };
 
   revalidatePath("/aluno/treinos");
   revalidatePath("/aluno/treinos/historico");
