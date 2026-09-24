@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { signOut } from "@/app/login/actions";
+import { createClient } from "@/lib/supabase/server";
+import { unreadConversationIds } from "@/lib/chat-data";
 
 export default async function AlunoLayout({
   children,
@@ -8,6 +10,7 @@ export default async function AlunoLayout({
   children: React.ReactNode;
 }) {
   const profile = await requireRole("aluno");
+  const hasUnread = (await unreadConversationIds(await createClient(), profile.id)).size > 0;
 
   return (
     <div className="min-h-dvh">
@@ -23,7 +26,7 @@ export default async function AlunoLayout({
             </button>
           </form>
         </div>
-        <nav className="mt-3 flex gap-4 text-sm">
+        <nav className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm">
           <Link href="/aluno" className="underline-offset-4 hover:underline">
             Início
           </Link>
@@ -35,6 +38,12 @@ export default async function AlunoLayout({
           </Link>
           <Link href="/aluno/fotos" className="underline-offset-4 hover:underline">
             Fotos
+          </Link>
+          <Link href="/aluno/mensagens" className="underline-offset-4 hover:underline">
+            Mensagens
+            {hasUnread && (
+              <span aria-label="(nova mensagem)" className="ml-1 inline-block size-2 rounded-full bg-emerald-600 align-middle" />
+            )}
           </Link>
         </nav>
       </header>

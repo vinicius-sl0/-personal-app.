@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { signOut } from "@/app/login/actions";
+import { createClient } from "@/lib/supabase/server";
+import { unreadConversationIds } from "@/lib/chat-data";
 
 export default async function PersonalLayout({
   children,
@@ -8,6 +10,7 @@ export default async function PersonalLayout({
   children: React.ReactNode;
 }) {
   const profile = await requireRole("personal");
+  const hasUnread = (await unreadConversationIds(await createClient(), profile.id)).size > 0;
 
   return (
     <div className="min-h-dvh">
@@ -32,6 +35,12 @@ export default async function PersonalLayout({
           </Link>
           <Link href="/personal/exercicios" className="underline-offset-4 hover:underline">
             Exercícios
+          </Link>
+          <Link href="/personal/mensagens" className="underline-offset-4 hover:underline">
+            Mensagens
+            {hasUnread && (
+              <span aria-label="(nova mensagem)" className="ml-1 inline-block size-2 rounded-full bg-emerald-600 align-middle" />
+            )}
           </Link>
         </nav>
       </header>

@@ -39,7 +39,9 @@ export default async function AlunoHome() {
       <Link href="/aluno/fotos" className={btnSecondaryCls}>
         Fotos de evolução
       </Link>
-      <p className="text-sm text-zinc-500">Em breve: a conversa com o Personal.</p>
+      <Link href="/aluno/mensagens" className={btnSecondaryCls}>
+        Conversar com o Personal
+      </Link>
     </section>
   );
 }
