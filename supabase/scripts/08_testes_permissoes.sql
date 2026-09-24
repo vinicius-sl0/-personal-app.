@@ -611,6 +611,38 @@ begin
     select * into v_r from pg_temp.exec_as(v_ua, format('select count(*) from public.notifications where type = %L', 'checkin_respondido'));
     v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Aluno recebeu notificação da resposta do check-in (trigger)', coalesce(v_r.err, 'visto=' || v_r.n));
 
+    -- perguntas novas do feedback semanal (migração 20260923000001)
+    select * into v_r from pg_temp.exec_as(v_ub, format($q$
+      with x as (update public.weekly_checkins set training_feeling = 4, progress_feeling = 3, difficulties = 'teste' where id = %L returning 1)
+      select count(*) from x $q$, v_ck_b));
+    v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Aluno PODE responder as perguntas novas do feedback', coalesce(v_r.err, 'linhas=' || v_r.n));
+
+    select * into v_r from pg_temp.exec_as(v_p1, format($q$
+      with x as (update public.weekly_checkins set training_feeling = 1 where id = %L returning 1)
+      select count(*) from x $q$, v_ck_b));
+    v_res := v_res || pg_temp.r(v_r.err is not null, 'Personal NÃO altera "como se sentiu nos treinos" do aluno', v_r.err);
+
+    select * into v_r from pg_temp.exec_as(v_p1, format($q$
+      with x as (update public.weekly_checkins set difficulties = 'mudado' where id = %L returning 1)
+      select count(*) from x $q$, v_ck_b));
+    v_res := v_res || pg_temp.r(v_r.err is not null, 'Personal NÃO altera as dificuldades relatadas pelo aluno', v_r.err);
+
+    -- dias de treino combinados (students.training_days)
+    select * into v_r from pg_temp.exec_as(v_p1, format($q$
+      with x as (update public.students set training_days = '{1,3,5}' where id = %L returning 1)
+      select count(*) from x $q$, v_sa));
+    v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Personal PODE definir os dias de treino do aluno', coalesce(v_r.err, 'linhas=' || v_r.n));
+
+    select * into v_r from pg_temp.exec_as(v_ua, format($q$
+      with x as (update public.students set training_days = '{1,2,3,4,5,6,7}' where id = %L returning 1)
+      select count(*) from x $q$, v_sa));
+    v_res := v_res || pg_temp.r(v_r.err is not null, 'Aluno NÃO altera os próprios dias de treino', v_r.err);
+
+    select * into v_r from pg_temp.exec_as(v_p1, format($q$
+      with x as (update public.students set training_days = '{0,8}' where id = %L returning 1)
+      select count(*) from x $q$, v_sa));
+    v_res := v_res || pg_temp.r(v_r.err is not null, 'Dia de treino inválido é recusado (só 1 a 7)', v_r.err);
+
     -- =================================================================
     -- I. FOTOS (exigem consentimento) e STORAGE
     -- =================================================================

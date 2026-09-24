@@ -1235,6 +1235,7 @@ export type Database = {
           sex: Database["public"]["Enums"]["sex_type"]
           start_date: string
           status: Database["public"]["Enums"]["student_status"]
+          training_days: number[]
           updated_at: string
           user_id: string | null
         }
@@ -1257,6 +1258,7 @@ export type Database = {
           sex?: Database["public"]["Enums"]["sex_type"]
           start_date?: string
           status?: Database["public"]["Enums"]["student_status"]
+          training_days?: number[]
           updated_at?: string
           user_id?: string | null
         }
@@ -1279,6 +1281,7 @@ export type Database = {
           sex?: Database["public"]["Enums"]["sex_type"]
           start_date?: string
           status?: Database["public"]["Enums"]["student_status"]
+          training_days?: number[]
           updated_at?: string
           user_id?: string | null
         }
@@ -1304,16 +1307,19 @@ export type Database = {
           comment: string | null
           created_at: string
           diet_adherence: number | null
+          difficulties: string | null
           energy: number | null
           id: string
           pain_notes: string | null
           personal_reply: string | null
+          progress_feeling: number | null
           replied_at: string | null
           replied_by: string | null
           sleep_quality: number | null
           stress: number | null
           student_id: string
           submitted_at: string
+          training_feeling: number | null
           trainings_done: number | null
           updated_at: string
           week_start: string
@@ -1322,16 +1328,19 @@ export type Database = {
           comment?: string | null
           created_at?: string
           diet_adherence?: number | null
+          difficulties?: string | null
           energy?: number | null
           id?: string
           pain_notes?: string | null
           personal_reply?: string | null
+          progress_feeling?: number | null
           replied_at?: string | null
           replied_by?: string | null
           sleep_quality?: number | null
           stress?: number | null
           student_id: string
           submitted_at?: string
+          training_feeling?: number | null
           trainings_done?: number | null
           updated_at?: string
           week_start: string
@@ -1340,16 +1349,19 @@ export type Database = {
           comment?: string | null
           created_at?: string
           diet_adherence?: number | null
+          difficulties?: string | null
           energy?: number | null
           id?: string
           pain_notes?: string | null
           personal_reply?: string | null
+          progress_feeling?: number | null
           replied_at?: string | null
           replied_by?: string | null
           sleep_quality?: number | null
           stress?: number | null
           student_id?: string
           submitted_at?: string
+          training_feeling?: number | null
           trainings_done?: number | null
           updated_at?: string
           week_start?: string
@@ -1386,7 +1398,8 @@ export type Database = {
           sets: number
           superset_group: number | null
           target_load_kg: number | null
-          technique: string | null
+          technique: Database["public"]["Enums"]["exercise_technique"]
+          technique_detail: string | null
           tempo: string | null
           updated_at: string
           workout_id: string
@@ -1405,7 +1418,8 @@ export type Database = {
           sets?: number
           superset_group?: number | null
           target_load_kg?: number | null
-          technique?: string | null
+          technique?: Database["public"]["Enums"]["exercise_technique"]
+          technique_detail?: string | null
           tempo?: string | null
           updated_at?: string
           workout_id: string
@@ -1424,7 +1438,8 @@ export type Database = {
           sets?: number
           superset_group?: number | null
           target_load_kg?: number | null
-          technique?: string | null
+          technique?: Database["public"]["Enums"]["exercise_technique"]
+          technique_detail?: string | null
           tempo?: string | null
           updated_at?: string
           workout_id?: string
@@ -1668,6 +1683,7 @@ export type Database = {
       }
     }
     Enums: {
+      exercise_technique: "normal" | "dropset" | "biset" | "restpause"
       consent_type:
         | "termos_uso"
         | "politica_privacidade"
@@ -1835,6 +1851,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      exercise_technique: ["normal", "dropset", "biset", "restpause"],
       consent_type: [
         "termos_uso",
         "politica_privacidade",

@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import ExerciseVideo from "@/components/exercise-video";
 import RestTimer from "@/components/rest-timer";
 import { btnPrimaryCls, btnSecondaryCls, inputCls } from "@/lib/ui";
 import { repsLabel, techniqueExplanation, type Technique } from "@/lib/workout-labels";
-import { finishSession, logSet, startSession } from "./actions";
+import { finishSession, logSet, resumeSession, startSession, type LoggedSet } from "./actions";
 
 export type ExecExercise = {
   workout_exercise_id: string;
@@ -27,14 +28,28 @@ export type ExecExercise = {
 
 type SetState = { reps: string; load: string; done: boolean; saving: boolean; error: string | null };
 
-function loadClientUuid(workoutId: string) {
-  const key = `workout-session:${workoutId}`;
-  if (typeof window === "undefined") return crypto.randomUUID();
-  const existing = window.localStorage.getItem(key);
-  if (existing) return existing;
-  const id = crypto.randomUUID();
-  window.localStorage.setItem(key, id);
-  return id;
+// O navegador guarda o identificador da sessão EM ANDAMENTO de cada treino, para retomar se a
+// página recarregar. Ele é apagado no check-out, então o próximo treino gera uma sessão nova.
+const storageKey = (workoutId: string) => `workout-session:${workoutId}`;
+
+function readStored(workoutId: string) {
+  try {
+    return window.localStorage.getItem(storageKey(workoutId));
+  } catch {
+    return null;
+  }
+}
+function writeStored(workoutId: string, value: string | null) {
+  try {
+    if (value) window.localStorage.setItem(storageKey(workoutId), value);
+    else window.localStorage.removeItem(storageKey(workoutId));
+  } catch {
+    // navegador sem armazenamento (ex.: aba anônima restrita): só não dá para retomar
+  }
+}
+
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo", hour: "2-digit", minute: "2-digit" });
 }
 
 export default function ExecuteWorkout({
@@ -46,8 +61,13 @@ export default function ExecuteWorkout({
   workoutName: string;
   exercises: ExecExercise[];
 }) {
+  const router = useRouter();
+  const [phase, setPhase] = useState<"carregando" | "checkin" | "treino">("carregando");
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [startedAt, setStartedAt] = useState<string | null>(null);
   const [sessionError, setSessionError] = useState<string | null>(null);
+  const [checkingIn, setCheckingIn] = useState(false);
+  const [finishing, setFinishing] = useState(false);
   const [finishError, setFinishError] = useState<string | null>(null);
   const [current, setCurrent] = useState(0);
   const [restSeconds, setRestSeconds] = useState<number | null>(null);
@@ -68,22 +88,80 @@ export default function ExecuteWorkout({
     ),
   );
 
+  // Marca como feitas as séries que já estavam gravadas no banco (ao retomar um treino).
+  function applyLoggedSets(logged: LoggedSet[]) {
+    setSetsByExercise((prev) => {
+      const next = { ...prev };
+      for (const l of logged) {
+        const arr = next[l.workout_exercise_id];
+        if (!arr || !arr[l.set_number - 1]) continue;
+        next[l.workout_exercise_id] = arr.map((st, i) =>
+          i === l.set_number - 1
+            ? {
+                ...st,
+                done: true,
+                reps: l.reps_done === null ? st.reps : String(l.reps_done),
+                load: l.load_kg === null ? st.load : String(l.load_kg),
+              }
+            : st,
+        );
+      }
+      return next;
+    });
+  }
+
+  // Ao abrir: se há um treino em andamento neste navegador, retoma; senão, mostra o check-in.
   useEffect(() => {
-    const clientUuid = loadClientUuid(workoutId);
-    startSession(workoutId, clientUuid)
+    const stored = readStored(workoutId);
+    (stored ? resumeSession(stored) : Promise.resolve({} as Awaited<ReturnType<typeof resumeSession>>))
       .then((res) => {
-        if (res.error) setSessionError(res.error);
-        else if (res.sessionId) setSessionId(res.sessionId);
+        if (res.error) {
+          setSessionError(res.error);
+          setPhase("checkin");
+        } else if (res.sessionId) {
+          setSessionId(res.sessionId);
+          setStartedAt(res.startedAt ?? null);
+          applyLoggedSets(res.sets ?? []);
+          setPhase("treino");
+        } else {
+          if (stored) writeStored(workoutId, null); // sessão antiga já finalizada: não reaproveita
+          setPhase("checkin");
+        }
       })
       .catch((err) => {
-        console.error("startSession falhou:", err);
-        setSessionError("Não foi possível iniciar o treino. Verifique sua conexão e recarregue a página.");
+        console.error("resumeSession falhou:", err);
+        setSessionError("Falha de conexão. Verifique sua internet e recarregue a página.");
+        setPhase("checkin");
       });
   }, [workoutId]);
 
+  // CHECK-IN: registra data e horário de entrada.
+  async function handleCheckin() {
+    setSessionError(null);
+    setCheckingIn(true);
+    // Reaproveita o identificador se a tentativa anterior falhou: assim não duplica a sessão.
+    const clientUuid = readStored(workoutId) ?? crypto.randomUUID();
+    writeStored(workoutId, clientUuid);
+    try {
+      const res = await startSession(workoutId, clientUuid);
+      if (res.error || !res.sessionId) {
+        setSessionError(res.error ?? "Não foi possível fazer o check-in.");
+        if (res.error?.includes("já foi finalizado")) writeStored(workoutId, null);
+        return;
+      }
+      setSessionId(res.sessionId);
+      setStartedAt(res.startedAt ?? null);
+      setPhase("treino");
+    } catch (err) {
+      console.error("startSession falhou:", err);
+      setSessionError("Falha de conexão ao fazer o check-in. Tente novamente.");
+    } finally {
+      setCheckingIn(false);
+    }
+  }
+
   const exercise = exercises[current];
   const sets = setsByExercise[exercise.workout_exercise_id];
-  const allDoneHere = sets.every((s) => s.done);
   const explanation = techniqueExplanation(exercise.technique, exercise.technique_detail);
 
   const totalSets = useMemo(() => exercises.reduce((acc, e) => acc + e.sets, 0), [exercises]);
@@ -148,16 +226,65 @@ export default function ExecuteWorkout({
 
   const isLast = current === exercises.length - 1;
 
-  async function handleFinish(formData: FormData) {
+  // CHECK-OUT: registra o horário de saída. Só sai da tela depois que o banco confirmar.
+  async function handleFinish() {
+    if (!sessionId) return;
+    if (
+      doneSets < totalSets &&
+      !confirm(`Você concluiu ${doneSets} de ${totalSets} séries. Fazer o check-out e finalizar o treino mesmo assim?`)
+    ) {
+      return;
+    }
     setFinishError(null);
+    setFinishing(true);
     try {
-      // Em caso de sucesso o servidor redireciona para o histórico; só volta aqui se deu erro.
-      const res = await finishSession(formData);
-      if (res?.error) setFinishError(res.error);
+      const res = await finishSession(sessionId);
+      if (res.error) {
+        setFinishError(res.error);
+        setFinishing(false);
+        return;
+      }
+      writeStored(workoutId, null);
+      router.push("/aluno/treinos/historico?concluido=1");
     } catch (err) {
       console.error("finishSession falhou:", err);
-      setFinishError("Não foi possível finalizar o treino. Tente novamente.");
+      setFinishError("Falha de conexão ao fazer o check-out. Tente novamente.");
+      setFinishing(false);
     }
+  }
+
+  if (phase !== "treino") {
+    return (
+      <div className="space-y-4">
+        <Link href={`/aluno/treinos/${workoutId}`} className="text-sm text-zinc-500 underline">
+          ← Voltar
+        </Link>
+        <div className="space-y-1 rounded-xl border border-zinc-200 p-5 text-center dark:border-zinc-800">
+          <p className="text-xs uppercase tracking-wide text-zinc-500">Treino de hoje</p>
+          <h1 className="text-2xl font-bold">{workoutName}</h1>
+          <p className="text-sm text-zinc-500">
+            {exercises.length} {exercises.length === 1 ? "exercício" : "exercícios"} · {totalSets} séries
+          </p>
+        </div>
+        {sessionError && (
+          <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">
+            {sessionError}
+          </p>
+        )}
+        {phase === "carregando" ? (
+          <p className="text-center text-sm text-zinc-500">Carregando...</p>
+        ) : (
+          <>
+            <button type="button" onClick={handleCheckin} disabled={checkingIn} className={btnPrimaryCls}>
+              {checkingIn ? "Registrando..." : "Fazer check-in"}
+            </button>
+            <p className="text-center text-xs text-zinc-500">
+              O check-in registra o horário de entrada. No fim, faça o check-out para registrar a saída.
+            </p>
+          </>
+        )}
+      </div>
+    );
   }
 
   return (
@@ -166,7 +293,8 @@ export default function ExecuteWorkout({
         <Link href={`/aluno/treinos/${workoutId}`} className="text-sm text-zinc-500 underline">
           ← Sair do treino
         </Link>
-        <p className="text-sm text-zinc-500">
+        <p className="text-right text-sm text-zinc-500">
+          {startedAt && <span className="block text-xs">Check-in às {formatTime(startedAt)}</span>}
           {doneSets} de {totalSets} séries
         </p>
       </div>
@@ -179,11 +307,6 @@ export default function ExecuteWorkout({
       {finishError && (
         <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">
           {finishError}
-        </p>
-      )}
-      {!sessionId && !sessionError && (
-        <p className="rounded-lg bg-zinc-100 px-3 py-2 text-sm text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
-          Preparando o treino...
         </p>
       )}
 
@@ -263,12 +386,14 @@ export default function ExecuteWorkout({
           ← Anterior
         </button>
         {isLast ? (
-          <form action={handleFinish} className="flex-1">
-            <input type="hidden" name="session_id" value={sessionId ?? ""} />
-            <button type="submit" disabled={!sessionId || !allDoneHere} className={`${btnPrimaryCls} disabled:opacity-50`}>
-              Finalizar treino
-            </button>
-          </form>
+          <button
+            type="button"
+            onClick={handleFinish}
+            disabled={!sessionId || finishing}
+            className={`${btnPrimaryCls} flex-1 disabled:opacity-50`}
+          >
+            {finishing ? "Finalizando..." : "Finalizar treino / Check-out"}
+          </button>
         ) : (
           <button type="button" onClick={goNext} className={`${btnPrimaryCls} flex-1`}>
             Próximo exercício →

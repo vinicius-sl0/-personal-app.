@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth";
 import { btnPrimaryCls, btnSecondaryCls, errorCls } from "@/lib/ui";
 import { PLAN_STATUS_LABEL } from "@/lib/workout-labels";
 import { formatDate } from "@/lib/assessment";
+import { trainingDaysText } from "@/lib/attendance";
 
 export const metadata = { title: "Aluno" };
 
@@ -26,7 +27,7 @@ export default async function AlunoDetalhePage({
 
   const { data: student } = await supabase
     .from("students")
-    .select("id, full_name, email, phone, status, goal")
+    .select("id, full_name, email, phone, status, goal, training_days")
     .eq("id", id)
     .maybeSingle();
 
@@ -86,6 +87,28 @@ export default async function AlunoDetalhePage({
         <span>
           <span className="font-semibold">Fotos de evolução</span>
           <span className="block text-sm text-zinc-500">Antes e depois, por data e ângulo</span>
+        </span>
+        <span aria-hidden className="text-zinc-400">→</span>
+      </Link>
+
+      <Link
+        href={`/personal/alunos/${id}/frequencia`}
+        className="flex items-center justify-between gap-3 rounded-xl border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+      >
+        <span>
+          <span className="font-semibold">Frequência (check-in / check-out)</span>
+          <span className="block text-sm text-zinc-500">{trainingDaysText(student.training_days)}</span>
+        </span>
+        <span aria-hidden className="text-zinc-400">→</span>
+      </Link>
+
+      <Link
+        href={`/personal/alunos/${id}/feedback`}
+        className="flex items-center justify-between gap-3 rounded-xl border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+      >
+        <span>
+          <span className="font-semibold">Feedback semanal</span>
+          <span className="block text-sm text-zinc-500">Como foi cada semana, com sua resposta</span>
         </span>
         <span aria-hidden className="text-zinc-400">→</span>
       </Link>

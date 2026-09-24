@@ -81,6 +81,16 @@ rodar comandos locais aplica no banco.
   YouTube (via `youtube-nocookie.com`, para privacidade); outros hosts abrem em nova aba.
 - **Idempotência da sessão de treino**: `workout_sessions.client_uuid` (gerado e guardado no
   `localStorage` do navegador) evita duplicar sessão se a página recarregar no meio do treino.
+  A chave é apagada no check-out, e `startSession`/`resumeSession` nunca reaproveitam sessão
+  já finalizada (bug antigo corrigido: antes o mesmo treino reusava a sessão da semana anterior).
+- **Nomenclatura (definida pelo Personal)**: TREINO = fichas + exercícios + vídeos +
+  **check-in/check-out diário** (cada `workout_sessions` é um ponto: `started_at` = check-in,
+  `finished_at` = check-out). AVALIAÇÃO = antropométrica + composição corporal. **FEEDBACK
+  SEMANAL** = questionário semanal (tabela `weekly_checkins` — o nome da tabela ficou antigo,
+  na interface é sempre "Feedback"). Não chame o feedback de "check-in" na interface.
+- **Dias de treino combinados** (`students.training_days`, ISO 1=seg…7=dom) são definidos só
+  pelo Personal (trigger `students_guard` bloqueia o aluno). Dia combinado sem sessão
+  concluída = "Não foi"; treino em dia não combinado = "extra".
 
 ## O que já está pronto e testado manualmente
 
@@ -95,7 +105,18 @@ rodar comandos locais aplica no banco.
   anterior automaticamente — regra no banco, trigger `plans_before_write`).
 - Execução do treino pelo aluno: um exercício por vez, vídeo, instruções, explicação da
   técnica, registro de série (reps/carga) com confirmação real no banco, cronômetro de
-  descanso, histórico, finalizar sessão.
+  descanso, histórico. Tela de **check-in** antes do treino e botão **Finalizar treino /
+  Check-out** (pede confirmação se faltam séries); ao recarregar, retoma a sessão em andamento
+  com as séries já gravadas.
+- Frequência (`/personal/frequencia`, `/personal/alunos/[id]/frequencia`, lógica em
+  `lib/attendance.ts`): folha de ponto semanal (Dia/Treino/Check-in/Check-out/Status), resumo
+  "X de Y dias combinados", navegação por semana, editor de dias combinados. O aluno vê a
+  semana dele no histórico de treinos. Fuso fixo `America/Sao_Paulo` (-03:00).
+- Feedback semanal (`/aluno/feedback`, `/personal/feedback`, `/personal/alunos/[id]/feedback`;
+  `lib/feedback.ts`): escalas 1–5 (sentiu nos treinos, disposição, alimentação, progresso) +
+  dificuldades, dor, observações. Aluno edita até o Personal responder (regra no banco).
+  Colunas antigas (sono, estresse, treinos feitos) não são mais perguntadas, mas aparecem no
+  histórico se tiverem valor. Endereços antigos `/…/checkin(s)` redirecionam (`next.config.ts`).
 - Avaliação física: Personal registra/edita/exclui avaliações por protocolo; IMC, RCQ, massa
   gorda/magra calculados no servidor; gráficos de evolução por medida; aluno vê só leitura.
   Usa o catálogo de métricas do seed (ficha real do Personal ainda não recebida).
@@ -115,18 +136,19 @@ rodar comandos locais aplica no banco.
   fuso fixo `America/Sao_Paulo`. Limitação: a bolinha de não lida no menu só atualiza ao
   abrir conversa/recarregar. Imagem/áudio ainda não (bucket `chat-attachments` já existe).
 - Banco de dados completo (32 tabelas), RLS em 100% das tabelas, 08_testes_permissoes.sql com
-  122 testes passando (isolamento entre alunos, entre Personal e aluno, consentimento
+  128 testes (6 novos da migração 20260923000001) (isolamento entre alunos, entre Personal e aluno, consentimento
   controlando acesso a fotos, etc.). **Rode o 08 de novo sempre que alterar RLS ou triggers.**
 
 ## Pendentes do escopo original
 
-Imagem/áudio no chat, feedback semanal (check-in),
-central de notificações (tabela existe, sem tela), landing page final, PWA/offline, textos
+Imagem/áudio no chat, central de notificações (tabela existe, sem tela), landing page final, PWA/offline, textos
 legais definitivos (Termos e Privacidade hoje são placeholders — e agora o app guarda fotos
 do corpo dos alunos e mensagens, então a Política precisa cobrir isso; avisar sempre que for
 relevante).
-Também pendente: regenerar `src/types/database.types.ts` (está sem `technique_detail`, gera
-44 erros de tipo que não quebram o app).
+`src/types/database.types.ts` foi ajustado à mão para bater com a migração 20260923000001
+(e com `technique_detail`); regenerar com o comando oficial deve dar o mesmo resultado.
+Pequenos pendentes: cadastro de aluno novo ainda não pede os dias de treino (define-se na
+Frequência); `rest-timer.tsx` tem um erro antigo de lint (`set-state-in-effect`).
 
 ## Convenções ao gerar código
 

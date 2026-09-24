@@ -10,7 +10,12 @@ export default async function PersonalLayout({
   children: React.ReactNode;
 }) {
   const profile = await requireRole("personal");
-  const hasUnread = (await unreadConversationIds(await createClient(), profile.id)).size > 0;
+  const supabase = await createClient();
+  const [unread, { count: pendingFeedbacks }] = await Promise.all([
+    unreadConversationIds(supabase, profile.id),
+    supabase.from("weekly_checkins").select("id", { count: "exact", head: true }).is("replied_at", null),
+  ]);
+  const hasUnread = unread.size > 0;
 
   return (
     <div className="min-h-dvh">
@@ -26,7 +31,7 @@ export default async function PersonalLayout({
             </button>
           </form>
         </div>
-        <nav className="mx-auto mt-3 flex w-full max-w-3xl gap-4 text-sm">
+        <nav className="mx-auto mt-3 flex w-full max-w-3xl flex-wrap gap-x-4 gap-y-2 text-sm">
           <Link href="/personal" className="underline-offset-4 hover:underline">
             Início
           </Link>
@@ -35,6 +40,15 @@ export default async function PersonalLayout({
           </Link>
           <Link href="/personal/exercicios" className="underline-offset-4 hover:underline">
             Exercícios
+          </Link>
+          <Link href="/personal/frequencia" className="underline-offset-4 hover:underline">
+            Frequência
+          </Link>
+          <Link href="/personal/feedback" className="underline-offset-4 hover:underline">
+            Feedback
+            {!!pendingFeedbacks && (
+              <span className="ml-1 rounded-full bg-amber-500 px-1.5 text-xs font-semibold text-white">{pendingFeedbacks}</span>
+            )}
           </Link>
           <Link href="/personal/mensagens" className="underline-offset-4 hover:underline">
             Mensagens
