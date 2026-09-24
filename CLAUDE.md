@@ -105,16 +105,26 @@ rodar comandos locais aplica no banco.
   banco via Server Action; URLs assinadas de 1h; comparação antes/depois. **Só o aluno exclui
   fotos** (regra da RLS/Storage). Se o envio do Personal falhar depois do upload, o arquivo
   fica órfão no bucket (o Personal não tem permissão de apagar) — aceito por ora.
+- Chat Personal↔aluno, só texto (`/aluno/mensagens`, `/personal/mensagens`,
+  `/personal/alunos/[id]/mensagens`, componente `chat-room.tsx`): tempo real via Realtime
+  (`postgres_changes` em `messages`), ressincroniza ao reconectar/voltar ao app. Id da
+  mensagem gerado no navegador → "Tentar de novo" não duplica (23505 = já gravada).
+  "Enviando..." até o banco confirmar. Apagar = soft delete do banco. Leitura em
+  `conversation_reads` gravada com `conversations.last_message_at` (relógio do banco, não do
+  servidor); abrir a conversa também marca como lido o aviso `nova_mensagem`. Horários com
+  fuso fixo `America/Sao_Paulo`. Limitação: a bolinha de não lida no menu só atualiza ao
+  abrir conversa/recarregar. Imagem/áudio ainda não (bucket `chat-attachments` já existe).
 - Banco de dados completo (32 tabelas), RLS em 100% das tabelas, 08_testes_permissoes.sql com
   122 testes passando (isolamento entre alunos, entre Personal e aluno, consentimento
   controlando acesso a fotos, etc.). **Rode o 08 de novo sempre que alterar RLS ou triggers.**
 
 ## Pendentes do escopo original
 
-Chat Personal↔aluno (tabelas já existem, Realtime habilitado), feedback semanal (check-in),
+Imagem/áudio no chat, feedback semanal (check-in),
 central de notificações (tabela existe, sem tela), landing page final, PWA/offline, textos
 legais definitivos (Termos e Privacidade hoje são placeholders — e agora o app guarda fotos
-do corpo dos alunos, então a Política precisa cobrir isso; avisar sempre que for relevante).
+do corpo dos alunos e mensagens, então a Política precisa cobrir isso; avisar sempre que for
+relevante).
 Também pendente: regenerar `src/types/database.types.ts` (está sem `technique_detail`, gera
 44 erros de tipo que não quebram o app).
 
