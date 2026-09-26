@@ -192,7 +192,7 @@ Pequeno pendente: `rest-timer.tsx` tem um erro antigo de lint (`set-state-in-eff
   `bg-subtle`/`bg-subtle-strong`. Não escreva `zinc-900`, `border-zinc-200 dark:...` etc. em
   código novo. Cores de STATUS (verde/âmbar/vermelho) e cinzas neutros decorativos podem ficar
   fixos. Hoje os tokens têm os valores da paleta zinc (visual neutro provisório).
-- **Sistema visual (redesign em fases, Fase 1 feita)**: identidade PRETO + LARANJA, pensada
+- **Sistema visual (redesign em fases; Fases 1, 2 e 3 feitas)**: identidade PRETO + LARANJA, pensada
   primeiro no escuro; o claro segue o sistema do aparelho (decisão do usuário). Botão laranja
   usa texto PRETO (branco não passa contraste); texto laranja usa `text-brand-ink`. Menu
   lateral e painéis de marca usam a classe `.theme-dark` (sempre escuros). Componentes em
@@ -208,6 +208,11 @@ Pequeno pendente: `rest-timer.tsx` tem um erro antigo de lint (`set-state-in-eff
   `draft: true` mostra faixa de "página em construção". NUNCA publicar resultados/depoimentos
   inventados; fotos de alunos só com consentimento `uso_imagem_marketing`. Contatos null = botão
   não aparece. Carrossel em `components/landing/results-carousel.tsx`.
+- **Dashboards (Fase 2)**: `personal/page.tsx` (6 indicadores, gráfico de treinos concluídos
+  por dia em 28 dias, "Precisa da sua atenção", situação da semana por aluno, treinos e
+  avaliações recentes) e `aluno/page.tsx` (treino de hoje/próximo na sequência A→B→C com
+  check-in, semana em 7 dias, última avaliação com variação e mini gráfico do peso, feedback,
+  mensagens, ficha). Gráficos Recharts em `components/charts/` (dica ao tocar + "Ver em tabela").
 - **Login**: estados de campo inválido/carregando/erro/sucesso; "Esqueci minha senha" em
   `/recuperar-senha` → e-mail do Supabase → `/auth/confirm` (troca o código por sessão) →
   `/redefinir-senha`. Exige a URL `…/auth/confirm` liberada em Supabase → Authentication →
