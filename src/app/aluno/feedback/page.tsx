@@ -6,6 +6,7 @@ import { errorCls } from "@/lib/ui";
 import FeedbackAnswers from "@/components/feedback-answers";
 import WeekPhotos, { groupSetsByWeek } from "@/components/week-photos";
 import CurrentFeedback from "./current-feedback";
+import { PageHeader } from "@/components/ui/page-header";
 import WeeklyPhotos from "./weekly-photos";
 
 export const metadata = { title: "Feedback semanal" };
@@ -39,12 +40,11 @@ export default async function FeedbackPage() {
 
   return (
     <section className="space-y-4">
-      <div>
-        <h1 className="text-xl font-bold">Feedback semanal</h1>
-        <p className="text-sm text-muted">
-          {formatWeek(weekStart)}. Leva 1 minuto e ajuda seu Personal a ajustar seu treino.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow={formatWeek(weekStart)}
+        title="Feedback semanal"
+        description="Leva 1 minuto e ajuda seu Personal a ajustar seu treino."
+      />
 
       {error && <p className={errorCls}>Não foi possível carregar seus feedbacks: {error.message}</p>}
 

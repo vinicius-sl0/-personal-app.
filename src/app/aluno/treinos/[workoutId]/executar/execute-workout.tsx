@@ -16,6 +16,7 @@ export type ExecExercise = {
   name: string;
   instructions: string | null;
   video_url: string | null;
+  image_url: string | null; // imagem do exercício (link temporário)
   sets: number;
   reps_min: number | null;
   reps_max: number | null;
@@ -426,6 +427,12 @@ export default function ExecuteWorkout({
           <div className="overflow-hidden rounded-2xl border border-line">
             <ExerciseVideo url={exercise.video_url} />
           </div>
+        )}
+        {exercise.image_url && (
+          <a href={exercise.image_url} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded-2xl border border-line bg-subtle">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={exercise.image_url} alt={`Imagem de ${exercise.name}`} className="max-h-80 w-full object-contain" />
+          </a>
         )}
 
         {explanation && (

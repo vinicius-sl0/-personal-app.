@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { EXERCISE_IMAGE_POSITION, EXERCISE_MEDIA_BUCKET, exerciseImagePrefix } from "@/lib/exercise-media";
 
 export type ExerciseFormState = { error?: string };
 
@@ -218,4 +219,64 @@ export async function duplicateExercise(formData: FormData) {
 
   revalidatePath("/personal/exercicios");
   if (created) redirect(`/personal/exercicios/${created.id}`);
+}
+
+// ---------------------------------------------------------------------
+// Imagem do exercício (o navegador já enviou o arquivo ao Storage; aqui só registramos).
+// ---------------------------------------------------------------------
+const imageSchema = z.object({ exerciseId: z.uuid(), storagePath: z.string().min(1).max(300) });
+
+async function removeImageRows(supabase: Awaited<ReturnType<typeof createClient>>, exerciseId: string) {
+  const { data: old } = await supabase
+    .from("exercise_media")
+    .select("id, storage_path")
+    .eq("exercise_id", exerciseId)
+    .eq("kind", "imagem")
+    .eq("position", EXERCISE_IMAGE_POSITION);
+  const paths = (old ?? []).map((o) => o.storage_path).filter((p): p is string => !!p);
+  if (paths.length) {
+    const { error } = await supabase.storage.from(EXERCISE_MEDIA_BUCKET).remove(paths);
+    if (error) return { error: "Não foi possível apagar a imagem antiga: " + error.message };
+  }
+  if (old?.length) {
+    const { error } = await supabase.from("exercise_media").delete().in("id", old.map((o) => o.id));
+    if (error) return { error: "Não foi possível apagar a imagem antiga: " + error.message };
+  }
+  return {};
+}
+
+export async function saveExerciseImage(input: unknown): Promise<{ error?: string; ok?: boolean }> {
+  const profile = await requireRole("personal");
+  const parsed = imageSchema.safeParse(input);
+  if (!parsed.success) return { error: "Dados da imagem inválidos." };
+  const { exerciseId, storagePath } = parsed.data;
+  if (!storagePath.startsWith(exerciseImagePrefix(profile.id, exerciseId))) return { error: "Caminho de arquivo inválido." };
+
+  const supabase = await createClient();
+  const removed = await removeImageRows(supabase, exerciseId);
+  if (removed.error) return removed;
+
+  const { error } = await supabase.from("exercise_media").insert({
+    exercise_id: exerciseId,
+    kind: "imagem",
+    source: "upload",
+    storage_path: storagePath,
+    position: EXERCISE_IMAGE_POSITION,
+  });
+  if (error) return { error: "Não foi possível salvar a imagem: " + error.message };
+
+  revalidatePath(`/personal/exercicios/${exerciseId}`);
+  revalidatePath("/personal/exercicios");
+  return { ok: true };
+}
+
+export async function removeExerciseImage(exerciseId: string): Promise<{ error?: string; ok?: boolean }> {
+  await requireRole("personal");
+  if (!z.uuid().safeParse(exerciseId).success) return { error: "Exercício inválido." };
+  const supabase = await createClient();
+  const removed = await removeImageRows(supabase, exerciseId);
+  if (removed.error) return removed;
+  revalidatePath(`/personal/exercicios/${exerciseId}`);
+  revalidatePath("/personal/exercicios");
+  return { ok: true };
 }

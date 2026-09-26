@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { loadExerciseImages } from "@/lib/exercise-image-data";
 import { Play } from "lucide-react";
 import { btnPrimaryCls, cardCls } from "@/lib/ui";
 import { PageHeader } from "@/components/ui/page-header";
@@ -30,6 +31,10 @@ export default async function TreinoDetalhePage({
   const exercises = (workout.workout_exercises ?? []).slice().sort((a, b) => a.position - b.position);
 
   const totalSets = exercises.reduce((n, e) => n + e.sets, 0);
+  const images = await loadExerciseImages(
+    supabase,
+    exercises.map((e) => e.exercises?.id).filter((x): x is string => !!x),
+  );
 
   return (
     <div className="pb-28">
@@ -46,9 +51,14 @@ export default async function TreinoDetalhePage({
           return (
             <li key={we.id} className={`${cardCls} p-4`}>
               <div className="flex items-start gap-3">
-                <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-xl bg-subtle-strong text-sm font-bold text-soft">
-                  {i + 1}
-                </span>
+                {we.exercises?.id && images[we.exercises.id] ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={images[we.exercises.id]} alt="" className="size-14 shrink-0 rounded-xl bg-subtle object-cover" />
+                ) : (
+                  <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-xl bg-subtle-strong text-sm font-bold text-soft">
+                    {i + 1}
+                  </span>
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold">{we.exercises?.name}</p>
                   <ul className="mt-2 flex flex-wrap gap-1.5 text-xs">

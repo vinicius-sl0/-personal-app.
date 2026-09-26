@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { PageHeader } from "@/components/ui/page-header";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
@@ -25,13 +25,7 @@ export default async function NovasFotosAlunoPage({
 
   return (
     <section className="space-y-4">
-      <div>
-        <Link href={`/personal/alunos/${id}/fotos`} className="text-sm text-muted underline">
-          ← Voltar para Fotos
-        </Link>
-        <h1 className="mt-2 text-xl font-bold">Enviar fotos</h1>
-        <p className="text-sm text-muted">{student.full_name}</p>
-      </div>
+      <PageHeader back={{ href: `/personal/alunos/${id}/fotos`, label: "Fotos" }} title="Enviar fotos" description={student.full_name} />
       <PhotoUploadForm studentId={id} today={todayIso()} backHref={`/personal/alunos/${id}/fotos`} />
     </section>
   );

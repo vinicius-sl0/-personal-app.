@@ -29,7 +29,7 @@ export default async function ExerciciosPage({
   let query = supabase
     .from("exercises")
     .select(
-      "id, name, difficulty, is_archived, primary_muscle_group_id, equipment_id, muscle_groups!exercises_primary_muscle_group_id_fkey(name), equipment(name), exercise_media(id)",
+      "id, name, difficulty, is_archived, primary_muscle_group_id, equipment_id, muscle_groups!exercises_primary_muscle_group_id_fkey(name), equipment(name), exercise_media(id, kind)",
     )
     .eq("is_archived", arquivados === "1")
     .order("name");
@@ -91,9 +91,14 @@ export default async function ExerciciosPage({
                 </p>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1">
-                {ex.exercise_media?.length > 0 && (
-                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200">
+                {ex.exercise_media?.some((m) => m.kind === "video") && (
+                  <span className="rounded-full bg-emerald-500/12 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
                     Com vídeo
+                  </span>
+                )}
+                {ex.exercise_media?.some((m) => m.kind === "imagem") && (
+                  <span className="rounded-full bg-sky-500/12 px-2 py-0.5 text-xs font-medium text-sky-700 dark:text-sky-400">
+                    Com imagem
                   </span>
                 )}
                 {ex.is_archived && (

@@ -44,3 +44,14 @@ export async function unreadConversationIds(supabase: Supabase, userId: string) 
       .map((c) => c.id),
   );
 }
+
+// Até onde o OUTRO participante leu a conversa (para o status "Lida" das minhas mensagens).
+export async function loadOtherLastRead(supabase: Supabase, conversationId: string, myId: string) {
+  const { data } = await supabase
+    .from("conversation_reads")
+    .select("last_read_at")
+    .eq("conversation_id", conversationId)
+    .neq("user_id", myId)
+    .maybeSingle();
+  return data?.last_read_at ?? null;
+}

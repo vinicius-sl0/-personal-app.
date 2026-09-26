@@ -1,8 +1,10 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { updateExercise } from "../actions";
 import ExerciseForm from "../exercise-form";
+import ExerciseImageUploader from "./exercise-image-uploader";
+import { loadExerciseImages } from "@/lib/exercise-image-data";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = { title: "Editar exercício" };
 
@@ -29,17 +31,13 @@ export default async function EditarExercicioPage({
     ]);
 
   if (!exercise) notFound();
+  const images = await loadExerciseImages(supabase, [exercise.id]);
 
   const readOnly = !exercise.owner_id; // exercício global (não deveria existir mais, mas fica a proteção
 
   return (
     <section className="space-y-4">
-      <div>
-        <Link href="/personal/exercicios" className="text-sm text-muted underline">
-          ← Voltar
-        </Link>
-        <h1 className="mt-2 text-xl font-bold">Editar exercício</h1>
-      </div>
+      <PageHeader back={{ href: "/personal/exercicios", label: "Biblioteca de exercícios" }} eyebrow="Editar exercício" title={exercise.name} />
 
       {readOnly ? (
         <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
@@ -64,6 +62,9 @@ export default async function EditarExercicioPage({
           }}
           submitLabel="Salvar alterações"
         />
+      )}
+      {!readOnly && exercise.owner_id && (
+        <ExerciseImageUploader exerciseId={exercise.id} ownerId={exercise.owner_id} currentUrl={images[exercise.id] ?? null} />
       )}
     </section>
   );

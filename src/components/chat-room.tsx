@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { deleteMessage, fetchMessages, markConversationRead, sendMessage } from "@/lib/chat-actions";
+import { deleteMessage, fetchMessages, fetchOtherLastRead, markConversationRead, sendMessage } from "@/lib/chat-actions";
+import { Check, CheckCheck, Loader2, SendHorizontal } from "lucide-react";
 import { formatMessageTime, MESSAGE_MAX_LENGTH, type ChatMessage } from "@/lib/chat";
 import { btnSecondaryCls, errorCls, inputCls } from "@/lib/ui";
 
@@ -24,6 +25,7 @@ export default function ChatRoom({
   initialHasMore,
   canPost,
   cannotPostReason,
+  otherLastReadAt = null,
 }: {
   conversationId: string;
   myId: string;
@@ -32,6 +34,7 @@ export default function ChatRoom({
   initialHasMore: boolean;
   canPost: boolean;
   cannotPostReason?: string;
+  otherLastReadAt?: string | null; // até onde o outro participante leu (status "Lida")
 }) {
   const [messages, setMessages] = useState(initialMessages);
   const [pending, setPending] = useState<Pending[]>([]);
@@ -41,6 +44,13 @@ export default function ChatRoom({
   const [error, setError] = useState<string | null>(null);
   const [live, setLive] = useState<"conectando" | "ok" | "falhou">("conectando");
   const [selected, setSelected] = useState<string | null>(null);
+  const [otherRead, setOtherRead] = useState<string | null>(otherLastReadAt);
+  // "Hoje"/"Ontem" dos separadores de dia (calculado uma vez, ao abrir a conversa).
+  const [days] = useState(() => {
+    const fmt = (t: number) => new Date(t).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+    const now = Date.now();
+    return { today: fmt(now), yesterday: fmt(now - 86400000) };
+  });
 
   const router = useRouter();
   const listRef = useRef<HTMLDivElement>(null);
@@ -63,6 +73,8 @@ export default function ChatRoom({
       }
       setMessages((prev) => mergeMessages(prev, res.messages));
       markRead();
+      const read = await fetchOtherLastRead(conversationId);
+      if (!read.error) setOtherRead(read.lastRead);
     } catch (err) {
       console.error("resync:", err);
       setError("Falha de conexão ao atualizar as mensagens.");
@@ -85,6 +97,14 @@ export default function ChatRoom({
           setMessages((prev) => mergeMessages(prev, [m]));
           setPending((prev) => prev.filter((p) => p.id !== m.id));
           if (payload.eventType === "INSERT" && m.sender_id !== myId) markRead();
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "conversation_reads", filter: `conversation_id=eq.${conversationId}` },
+        (payload) => {
+          const r = payload.new as { user_id?: string; last_read_at?: string };
+          if (r?.user_id && r.user_id !== myId && r.last_read_at) setOtherRead(r.last_read_at);
         },
       );
 
@@ -210,16 +230,20 @@ export default function ChatRoom({
   }
 
   const bubble = (mine: boolean) =>
-    `max-w-[80%] whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-sm ${
-      mine
-        ? "self-end rounded-br-sm bg-brand text-brand-contrast"
-        : "self-start rounded-bl-sm bg-subtle-strong"
+    `max-w-[82%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 text-[15px] leading-snug shadow-sm ${
+      mine ? "self-end rounded-br-md bg-brand text-brand-contrast" : "self-start rounded-bl-md border border-line bg-subtle-strong text-ink"
     }`;
 
+  const readMs = otherRead ? new Date(otherRead).getTime() : 0;
+  const dayLabel = (iso: string) => {
+    const d = new Date(iso).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+    return d === days.today ? "Hoje" : d === days.yesterday ? "Ontem" : d;
+  };
+
   return (
-    <div className="flex h-[calc(100dvh-13rem)] min-h-80 flex-col gap-2">
+    <div className="flex h-[calc(100dvh-15rem)] min-h-96 flex-col overflow-hidden rounded-2xl border border-line bg-card lg:h-[calc(100dvh-16rem)]">
       {live === "falhou" && (
-        <div className="flex items-center justify-between gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+        <div className="flex items-center justify-between gap-2 border-b border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs text-amber-800 dark:text-amber-200">
           <span>Sem atualização automática no momento. Mensagens novas podem demorar a aparecer.</span>
           <button type="button" onClick={resync} className="shrink-0 font-semibold underline">
             Atualizar
@@ -227,7 +251,7 @@ export default function ChatRoom({
         </div>
       )}
       {error && (
-        <p role="alert" className={`${errorCls} flex items-start justify-between gap-2`}>
+        <p role="alert" className={`${errorCls} m-3 flex items-start justify-between gap-2`}>
           <span>{error}</span>
           <button type="button" onClick={() => setError(null)} aria-label="Fechar aviso" className="shrink-0 font-semibold">
             ×
@@ -235,49 +259,62 @@ export default function ChatRoom({
         </p>
       )}
 
-      <div
-        ref={listRef}
-        onScroll={onScroll}
-        className="flex flex-1 flex-col gap-2 overflow-y-auto rounded-xl border border-line p-3 bg-card"
-      >
+      <div ref={listRef} onScroll={onScroll} className="flex flex-1 flex-col gap-1.5 overflow-y-auto px-3 py-4 sm:px-5" aria-live="polite">
         {hasMore && (
-          <button type="button" onClick={loadOlder} disabled={loadingOlder} className={`${btnSecondaryCls} self-center !h-9 text-xs`}>
+          <button type="button" onClick={loadOlder} disabled={loadingOlder} className={`${btnSecondaryCls} mb-2 self-center !h-9 text-xs`}>
             {loadingOlder ? "Carregando..." : "Ver mensagens anteriores"}
           </button>
         )}
 
         {messages.length === 0 && pending.length === 0 && (
-          <p className="m-auto text-center text-sm text-muted">
-            Nenhuma mensagem ainda. Mande a primeira para {otherName}.
-          </p>
+          <p className="m-auto max-w-xs text-center text-sm text-muted">Nenhuma mensagem ainda. Mande a primeira para {otherName}.</p>
         )}
 
-        {messages.map((m) => {
+        {messages.map((m, i) => {
           const mine = m.sender_id === myId;
-          if (m.deleted_at) {
-            return (
-              <p key={m.id} className={`${bubble(mine)} italic opacity-60`}>
-                Mensagem apagada
-              </p>
-            );
-          }
+          const showDay = i === 0 || dayLabel(messages[i - 1].created_at) !== dayLabel(m.created_at);
+          const read = mine && readMs >= new Date(m.created_at).getTime();
           return (
-            <div key={m.id} className={`flex flex-col ${mine ? "items-end" : "items-start"}`}>
-              <button
-                type="button"
-                disabled={!mine}
-                onClick={() => setSelected((s) => (s === m.id ? null : m.id))}
-                className={`${bubble(mine)} text-left disabled:cursor-text`}
-              >
-                {m.body}
-                <span className={`mt-1 block text-[10px] ${mine ? "text-brand-contrast/70" : "text-muted"}`}>
-                  {formatMessageTime(m.created_at)}
-                </span>
-              </button>
-              {mine && selected === m.id && (
-                <button type="button" onClick={() => handleDelete(m.id)} className="mt-1 text-xs text-red-700 underline dark:text-red-400">
-                  Apagar mensagem
-                </button>
+            <div key={m.id} className="flex flex-col">
+              {showDay && (
+                <p className="my-3 self-center rounded-full bg-subtle px-3 py-1 text-[11px] font-medium text-muted">{dayLabel(m.created_at)}</p>
+              )}
+              {m.deleted_at ? (
+                <p className={`${bubble(mine)} italic opacity-60`}>Mensagem apagada</p>
+              ) : (
+                <div className={`flex flex-col ${mine ? "items-end" : "items-start"}`}>
+                  <button
+                    type="button"
+                    disabled={!mine}
+                    onClick={() => setSelected((s) => (s === m.id ? null : m.id))}
+                    className={`${bubble(mine)} text-left disabled:cursor-text`}
+                  >
+                    {m.body}
+                    <span className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${mine ? "text-brand-contrast/70" : "text-muted"}`}>
+                      {formatMessageTime(m.created_at)}
+                      {mine &&
+                        (read ? (
+                          <>
+                            <CheckCheck aria-hidden className="size-3.5" />
+                            <span className="sr-only">Lida</span>
+                          </>
+                        ) : (
+                          <>
+                            <Check aria-hidden className="size-3.5" />
+                            <span className="sr-only">Enviada</span>
+                          </>
+                        ))}
+                    </span>
+                  </button>
+                  {mine && selected === m.id && (
+                    <div className="mt-1 flex items-center gap-3 text-xs">
+                      <span className="text-muted">{read ? "Lida" : "Enviada — ainda não lida"}</span>
+                      <button type="button" onClick={() => handleDelete(m.id)} className="font-medium text-red-600 underline dark:text-red-400">
+                        Apagar mensagem
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           );
@@ -287,22 +324,22 @@ export default function ChatRoom({
           <div key={p.id} className="flex flex-col items-end">
             <p className={`${bubble(true)} opacity-70`}>
               {p.body}
-              <span className="mt-1 block text-[10px] text-brand-contrast/70">
-                {p.error ? "Não enviada" : "Enviando..."}
+              <span className="mt-1 flex items-center justify-end gap-1 text-[10px] text-brand-contrast/70">
+                {p.error ? "Não enviada" : (
+                  <>
+                    <Loader2 aria-hidden className="size-3 animate-spin" /> Enviando...
+                  </>
+                )}
               </span>
             </p>
             {p.error && (
-              <div className="mt-1 max-w-[80%] space-y-1 text-right text-xs">
+              <div className="mt-1 max-w-[82%] space-y-1 text-right text-xs">
                 <p className="text-red-700 dark:text-red-400">{p.error}</p>
                 <button type="button" onClick={() => deliver(p)} className="font-semibold underline">
                   Tentar de novo
                 </button>{" "}
                 ·{" "}
-                <button
-                  type="button"
-                  onClick={() => setPending((prev) => prev.filter((x) => x.id !== p.id))}
-                  className="underline"
-                >
+                <button type="button" onClick={() => setPending((prev) => prev.filter((x) => x.id !== p.id))} className="underline">
                   Descartar
                 </button>
               </div>
@@ -312,28 +349,34 @@ export default function ChatRoom({
       </div>
 
       {canPost ? (
-        <form onSubmit={handleSend} className="flex items-end gap-2">
+        <form onSubmit={handleSend} className="flex items-end gap-2 border-t border-line bg-surface/60 p-3">
           <textarea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              // Computador: Enter envia, Shift+Enter quebra linha.
+              if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer: fine)").matches) {
+                e.preventDefault();
+                e.currentTarget.form?.requestSubmit();
+              }
+            }}
             maxLength={MESSAGE_MAX_LENGTH}
             rows={1}
             placeholder="Escreva uma mensagem"
             aria-label="Mensagem"
-            className={`${inputCls} !h-auto max-h-32 min-h-12 resize-none py-3`}
+            className={`${inputCls} !h-auto max-h-32 min-h-12 resize-none rounded-2xl py-3`}
           />
           <button
             type="submit"
             disabled={!draft.trim()}
-            className="h-12 shrink-0 rounded-lg bg-brand px-4 text-sm font-semibold text-brand-contrast disabled:opacity-50"
+            aria-label="Enviar"
+            className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand text-brand-contrast transition hover:bg-brand-hover active:scale-95 disabled:opacity-40"
           >
-            Enviar
+            <SendHorizontal aria-hidden className="size-5" />
           </button>
         </form>
       ) : (
-        <p className="rounded-lg bg-zinc-100 px-3 py-2 text-sm text-soft dark:bg-zinc-900">
-          {cannotPostReason ?? "Não é possível enviar mensagens nesta conversa."}
-        </p>
+        <p className="border-t border-line bg-subtle px-4 py-3 text-sm text-soft">{cannotPostReason ?? "Não é possível enviar mensagens nesta conversa."}</p>
       )}
     </div>
   );

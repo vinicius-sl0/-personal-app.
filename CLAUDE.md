@@ -169,7 +169,7 @@ rodar comandos locais aplica no banco.
   para o pré-carregamento não marcar como lido sozinho. Sem lembrete agendado de feedback
   (precisaria de pg_cron) e sem push com o app fechado (etapa PWA).
 - Banco de dados completo (32 tabelas), RLS em 100% das tabelas, 08_testes_permissoes.sql com
-  134 testes (inclui os das migrações 20260923000001, 20260925000001 e 20260925000002) (isolamento entre alunos, entre Personal e aluno, consentimento
+  137 testes (inclui os das migrações 20260923000001, 20260925000001, 20260925000002 e 20260926000001) (isolamento entre alunos, entre Personal e aluno, consentimento
   controlando acesso a fotos, etc.). **Rode o 08 de novo sempre que alterar RLS ou triggers.**
 
 ## Pendentes do escopo original
@@ -192,7 +192,7 @@ relevante).
   `bg-subtle`/`bg-subtle-strong`. Não escreva `zinc-900`, `border-zinc-200 dark:...` etc. em
   código novo. Cores de STATUS (verde/âmbar/vermelho) e cinzas neutros decorativos podem ficar
   fixos. Tokens também para `bg-card`, `border-field` (campos), `text-brand-ink`, `bg-brand-soft`.
-- **Sistema visual (redesign em fases; Fases 1 a 5 feitas)**: identidade PRETO + LARANJA, pensada
+- **Sistema visual (redesign em fases; Fases 1 a 6 feitas)**: identidade PRETO + LARANJA, pensada
   primeiro no escuro; o claro segue o sistema do aparelho (decisão do usuário). Botão laranja
   usa texto PRETO (branco não passa contraste); texto laranja usa `text-brand-ink`. Menu
   lateral e painéis de marca usam a classe `.theme-dark` (sempre escuros). Componentes em
@@ -229,6 +229,17 @@ relevante).
   semanas) / mensal (6 meses) de séries, reps, kg, calorias ≈ e treinos (`computeTrend` +
   `lib/volume-trends-data.ts`, usado também pela página Evolução do aluno, que mostra
   composição corporal com período único, medidas e frequência/volume/calorias).
+- **Fase 6**: fotos com comparador "Antes x Depois" deslizante (`before-after-slider.tsx`,
+  por baixo é um `<input type="range">` — teclado/leitor de tela) + modo lado a lado; chat com
+  status ✓ Enviada / ✓✓ Lida (migração 20260926000001: participantes veem a
+  `conversation_reads` um do outro + Realtime nessa tabela; `loadOtherLastRead`), separadores
+  de dia, Enter envia no computador, lista de conversas com prévia; Feedback do Personal com
+  indicadores (médias 1–5 das últimas 4 semanas, "Pedem atenção": dor ou nota ≤2). **Imagem
+  do exercício**: sem migração — `exercise_media` kind `imagem`, source `upload`, position 1
+  (vídeo é a 0), bucket privado `exercise-media` em `{owner_id}/{exercise_id}/arquivo`
+  (`lib/exercise-media.ts`); upload na edição do exercício (compressão em
+  `lib/image-compress.ts`, compartilhada com as fotos); aluno vê na execução e no detalhe do
+  treino via `loadExerciseImages` (links de 1 h).
 - **Login**: estados de campo inválido/carregando/erro/sucesso; "Esqueci minha senha" em
   `/recuperar-senha` → e-mail do Supabase → `/auth/confirm` (troca o código por sessão) →
   `/redefinir-senha`. Exige a URL `…/auth/confirm` liberada em Supabase → Authentication →

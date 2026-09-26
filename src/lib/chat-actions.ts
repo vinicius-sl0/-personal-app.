@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { loadMessages } from "@/lib/chat-data";
+import { loadMessages, loadOtherLastRead } from "@/lib/chat-data";
 import { MESSAGE_COLUMNS, MESSAGE_MAX_LENGTH, type ChatMessage } from "@/lib/chat";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
@@ -124,4 +124,13 @@ export async function fetchMessages(
   }
   const supabase = await createClient();
   return loadMessages(supabase, conversationId, before);
+}
+
+// Status "Lida": até onde o outro participante leu (usado ao reconectar/voltar ao app).
+export async function fetchOtherLastRead(conversationId: string): Promise<{ lastRead: string | null; error?: string }> {
+  const { profile } = await getSession();
+  if (!profile) return { lastRead: null, error: "Sua sessão expirou. Entre novamente." };
+  if (!z.uuid().safeParse(conversationId).success) return { lastRead: null, error: "Conversa não encontrada." };
+  const supabase = await createClient();
+  return { lastRead: await loadOtherLastRead(supabase, conversationId, profile.id) };
 }

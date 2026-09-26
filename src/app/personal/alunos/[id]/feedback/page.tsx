@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
@@ -7,6 +6,7 @@ import { hasPhotoConsent, loadPhotoSets } from "@/lib/photo-data";
 import { errorCls } from "@/lib/ui";
 import FeedbackAnswers from "@/components/feedback-answers";
 import FeedbackReplyForm from "@/components/feedback-reply-form";
+import { PageHeader } from "@/components/ui/page-header";
 import WeekPhotos, { groupSetsByWeek } from "@/components/week-photos";
 
 export const metadata = { title: "Feedback do aluno" };
@@ -42,15 +42,12 @@ export default async function FeedbackAlunoPage({
 
   return (
     <section className="space-y-4">
-      <div>
-        <Link href={`/personal/alunos/${id}`} className="text-sm text-muted underline">
-          ← Voltar para {student.full_name}
-        </Link>
-        <h1 className="mt-2 text-xl font-bold">Feedback semanal</h1>
-        {!error && !sentThisWeek && (
-          <p className="text-sm text-muted">O feedback desta semana ainda não foi enviado.</p>
-        )}
-      </div>
+      <PageHeader
+        back={{ href: `/personal/alunos/${id}`, label: student.full_name }}
+        eyebrow="Feedback semanal"
+        title={student.full_name}
+        description={!error && !sentThisWeek ? "O feedback desta semana ainda não foi enviado." : undefined}
+      />
 
       {error && <p className={errorCls}>Não foi possível carregar os feedbacks: {error.message}</p>}
       {photos.error && <p className={errorCls}>Não foi possível carregar as fotos: {photos.error}</p>}

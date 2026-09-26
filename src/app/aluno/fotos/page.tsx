@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { hasPhotoConsent, loadPhotoSets } from "@/lib/photo-data";
 import { btnPrimaryCls, errorCls } from "@/lib/ui";
 import PhotoGallery from "@/components/photo-gallery";
+import { PageHeader } from "@/components/ui/page-header";
 import ConsentToggle from "@/components/photo-consent-toggle";
 
 export const metadata = { title: "Minhas fotos" };
@@ -23,7 +24,12 @@ export default async function MinhasFotosPage() {
 
   return (
     <section className="space-y-4">
-      <h1 className="text-xl font-bold">Fotos de evolução</h1>
+      <PageHeader
+        eyebrow="Evolução"
+        title="Fotos de progresso"
+        description="Frente, costas e lados. Compare antes e depois arrastando a divisória."
+        back={{ href: "/aluno/evolucao", label: "Evolução" }}
+      />
 
       <div className="space-y-3 rounded-xl border border-line p-4 text-sm bg-card">
         {consent.error ? (

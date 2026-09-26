@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { loadExerciseImages } from "@/lib/exercise-image-data";
 import ExecuteWorkout, { type ExecExercise } from "./execute-workout";
 import type { Technique } from "@/lib/workout-labels";
 
@@ -34,6 +35,7 @@ export default async function ExecutarTreinoPage({
         name: we.exercises?.name ?? "Exercício",
         instructions: we.exercises?.instructions ?? null,
         video_url: video?.url ?? null,
+        image_url: null,
         sets: we.sets,
         reps_min: we.reps_min,
         reps_max: we.reps_max,
@@ -48,5 +50,9 @@ export default async function ExecutarTreinoPage({
 
   if (exercises.length === 0) notFound();
 
-  return <ExecuteWorkout workoutId={workoutId} workoutName={workout.name} exercises={exercises} />;
+  // Imagens dos exercícios (links temporários; a regra do Storage libera só os do treino do aluno).
+  const images = await loadExerciseImages(supabase, exercises.map((e) => e.exercise_id));
+  const withImages = exercises.map((e) => ({ ...e, image_url: images[e.exercise_id] ?? null }));
+
+  return <ExecuteWorkout workoutId={workoutId} workoutName={workout.name} exercises={withImages} />;
 }

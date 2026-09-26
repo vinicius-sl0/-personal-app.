@@ -2,7 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
-import { loadMessages } from "@/lib/chat-data";
+import { loadMessages, loadOtherLastRead } from "@/lib/chat-data";
+import { ArrowLeft } from "lucide-react";
+import { Avatar } from "@/components/ui/avatar";
 import { errorCls } from "@/lib/ui";
 import ChatRoom from "@/components/chat-room";
 
@@ -28,20 +30,26 @@ export default async function MensagensAlunoPersonalPage({
   ]);
   if (!student) notFound();
 
-  const initial = conversation ? await loadMessages(supabase, conversation.id) : null;
+  const [initial, otherRead] = conversation
+    ? await Promise.all([loadMessages(supabase, conversation.id), loadOtherLastRead(supabase, conversation.id, profile.id)])
+    : [null, null];
 
   return (
-    <section className="space-y-3">
-      <div>
-        <Link href="/personal/mensagens" className="text-sm text-muted underline">
-          ← Todas as conversas
-        </Link>
-        <h1 className="mt-2 text-xl font-bold">
-          <Link href={`/personal/alunos/${id}`} className="underline-offset-4 hover:underline">
-            {student.full_name}
-          </Link>
-        </h1>
-      </div>
+    <section className="space-y-4">
+      <Link href="/personal/mensagens" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink">
+        <ArrowLeft aria-hidden className="size-4" /> Todas as conversas
+      </Link>
+      <header className="flex items-center gap-3">
+        <Avatar name={student.full_name} ring={student.status === "ativo"} />
+        <div className="min-w-0">
+          <h1 className="truncate text-xl font-bold tracking-tight">
+            <Link href={`/personal/alunos/${id}`} className="hover:text-brand-ink">
+              {student.full_name}
+            </Link>
+          </h1>
+          <p className="text-sm text-muted">Aluno · toque no nome para ver o perfil</p>
+        </div>
+      </header>
 
       {error && <p className={errorCls}>Não foi possível abrir a conversa: {error.message}</p>}
       {!error && !conversation && <p className={errorCls}>Conversa não encontrada.</p>}
@@ -54,6 +62,7 @@ export default async function MensagensAlunoPersonalPage({
           otherName={student.full_name}
           initialMessages={initial.messages}
           initialHasMore={initial.hasMore}
+          otherLastReadAt={otherRead}
           canPost={student.status === "ativo" || student.status === "pausado"}
           cannotPostReason={CANNOT_POST[student.status]}
         />

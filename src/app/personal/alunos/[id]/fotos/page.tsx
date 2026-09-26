@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth";
 import { hasPhotoConsent, loadPhotoSets } from "@/lib/photo-data";
 import { btnPrimaryCls, errorCls } from "@/lib/ui";
 import PhotoGallery from "@/components/photo-gallery";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = { title: "Fotos de evolução" };
 
@@ -26,12 +27,12 @@ export default async function FotosAlunoPage({
 
   return (
     <section className="space-y-4">
-      <div>
-        <Link href={`/personal/alunos/${id}`} className="text-sm text-muted underline">
-          ← Voltar para {student.full_name}
-        </Link>
-        <h1 className="mt-2 text-xl font-bold">Fotos de evolução</h1>
-      </div>
+      <PageHeader
+        back={{ href: `/personal/alunos/${id}`, label: student.full_name }}
+        eyebrow="Fotos de progresso"
+        title={student.full_name}
+        description="Compare antes e depois arrastando a divisória."
+      />
 
       {consent.error && (
         <p className={errorCls}>Não foi possível verificar a autorização: {consent.error.message}</p>
