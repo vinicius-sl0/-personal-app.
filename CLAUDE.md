@@ -133,15 +133,24 @@ rodar comandos locais aplica no banco.
   "Enviando..." até o banco confirmar. Apagar = soft delete do banco. Leitura em
   `conversation_reads` gravada com `conversations.last_message_at` (relógio do banco, não do
   servidor); abrir a conversa também marca como lido o aviso `nova_mensagem`. Horários com
-  fuso fixo `America/Sao_Paulo`. Limitação: a bolinha de não lida no menu só atualiza ao
-  abrir conversa/recarregar. Imagem/áudio ainda não (bucket `chat-attachments` já existe).
+  fuso fixo `America/Sao_Paulo`. A bolinha de "Mensagens" no menu vem da central de
+  notificações (avisos `nova_mensagem` não lidos) e atualiza em tempo real. Imagem/áudio
+  ainda não (bucket `chat-attachments` já existe).
+- Central de notificações (`/aluno/notificacoes`, `/personal/notificacoes`): sino no topo com
+  contador em tempo real (`components/notification-badges.tsx`, um canal Realtime em
+  `notifications` por página). Os avisos são criados SÓ por triggers do banco
+  (`private.notify`); a tela usa títulos próprios por tipo (`lib/notifications.ts`), porque os
+  gravados no banco são antigos/sem acento. Abrir um aviso passa pela rota
+  `/…/notificacoes/abrir/[id]` (marca como lido e redireciona) — use `<a>`, nunca `<Link>`,
+  para o pré-carregamento não marcar como lido sozinho. Sem lembrete agendado de feedback
+  (precisaria de pg_cron) e sem push com o app fechado (etapa PWA).
 - Banco de dados completo (32 tabelas), RLS em 100% das tabelas, 08_testes_permissoes.sql com
   128 testes (6 novos da migração 20260923000001) (isolamento entre alunos, entre Personal e aluno, consentimento
   controlando acesso a fotos, etc.). **Rode o 08 de novo sempre que alterar RLS ou triggers.**
 
 ## Pendentes do escopo original
 
-Imagem/áudio no chat, central de notificações (tabela existe, sem tela), landing page final, PWA/offline, textos
+Imagem/áudio no chat, landing page final, PWA/offline, textos
 legais definitivos (Termos e Privacidade hoje são placeholders — e agora o app guarda fotos
 do corpo dos alunos e mensagens, então a Política precisa cobrir isso; avisar sempre que for
 relevante).
