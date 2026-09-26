@@ -81,7 +81,7 @@ export default function ExerciseForm({
             </option>
           ))}
         </select>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-muted">
           Toque mantendo pressionado (ou Ctrl/Cmd + clique no computador) para marcar mais de um.
         </p>
       </div>
@@ -119,7 +119,7 @@ export default function ExerciseForm({
           placeholder="Ex.: 7,5"
           className={inputCls}
         />
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-muted">
           Média aproximada de kcal por minuto, contando o descanso entre séries. Usada só para as
           “Calorias estimadas” da Análise de Volume — é uma estimativa, não uma medição.
         </p>
@@ -146,7 +146,7 @@ export default function ExerciseForm({
           placeholder="https://..."
           className={inputCls}
         />
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-muted">
           Use apenas vídeos seus ou que você tem autorização para usar.
         </p>
       </div>

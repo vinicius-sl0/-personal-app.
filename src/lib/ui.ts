@@ -1,12 +1,26 @@
-// Classes Tailwind reutilizadas nos formulários (mobile-first: campos altos, fáceis de tocar).
+// Classes Tailwind reutilizadas (mobile-first: alvos de toque ≥ 44px, foco visível).
+// Cores sempre por token de tema (ver src/app/globals.css).
+
 export const inputCls =
-  "h-12 w-full rounded-lg border border-zinc-300 bg-transparent px-3 text-base outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-700 dark:focus:border-zinc-100 dark:focus:ring-zinc-100/10";
+  "h-12 w-full rounded-xl border border-field bg-card px-3.5 text-base text-ink placeholder:text-muted outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/25 disabled:opacity-60 aria-[invalid=true]:border-red-500";
 
-export const btnPrimaryCls =
-  "flex h-12 w-full items-center justify-center rounded-lg bg-zinc-900 text-base font-semibold text-white transition hover:bg-zinc-700 disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300";
+export const labelCls = "text-sm font-medium text-strong";
 
-export const btnSecondaryCls =
-  "flex h-11 items-center justify-center rounded-lg border border-zinc-300 px-4 text-sm font-medium transition hover:bg-zinc-100 disabled:opacity-60 dark:border-zinc-700 dark:hover:bg-zinc-900";
+export const btnBase =
+  "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50";
+
+export const btnPrimaryCls = `${btnBase} h-12 w-full bg-brand text-base text-brand-contrast shadow-[0_6px_20px_-8px_rgb(249_115_22/0.6)] hover:bg-brand-hover`;
+
+export const btnSecondaryCls = `${btnBase} h-11 border border-line-strong bg-card px-4 text-sm text-ink hover:border-field hover:bg-subtle`;
+
+export const btnGhostCls = `${btnBase} h-10 px-3 text-sm text-soft hover:bg-subtle hover:text-ink`;
+
+export const btnDangerCls = `${btnBase} h-11 border border-red-500/40 bg-card px-4 text-sm text-red-600 hover:bg-red-500/10 dark:text-red-400`;
 
 export const errorCls =
-  "rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300";
+  "rounded-xl border border-red-500/30 bg-red-500/10 px-3.5 py-2.5 text-sm text-red-700 dark:text-red-300";
+
+export const successCls =
+  "rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2.5 text-sm text-emerald-800 dark:text-emerald-300";
+
+export const cardCls = "rounded-2xl border border-line bg-card";

@@ -32,8 +32,8 @@ export const STATUS_INFO: Record<DayStatus, { label: string; cls: string }> = {
   treinando: { label: "🏋️ Treinando", cls: "text-sky-700 dark:text-sky-400" },
   sem_checkout: { label: "⚠️ Sem check-out", cls: "text-amber-700 dark:text-amber-400" },
   faltou: { label: "❌ Não foi", cls: "text-red-700 dark:text-red-400" },
-  hoje: { label: "Hoje", cls: "text-zinc-600 dark:text-zinc-400" },
-  previsto: { label: "Previsto", cls: "text-zinc-500" },
+  hoje: { label: "Hoje", cls: "text-soft" },
+  previsto: { label: "Previsto", cls: "text-muted" },
   folga: { label: "Folga", cls: "text-zinc-400 dark:text-zinc-600" },
 };
 

@@ -187,8 +187,8 @@ export default function PhotoUploadForm({
             <div key={a.value} className="space-y-1">
               <span className="text-sm font-medium">{a.label}</span>
               <label
-                className={`relative flex aspect-[3/4] cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed text-center text-xs text-zinc-500 ${
-                  p ? "border-transparent" : "border-zinc-300 dark:border-zinc-700"
+                className={`relative flex aspect-[3/4] cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed text-center text-xs text-muted ${
+                  p ? "border-transparent" : "border-line-strong"
                 }`}
               >
                 {p ? (
@@ -210,7 +210,7 @@ export default function PhotoUploadForm({
                 />
               </label>
               {p && !busy && (
-                <button type="button" onClick={() => pick(a.value, undefined)} className="text-xs text-zinc-500 underline">
+                <button type="button" onClick={() => pick(a.value, undefined)} className="text-xs text-muted underline">
                   Remover
                 </button>
               )}

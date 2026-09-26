@@ -34,7 +34,7 @@ export default async function AvaliacoesPage({
   return (
     <section className="space-y-4">
       <div>
-        <Link href={`/personal/alunos/${id}`} className="text-sm text-zinc-500 underline">
+        <Link href={`/personal/alunos/${id}`} className="text-sm text-muted underline">
           ← Voltar para {student.full_name}
         </Link>
         <div className="mt-2 flex items-center justify-between gap-3">
@@ -54,7 +54,7 @@ export default async function AvaliacoesPage({
 
       <h2 className="font-semibold">Histórico</h2>
       {!error && assessments?.length === 0 && (
-        <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
           Nenhuma avaliação ainda. Clique em “Nova avaliação” para registrar a primeira.
         </p>
       )}
@@ -63,15 +63,15 @@ export default async function AvaliacoesPage({
           <li key={a.id}>
             <Link
               href={`/personal/alunos/${id}/avaliacoes/${a.id}`}
-              className="flex items-center justify-between gap-3 rounded-xl border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+              className="flex items-center justify-between gap-3 rounded-xl border border-line p-4 hover:bg-subtle bg-card"
             >
               <span>
                 <span className="font-medium">{formatDate(a.assessed_at)}</span>
                 {a.assessment_protocols?.name && (
-                  <span className="block text-sm text-zinc-500">{a.assessment_protocols.name}</span>
+                  <span className="block text-sm text-muted">{a.assessment_protocols.name}</span>
                 )}
               </span>
-              <span className="shrink-0 text-sm text-zinc-500">
+              <span className="shrink-0 text-sm text-muted">
                 {a.assessment_values[0]?.count ?? 0} medidas
               </span>
             </Link>

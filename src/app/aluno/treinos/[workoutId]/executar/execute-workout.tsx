@@ -256,13 +256,13 @@ export default function ExecuteWorkout({
   if (phase !== "treino") {
     return (
       <div className="space-y-4">
-        <Link href={`/aluno/treinos/${workoutId}`} className="text-sm text-zinc-500 underline">
+        <Link href={`/aluno/treinos/${workoutId}`} className="text-sm text-muted underline">
           ← Voltar
         </Link>
-        <div className="space-y-1 rounded-xl border border-zinc-200 p-5 text-center dark:border-zinc-800">
-          <p className="text-xs uppercase tracking-wide text-zinc-500">Treino de hoje</p>
+        <div className="space-y-1 rounded-xl border border-line p-5 text-center bg-card">
+          <p className="text-xs uppercase tracking-wide text-muted">Treino de hoje</p>
           <h1 className="text-2xl font-bold">{workoutName}</h1>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-muted">
             {exercises.length} {exercises.length === 1 ? "exercício" : "exercícios"} · {totalSets} séries
           </p>
         </div>
@@ -272,13 +272,13 @@ export default function ExecuteWorkout({
           </p>
         )}
         {phase === "carregando" ? (
-          <p className="text-center text-sm text-zinc-500">Carregando...</p>
+          <p className="text-center text-sm text-muted">Carregando...</p>
         ) : (
           <>
             <button type="button" onClick={handleCheckin} disabled={checkingIn} className={btnPrimaryCls}>
               {checkingIn ? "Registrando..." : "Fazer check-in"}
             </button>
-            <p className="text-center text-xs text-zinc-500">
+            <p className="text-center text-xs text-muted">
               O check-in registra o horário de entrada. No fim, faça o check-out para registrar a saída.
             </p>
           </>
@@ -290,10 +290,10 @@ export default function ExecuteWorkout({
   return (
     <div className="space-y-4 pb-28">
       <div className="flex items-center justify-between">
-        <Link href={`/aluno/treinos/${workoutId}`} className="text-sm text-zinc-500 underline">
+        <Link href={`/aluno/treinos/${workoutId}`} className="text-sm text-muted underline">
           ← Sair do treino
         </Link>
-        <p className="text-right text-sm text-zinc-500">
+        <p className="text-right text-sm text-muted">
           {startedAt && <span className="block text-xs">Check-in às {formatTime(startedAt)}</span>}
           {doneSets} de {totalSets} séries
         </p>
@@ -311,7 +311,7 @@ export default function ExecuteWorkout({
       )}
 
       <div>
-        <p className="text-xs uppercase tracking-wide text-zinc-500">
+        <p className="text-xs uppercase tracking-wide text-muted">
           {workoutName} · Exercício {current + 1} de {exercises.length}
         </p>
         <h1 className="text-xl font-bold">{exercise.name}</h1>
@@ -320,7 +320,7 @@ export default function ExecuteWorkout({
       {exercise.video_url && <ExerciseVideo url={exercise.video_url} />}
 
       {exercise.instructions && (
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">{exercise.instructions}</p>
+        <p className="text-sm text-soft">{exercise.instructions}</p>
       )}
 
       {explanation && (
@@ -329,7 +329,7 @@ export default function ExecuteWorkout({
         </p>
       )}
 
-      <p className="text-sm text-zinc-500">
+      <p className="text-sm text-muted">
         Meta: {repsLabel(exercise.reps_min, exercise.reps_max, exercise.reps_text)} repetições
         {exercise.target_load_kg ? ` · ${exercise.target_load_kg} kg` : ""}
       </p>
@@ -341,7 +341,7 @@ export default function ExecuteWorkout({
               className={`flex items-center gap-2 rounded-lg border p-2 ${
                 s.done
                   ? "border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30"
-                  : "border-zinc-200 dark:border-zinc-800"
+                  : "border-line"
               }`}
             >
               <span className="w-14 shrink-0 text-sm font-medium">Série {i + 1}</span>
@@ -367,7 +367,7 @@ export default function ExecuteWorkout({
                 type="button"
                 disabled={s.done || s.saving || !sessionId}
                 onClick={() => completeSet(i)}
-                className="ml-auto shrink-0 rounded-lg bg-zinc-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+                className="ml-auto shrink-0 rounded-lg bg-brand px-3 py-2 text-xs font-semibold text-brand-contrast disabled:opacity-50"
               >
                 {s.done ? "Feita ✓" : s.saving ? "Salvando..." : "Concluir série"}
               </button>

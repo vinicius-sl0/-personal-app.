@@ -212,8 +212,8 @@ export default function ChatRoom({
   const bubble = (mine: boolean) =>
     `max-w-[80%] whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-sm ${
       mine
-        ? "self-end rounded-br-sm bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
-        : "self-start rounded-bl-sm bg-zinc-100 dark:bg-zinc-800"
+        ? "self-end rounded-br-sm bg-brand text-brand-contrast"
+        : "self-start rounded-bl-sm bg-subtle-strong"
     }`;
 
   return (
@@ -238,7 +238,7 @@ export default function ChatRoom({
       <div
         ref={listRef}
         onScroll={onScroll}
-        className="flex flex-1 flex-col gap-2 overflow-y-auto rounded-xl border border-zinc-200 p-3 dark:border-zinc-800"
+        className="flex flex-1 flex-col gap-2 overflow-y-auto rounded-xl border border-line p-3 bg-card"
       >
         {hasMore && (
           <button type="button" onClick={loadOlder} disabled={loadingOlder} className={`${btnSecondaryCls} self-center !h-9 text-xs`}>
@@ -247,7 +247,7 @@ export default function ChatRoom({
         )}
 
         {messages.length === 0 && pending.length === 0 && (
-          <p className="m-auto text-center text-sm text-zinc-500">
+          <p className="m-auto text-center text-sm text-muted">
             Nenhuma mensagem ainda. Mande a primeira para {otherName}.
           </p>
         )}
@@ -270,7 +270,7 @@ export default function ChatRoom({
                 className={`${bubble(mine)} text-left disabled:cursor-text`}
               >
                 {m.body}
-                <span className={`mt-1 block text-[10px] ${mine ? "text-zinc-300 dark:text-zinc-600" : "text-zinc-500"}`}>
+                <span className={`mt-1 block text-[10px] ${mine ? "text-brand-contrast/70" : "text-muted"}`}>
                   {formatMessageTime(m.created_at)}
                 </span>
               </button>
@@ -287,7 +287,7 @@ export default function ChatRoom({
           <div key={p.id} className="flex flex-col items-end">
             <p className={`${bubble(true)} opacity-70`}>
               {p.body}
-              <span className="mt-1 block text-[10px] text-zinc-300 dark:text-zinc-600">
+              <span className="mt-1 block text-[10px] text-brand-contrast/70">
                 {p.error ? "Não enviada" : "Enviando..."}
               </span>
             </p>
@@ -325,13 +325,13 @@ export default function ChatRoom({
           <button
             type="submit"
             disabled={!draft.trim()}
-            className="h-12 shrink-0 rounded-lg bg-zinc-900 px-4 text-sm font-semibold text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+            className="h-12 shrink-0 rounded-lg bg-brand px-4 text-sm font-semibold text-brand-contrast disabled:opacity-50"
           >
             Enviar
           </button>
         </form>
       ) : (
-        <p className="rounded-lg bg-zinc-100 px-3 py-2 text-sm text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
+        <p className="rounded-lg bg-zinc-100 px-3 py-2 text-sm text-soft dark:bg-zinc-900">
           {cannotPostReason ?? "Não é possível enviar mensagens nesta conversa."}
         </p>
       )}

@@ -44,11 +44,11 @@ export function VolumeFilters({
   const selectCls = `${inputCls} !h-10 text-sm`;
 
   return (
-    <div className={`space-y-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800 ${pending ? "opacity-60" : ""}`}>
+    <div className={`space-y-3 rounded-xl border border-line bg-card p-4 ${pending ? "opacity-60" : ""}`}>
       <div className={`grid gap-3 ${students ? "sm:grid-cols-2" : ""}`}>
         {students && (
           <label className="block space-y-1">
-            <span className="text-xs font-medium text-zinc-500">Aluno</span>
+            <span className="text-xs font-medium text-muted">Aluno</span>
             <select
               value={query.aluno ?? ""}
               onChange={(e) => go({ aluno: e.target.value, treino: undefined })}
@@ -65,7 +65,7 @@ export function VolumeFilters({
         )}
 
         <label className="block space-y-1">
-          <span className="text-xs font-medium text-zinc-500">Treino</span>
+          <span className="text-xs font-medium text-muted">Treino</span>
           <select
             value={query.treino ?? ""}
             onChange={(e) => go({ treino: e.target.value || undefined })}
@@ -82,7 +82,7 @@ export function VolumeFilters({
         </label>
       </div>
 
-      <div role="group" aria-label="Visão" className="flex gap-1 rounded-xl border border-zinc-200 p-1 dark:border-zinc-800">
+      <div role="group" aria-label="Visão" className="flex gap-1 rounded-xl border border-line p-1 bg-card">
         {[
           { v: "planejado", l: "Planejado (ficha)" },
           { v: "realizado", l: "Realizado (treinos feitos)" },
@@ -93,7 +93,7 @@ export function VolumeFilters({
             aria-pressed={visao === o.v}
             onClick={() => go({ visao: o.v })}
             className={`flex-1 rounded-lg px-2 py-2 text-sm font-medium ${
-              visao === o.v ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900" : "text-zinc-600 dark:text-zinc-400"
+              visao === o.v ? "bg-brand text-brand-contrast" : "text-soft"
             }`}
           >
             {o.l}
@@ -104,7 +104,7 @@ export function VolumeFilters({
       {visao === "realizado" && (
         <div className="space-y-3">
           <label className="block space-y-1">
-            <span className="text-xs font-medium text-zinc-500">Período</span>
+            <span className="text-xs font-medium text-muted">Período</span>
             <select
               value={periodo}
               onChange={(e) => go({ periodo: e.target.value, semana: undefined })}
@@ -118,11 +118,11 @@ export function VolumeFilters({
           {periodo === "personalizado" && (
             <div className="flex flex-wrap items-end gap-2">
               <label className="block flex-1 space-y-1">
-                <span className="text-xs font-medium text-zinc-500">De</span>
+                <span className="text-xs font-medium text-muted">De</span>
                 <input type="date" value={de} onChange={(e) => setDe(e.target.value)} className={selectCls} />
               </label>
               <label className="block flex-1 space-y-1">
-                <span className="text-xs font-medium text-zinc-500">Até</span>
+                <span className="text-xs font-medium text-muted">Até</span>
                 <input type="date" value={ate} onChange={(e) => setAte(e.target.value)} className={selectCls} />
               </label>
               <button type="button" onClick={() => go({ de, ate })} className={`${btnSecondaryCls} !h-10`}>
@@ -160,12 +160,12 @@ export function SecondaryWeightSelect({ value }: { value: number }) {
   return (
     <div className="space-y-1">
       <label className="flex flex-wrap items-center gap-2 text-sm">
-        <span className="text-zinc-600 dark:text-zinc-400">Grupos secundários:</span>
+        <span className="text-soft">Grupos secundários:</span>
         <select
           value={String(value)}
           disabled={saving}
           onChange={(e) => change(Number(e.target.value))}
-          className="h-9 rounded-lg border border-zinc-300 bg-transparent px-2 text-sm dark:border-zinc-700"
+          className="h-9 rounded-lg border border-line-strong bg-transparent px-2 text-sm"
         >
           {SECONDARY_WEIGHT_OPTIONS.map((o) => (
             <option key={o.value} value={String(o.value)}>
@@ -173,7 +173,7 @@ export function SecondaryWeightSelect({ value }: { value: number }) {
             </option>
           ))}
         </select>
-        {saving && <span className="text-xs text-zinc-500">Salvando...</span>}
+        {saving && <span className="text-xs text-muted">Salvando...</span>}
       </label>
       {error && <p role="alert" className={errorCls}>{error}</p>}
     </div>

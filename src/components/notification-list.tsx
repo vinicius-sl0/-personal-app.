@@ -47,7 +47,7 @@ export default function NotificationList({ items, openBase }: { items: Notificat
       {error && <p role="alert" className={errorCls}>{error}</p>}
 
       {items.length === 0 && (
-        <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
           Nenhum aviso por aqui.
         </p>
       )}
@@ -58,10 +58,10 @@ export default function NotificationList({ items, openBase }: { items: Notificat
             {/* <a> e não <Link>: abrir marca como lido, então não pode ser pré-carregado. */}
             <a
               href={`${openBase}/${n.id}`}
-              className={`flex items-start gap-3 rounded-xl border p-3 hover:bg-zinc-50 dark:hover:bg-zinc-900 ${
+              className={`flex items-start gap-3 rounded-xl border p-3 hover:bg-subtle ${
                 n.read_at
-                  ? "border-zinc-200 dark:border-zinc-800"
-                  : "border-zinc-300 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900/60"
+                  ? "border-line"
+                  : "border-line-strong bg-zinc-50 dark:bg-zinc-900/60"
               }`}
             >
               <span aria-hidden className="text-xl leading-6">
@@ -69,7 +69,7 @@ export default function NotificationList({ items, openBase }: { items: Notificat
               </span>
               <span className="min-w-0 flex-1">
                 <span className={`block ${n.read_at ? "font-medium" : "font-bold"}`}>{notificationTitle(n)}</span>
-                {n.detail && <span className="block truncate text-sm text-zinc-500">{n.detail}</span>}
+                {n.detail && <span className="block truncate text-sm text-muted">{n.detail}</span>}
                 <span className="block text-xs text-zinc-400">{formatMessageTime(n.created_at)}</span>
               </span>
               {!n.read_at && <span aria-label="(não lido)" className="mt-2 size-2.5 shrink-0 rounded-full bg-red-600" />}

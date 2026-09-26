@@ -35,7 +35,7 @@ export default async function EditarExercicioPage({
   return (
     <section className="space-y-4">
       <div>
-        <Link href="/personal/exercicios" className="text-sm text-zinc-500 underline">
+        <Link href="/personal/exercicios" className="text-sm text-muted underline">
           ← Voltar
         </Link>
         <h1 className="mt-2 text-xl font-bold">Editar exercício</h1>

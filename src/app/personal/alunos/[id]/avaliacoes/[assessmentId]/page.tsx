@@ -30,12 +30,12 @@ export default async function AvaliacaoPage({
   return (
     <section className="space-y-4">
       <div>
-        <Link href={`/personal/alunos/${id}/avaliacoes`} className="text-sm text-zinc-500 underline">
+        <Link href={`/personal/alunos/${id}/avaliacoes`} className="text-sm text-muted underline">
           ← Voltar para as avaliações
         </Link>
         <h1 className="mt-2 text-xl font-bold">Avaliação de {formatDate(assessment.assessed_at)}</h1>
         {assessment.assessment_protocols?.name && (
-          <p className="text-sm text-zinc-500">{assessment.assessment_protocols.name}</p>
+          <p className="text-sm text-muted">{assessment.assessment_protocols.name}</p>
         )}
       </div>
 

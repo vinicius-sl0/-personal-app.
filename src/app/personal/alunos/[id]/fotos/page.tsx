@@ -27,7 +27,7 @@ export default async function FotosAlunoPage({
   return (
     <section className="space-y-4">
       <div>
-        <Link href={`/personal/alunos/${id}`} className="text-sm text-zinc-500 underline">
+        <Link href={`/personal/alunos/${id}`} className="text-sm text-muted underline">
           ← Voltar para {student.full_name}
         </Link>
         <h1 className="mt-2 text-xl font-bold">Fotos de evolução</h1>
@@ -38,7 +38,7 @@ export default async function FotosAlunoPage({
       )}
 
       {!consent.error && !consent.active && (
-        <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
           {student.full_name} não autorizou as fotos de evolução (ou retirou a autorização). Só o
           próprio aluno pode autorizar, pelo app, na tela “Fotos”.
         </p>
@@ -53,14 +53,14 @@ export default async function FotosAlunoPage({
           {error && <p className={errorCls}>Não foi possível carregar as fotos: {error}</p>}
 
           {!error && sets.length === 0 && (
-            <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+            <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
               Nenhuma foto ainda.
             </p>
           )}
 
           {!error && sets.length > 0 && <PhotoGallery sets={sets} canDelete={false} />}
 
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-muted">
             Apenas o aluno pode excluir fotos. Se precisar remover alguma, peça a ele.
           </p>
         </>

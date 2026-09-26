@@ -22,7 +22,7 @@ export default function ExerciseVideo({ url }: { url: string }) {
       <button
         type="button"
         onClick={() => setShow(true)}
-        className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-zinc-300 text-sm font-medium dark:border-zinc-700"
+        className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-line-strong text-sm font-medium"
       >
         ▶ Assistir vídeo do exercício
       </button>
@@ -49,7 +49,7 @@ export default function ExerciseVideo({ url }: { url: string }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex h-11 w-full items-center justify-center rounded-lg border border-zinc-300 text-sm font-medium underline dark:border-zinc-700"
+      className="flex h-11 w-full items-center justify-center rounded-lg border border-line-strong text-sm font-medium underline"
     >
       ▶ Abrir vídeo do exercício
     </a>

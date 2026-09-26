@@ -8,8 +8,8 @@ export const metadata = { title: "Alunos" };
 const STATUS = {
   convidado: { label: "Convite pendente", cls: "bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-200" },
   ativo: { label: "Ativo", cls: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200" },
-  pausado: { label: "Pausado", cls: "bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300" },
-  arquivado: { label: "Arquivado", cls: "bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300" },
+  pausado: { label: "Pausado", cls: "bg-zinc-200 text-strong dark:bg-zinc-800" },
+  arquivado: { label: "Arquivado", cls: "bg-zinc-200 text-strong dark:bg-zinc-800" },
 } as const;
 
 export default async function AlunosPage() {
@@ -33,21 +33,21 @@ export default async function AlunosPage() {
       {error && <p className={errorCls}>Não foi possível carregar os alunos: {error.message}</p>}
 
       {!error && students?.length === 0 && (
-        <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
           Nenhum aluno ainda. Clique em “Novo aluno” para cadastrar o primeiro.
         </p>
       )}
 
       <ul className="space-y-3">
         {students?.map((s) => (
-          <li key={s.id} className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+          <li key={s.id} className="rounded-xl border border-line p-4 bg-card">
             <div className="flex items-start justify-between gap-3">
               <Link href={`/personal/alunos/${s.id}`} className="min-w-0 flex-1">
                 <p className="truncate font-semibold underline-offset-4 hover:underline">
                   {s.full_name}
                 </p>
-                <p className="truncate text-sm text-zinc-500">{s.email}</p>
-                {s.phone && <p className="text-sm text-zinc-500">{s.phone}</p>}
+                <p className="truncate text-sm text-muted">{s.email}</p>
+                {s.phone && <p className="text-sm text-muted">{s.phone}</p>}
               </Link>
               <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${STATUS[s.status].cls}`}>
                 {STATUS[s.status].label}

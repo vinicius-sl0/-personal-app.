@@ -20,11 +20,11 @@ export default async function MeuVolumePage({ searchParams }: { searchParams: Pr
   return (
     <section className="space-y-4">
       <div>
-        <Link href="/aluno/treinos" className="text-sm text-zinc-500 underline">
+        <Link href="/aluno/treinos" className="text-sm text-muted underline">
           ← Voltar para Treinos
         </Link>
         <h1 className="mt-2 text-xl font-bold">Meu volume de treino</h1>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-muted">
           Quanto você treina cada grupo muscular: o que está na sua ficha e o que você realmente fez.
         </p>
       </div>

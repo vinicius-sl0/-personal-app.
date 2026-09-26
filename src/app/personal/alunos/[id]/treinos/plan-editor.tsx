@@ -140,12 +140,12 @@ export default function PlanEditor({
   return (
     <div className="space-y-6">
       <div>
-        <Link href={`/personal/alunos/${studentId}`} className="text-sm text-zinc-500 underline">
+        <Link href={`/personal/alunos/${studentId}`} className="text-sm text-muted underline">
           ← Voltar para {studentName}
         </Link>
       </div>
 
-      <div className="space-y-4 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+      <div className="space-y-4 rounded-xl border border-line p-4 bg-card">
         <div className="space-y-1.5">
           <label className="text-sm font-medium">Nome da ficha</label>
           <input
@@ -167,7 +167,7 @@ export default function PlanEditor({
       </div>
 
       {workouts.map((w, wi) => (
-        <div key={w.key} className="space-y-4 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+        <div key={w.key} className="space-y-4 rounded-xl border border-line p-4 bg-card">
           <div className="flex items-center gap-2">
             <input
               value={w.name}
@@ -187,7 +187,7 @@ export default function PlanEditor({
 
           <div className="space-y-3">
             {w.exercises.length === 0 && (
-              <p className="text-sm text-zinc-500">Nenhum exercício adicionado ainda.</p>
+              <p className="text-sm text-muted">Nenhum exercício adicionado ainda.</p>
             )}
             {w.exercises.map((ex, ei) => {
               const info = exerciseIndex[ex.exercise_id];
@@ -207,7 +207,7 @@ export default function PlanEditor({
                   </div>
 
                   <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    <label className="space-y-1 text-xs text-zinc-500">
+                    <label className="space-y-1 text-xs text-muted">
                       Séries
                       <input
                         type="number"
@@ -218,7 +218,7 @@ export default function PlanEditor({
                         className={`${inputCls} !h-10`}
                       />
                     </label>
-                    <label className="space-y-1 text-xs text-zinc-500">
+                    <label className="space-y-1 text-xs text-muted">
                       Reps. mín.
                       <input
                         type="number"
@@ -233,7 +233,7 @@ export default function PlanEditor({
                         className={`${inputCls} !h-10`}
                       />
                     </label>
-                    <label className="space-y-1 text-xs text-zinc-500">
+                    <label className="space-y-1 text-xs text-muted">
                       Reps. máx.
                       <input
                         type="number"
@@ -248,7 +248,7 @@ export default function PlanEditor({
                         className={`${inputCls} !h-10`}
                       />
                     </label>
-                    <label className="space-y-1 text-xs text-zinc-500">
+                    <label className="space-y-1 text-xs text-muted">
                       Descanso (s)
                       <input
                         type="number"
@@ -266,7 +266,7 @@ export default function PlanEditor({
                   </div>
 
                   <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    <label className="space-y-1 text-xs text-zinc-500">
+                    <label className="space-y-1 text-xs text-muted">
                       Reps. em texto (opcional, substitui mín./máx.)
                       <input
                         value={ex.reps_text ?? ""}
@@ -277,7 +277,7 @@ export default function PlanEditor({
                         className={`${inputCls} !h-10`}
                       />
                     </label>
-                    <label className="space-y-1 text-xs text-zinc-500">
+                    <label className="space-y-1 text-xs text-muted">
                       Carga alvo (kg, opcional)
                       <input
                         type="number"
@@ -294,7 +294,7 @@ export default function PlanEditor({
                     </label>
                   </div>
 
-                  <label className="mt-2 block space-y-1 text-xs text-zinc-500">
+                  <label className="mt-2 block space-y-1 text-xs text-muted">
                     Técnica
                     <select
                       value={ex.technique}
@@ -315,7 +315,7 @@ export default function PlanEditor({
                   </label>
 
                   {detailField && (
-                    <label className="mt-2 block space-y-1 text-xs text-zinc-500">
+                    <label className="mt-2 block space-y-1 text-xs text-muted">
                       {detailField.label}
                       <input
                         value={ex.technique_detail ?? ""}
@@ -328,7 +328,7 @@ export default function PlanEditor({
                     </label>
                   )}
 
-                  <label className="mt-2 block space-y-1 text-xs text-zinc-500">
+                  <label className="mt-2 block space-y-1 text-xs text-muted">
                     Observação (opcional)
                     <input
                       value={ex.notes ?? ""}
@@ -338,7 +338,7 @@ export default function PlanEditor({
                     />
                   </label>
 
-                  <p className="mt-2 text-xs text-zinc-500">
+                  <p className="mt-2 text-xs text-muted">
                     Prévia: {ex.sets}× {repsLabel(ex.reps_min, ex.reps_max, ex.reps_text)}
                     {ex.target_load_kg ? ` · ${ex.target_load_kg} kg` : ""}
                     {ex.rest_seconds ? ` · descanso ${ex.rest_seconds}s` : ""}
@@ -409,7 +409,7 @@ export default function PlanEditor({
           </button>
         </form>
       </div>
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-muted">
         Publicar encerra automaticamente a ficha ativa anterior do aluno e envia uma notificação a ele.
       </p>
     </div>

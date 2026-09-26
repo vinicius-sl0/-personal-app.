@@ -15,7 +15,7 @@ const CELL: Record<DayStatus, string> = {
   treinando: "bg-sky-100 text-sky-900 dark:bg-sky-950/60 dark:text-sky-100",
   sem_checkout: "bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-100",
   faltou: "bg-red-100 text-red-900 dark:bg-red-950/60 dark:text-red-100",
-  hoje: "border-2 border-zinc-900 dark:border-zinc-100",
+  hoje: "border-2 border-brand",
   previsto: "border border-dashed border-zinc-400 dark:border-zinc-600",
   folga: "text-zinc-400 dark:text-zinc-600",
 };
@@ -24,10 +24,10 @@ const ICON: Partial<Record<DayStatus, string>> = { concluido: "✅", treinando: 
 
 function Card({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
-      <p className="text-xs text-zinc-500">{label}</p>
+    <div className="rounded-xl border border-line p-3 bg-card">
+      <p className="text-xs text-muted">{label}</p>
       <p className="text-2xl font-bold">{value}</p>
-      {sub && <p className="text-xs text-zinc-500">{sub}</p>}
+      {sub && <p className="text-xs text-muted">{sub}</p>}
     </div>
   );
 }
@@ -56,7 +56,7 @@ export function MonthCalendar({ days }: { days: AttendanceDay[] }) {
   const leading = days.length > 0 ? days[0].weekday.value - 1 : 0; // começa na segunda
   return (
     <div className="space-y-2">
-      <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-medium text-zinc-500">
+      <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-medium text-muted">
         {WEEKDAYS.map((w) => (
           <span key={w.value}>{w.short}</span>
         ))}
@@ -81,7 +81,7 @@ export function MonthCalendar({ days }: { days: AttendanceDay[] }) {
           </div>
         ))}
       </div>
-      <p className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-zinc-500">
+      <p className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted">
         <span>✅ Concluído</span>
         <span>❌ Não foi</span>
         <span>⚠️ Sem check-out</span>
@@ -95,15 +95,15 @@ export function MonthCalendar({ days }: { days: AttendanceDay[] }) {
 export function MonthSessions({ days }: { days: AttendanceDay[] }) {
   const rows = days.flatMap((d) => d.sessions.map((s) => ({ d, s }))).reverse();
   if (rows.length === 0) {
-    return <p className="text-sm text-zinc-500">Nenhum treino registrado neste mês.</p>;
+    return <p className="text-sm text-muted">Nenhum treino registrado neste mês.</p>;
   }
   return (
     <ul className="space-y-2">
       {rows.map(({ d, s }) => (
-        <li key={s.id} className="flex items-center justify-between gap-3 rounded-xl border border-zinc-200 p-3 text-sm dark:border-zinc-800">
+        <li key={s.id} className="flex items-center justify-between gap-3 rounded-xl border border-line p-3 text-sm bg-card">
           <span className="min-w-0">
             <span className="block truncate font-medium">{s.workout_name_snapshot}</span>
-            <span className="block text-xs text-zinc-500">
+            <span className="block text-xs text-muted">
               {d.weekday.short}, {shortDate(d.date)} · check-in {formatClock(s.started_at)} · check-out {formatClock(s.finished_at)}
             </span>
           </span>

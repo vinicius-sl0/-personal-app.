@@ -22,7 +22,7 @@ function Field({
     <div className="space-y-1.5">
       <label className="text-sm font-medium">{label}</label>
       {children}
-      {hint && <p className="text-xs text-zinc-500">{hint}</p>}
+      {hint && <p className="text-xs text-muted">{hint}</p>}
     </div>
   );
 }
@@ -98,18 +98,18 @@ export default function StudentForm() {
           {WEEKDAYS.map((w) => (
             <label key={w.value} className="cursor-pointer">
               <input type="checkbox" name="training_days" value={w.value} aria-label={w.long} className="peer sr-only" />
-              <span className="flex h-11 items-center justify-center rounded-lg border border-zinc-300 text-xs font-semibold transition peer-checked:border-zinc-900 peer-checked:bg-zinc-900 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-zinc-900/30 dark:border-zinc-700 dark:peer-checked:border-zinc-100 dark:peer-checked:bg-zinc-100 dark:peer-checked:text-zinc-900">
+              <span className="flex h-11 items-center justify-center rounded-lg border border-line-strong text-xs font-semibold transition peer-checked:border-brand peer-checked:bg-brand peer-checked:text-brand-contrast peer-focus-visible:ring-2 peer-focus-visible:ring-zinc-900/30">
                 {w.short}
               </span>
             </label>
           ))}
         </div>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-muted">
           Usados na Frequência para marcar faltas. Pode deixar em branco e definir depois.
         </p>
       </fieldset>
 
-      <details className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
+      <details className="rounded-lg border border-line p-3">
         <summary className="cursor-pointer text-sm font-medium">
           Responsável legal (obrigatório para menores de 18 anos)
         </summary>

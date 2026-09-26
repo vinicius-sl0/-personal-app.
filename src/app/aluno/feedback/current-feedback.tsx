@@ -39,7 +39,7 @@ export default function CurrentFeedback({ feedback }: { feedback: Feedback | nul
       )}
       <FeedbackAnswers feedback={feedback} showWeek={false} />
       {feedback.replied_at ? (
-        <p className="text-xs text-zinc-500">Já respondido pelo Personal, por isso não pode mais ser alterado.</p>
+        <p className="text-xs text-muted">Já respondido pelo Personal, por isso não pode mais ser alterado.</p>
       ) : (
         <button
           type="button"

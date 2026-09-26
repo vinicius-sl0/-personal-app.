@@ -2,7 +2,7 @@ import Link from "next/link";
 
 // Checkboxes de consentimento (LGPD). Os obrigatórios são validados no servidor e no banco.
 export default function ConsentFields({ minor }: { minor: boolean }) {
-  const box = "mt-1 h-5 w-5 shrink-0 accent-zinc-900 dark:accent-zinc-100";
+  const box = "mt-1 h-5 w-5 shrink-0 accent-brand";
 
   return (
     <fieldset className="space-y-3">
@@ -15,7 +15,7 @@ export default function ConsentFields({ minor }: { minor: boolean }) {
           <Link href="/termos" target="_blank" className="underline">
             Termos de Uso
           </Link>
-          . <span className="text-zinc-500">(obrigatório)</span>
+          . <span className="text-muted">(obrigatório)</span>
         </span>
       </label>
 
@@ -26,7 +26,7 @@ export default function ConsentFields({ minor }: { minor: boolean }) {
           <Link href="/privacidade" target="_blank" className="underline">
             Política de Privacidade
           </Link>
-          . <span className="text-zinc-500">(obrigatório)</span>
+          . <span className="text-muted">(obrigatório)</span>
         </span>
       </label>
 
@@ -35,7 +35,7 @@ export default function ConsentFields({ minor }: { minor: boolean }) {
         <span>
           Autorizo o tratamento dos meus <strong>dados de saúde</strong> (anamnese, medidas e
           avaliações físicas) pelo meu Personal Trainer para acompanhar meu treino.{" "}
-          <span className="text-zinc-500">(obrigatório)</span>
+          <span className="text-muted">(obrigatório)</span>
         </span>
       </label>
 
@@ -44,7 +44,7 @@ export default function ConsentFields({ minor }: { minor: boolean }) {
           <input type="checkbox" name="responsavel_legal" className={box} />
           <span>
             Sou o <strong>responsável legal</strong> por este aluno menor de 18 anos e autorizo o
-            uso da plataforma. <span className="text-zinc-500">(obrigatório)</span>
+            uso da plataforma. <span className="text-muted">(obrigatório)</span>
           </span>
         </label>
       )}
@@ -53,7 +53,7 @@ export default function ConsentFields({ minor }: { minor: boolean }) {
         <input type="checkbox" name="fotos_evolucao" className={box} />
         <span>
           Autorizo o envio e a visualização das minhas <strong>fotos de evolução</strong> pelo meu
-          Personal. <span className="text-zinc-500">(opcional; posso revogar a qualquer momento)</span>
+          Personal. <span className="text-muted">(opcional; posso revogar a qualquer momento)</span>
         </span>
       </label>
     </fieldset>

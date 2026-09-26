@@ -9,7 +9,7 @@ import { btnSecondaryCls, errorCls, inputCls } from "@/lib/ui";
 function Photo({ url, alt }: { url: string | null; alt: string }) {
   if (!url) {
     return (
-      <div className="flex aspect-[3/4] items-center justify-center rounded-lg bg-zinc-100 p-2 text-center text-xs text-zinc-500 dark:bg-zinc-900">
+      <div className="flex aspect-[3/4] items-center justify-center rounded-lg bg-zinc-100 p-2 text-center text-xs text-muted dark:bg-zinc-900">
         Foto indisponível
       </div>
     );
@@ -39,7 +39,7 @@ function Compare({ sets }: { sets: PhotoSetView[] }) {
   ));
 
   return (
-    <div className="space-y-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+    <div className="space-y-3 rounded-xl border border-line p-4 bg-card">
       <h2 className="font-semibold">Comparar antes e depois</h2>
       <label className="block space-y-1">
         <span className="text-sm font-medium">Ângulo</span>
@@ -68,7 +68,7 @@ function Compare({ sets }: { sets: PhotoSetView[] }) {
               {photo ? (
                 <Photo url={photo.url} alt={`${col.label}: ${ANGLE_LABEL[angle]}`} />
               ) : (
-                <div className="flex aspect-[3/4] items-center justify-center rounded-lg border border-dashed border-zinc-300 p-2 text-center text-xs text-zinc-500 dark:border-zinc-700">
+                <div className="flex aspect-[3/4] items-center justify-center rounded-lg border border-dashed border-line-strong p-2 text-center text-xs text-muted">
                   Sem foto de “{ANGLE_LABEL[angle]}” nesta data
                 </div>
               )}
@@ -122,10 +122,10 @@ export default function PhotoGallery({ sets, canDelete }: { sets: PhotoSetView[]
       <h2 className="font-semibold">Histórico de fotos</h2>
       <ul className="space-y-4">
         {sets.map((s) => (
-          <li key={s.id} className="space-y-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+          <li key={s.id} className="space-y-3 rounded-xl border border-line p-4 bg-card">
             <div>
               <p className="font-medium">{formatDate(s.taken_at)}</p>
-              {s.notes && <p className="text-sm text-zinc-500">{s.notes}</p>}
+              {s.notes && <p className="text-sm text-muted">{s.notes}</p>}
             </div>
             <div className="grid grid-cols-2 gap-3">
               {s.photos
@@ -133,7 +133,7 @@ export default function PhotoGallery({ sets, canDelete }: { sets: PhotoSetView[]
                 .map((p) => (
                   <figure key={p.id} className="space-y-1">
                     <Photo url={p.url} alt={`${ANGLE_LABEL[p.angle]} em ${formatDate(s.taken_at)}`} />
-                    <figcaption className="text-xs text-zinc-500">{ANGLE_LABEL[p.angle]}</figcaption>
+                    <figcaption className="text-xs text-muted">{ANGLE_LABEL[p.angle]}</figcaption>
                   </figure>
                 ))}
             </div>

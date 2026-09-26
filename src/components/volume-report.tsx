@@ -22,10 +22,10 @@ const isDate = (v?: string): v is string => !!v && /^\d{4}-\d{2}-\d{2}$/.test(v)
 
 function Tile({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
-      <p className="text-xs text-zinc-500">{label}</p>
+    <div className="rounded-xl border border-line p-3 bg-card">
+      <p className="text-xs text-muted">{label}</p>
       <p className="text-xl font-bold tabular-nums">{value}</p>
-      {sub && <p className="text-xs text-zinc-500">{sub}</p>}
+      {sub && <p className="text-xs text-muted">{sub}</p>}
     </div>
   );
 }
@@ -188,13 +188,13 @@ export default async function VolumeReport({
       />
 
       {!student && (
-        <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
           {isPersonal ? "Escolha um aluno para ver o volume de treino por grupo muscular." : "Cadastro de aluno não encontrado."}
         </p>
       )}
 
       {student && !plan && visao === "planejado" && (
-        <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
           {isPersonal ? (
             <>
               {student.full_name} ainda não tem ficha de treino.{" "}
@@ -217,7 +217,7 @@ export default async function VolumeReport({
             {visao === "planejado" && plan && (
               <p className="text-sm">
                 Ficha: <strong>{plan.name}</strong>
-                {plan.status !== "ativo" && <span className="text-zinc-500"> (não é a ficha ativa)</span>} ·{" "}
+                {plan.status !== "ativo" && <span className="text-muted"> (não é a ficha ativa)</span>} ·{" "}
                 {workout ? workout.name : `Ciclo completo: ${workouts.length} treino(s), cada um feito 1 vez`}
               </p>
             )}
@@ -243,7 +243,7 @@ export default async function VolumeReport({
                 )}
               </div>
             )}
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-muted">
               Grupos secundários: <strong>{secondaryWeightLabel(weight)}</strong>
               {weight > 0 && " (a parte do secundário aparece em laranja no gráfico)"}
               {!isPersonal && " — definido pelo seu Personal"}.
@@ -251,7 +251,7 @@ export default async function VolumeReport({
           </div>
 
           {inputs.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+            <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
               {visao === "planejado"
                 ? "A ficha ainda não tem exercícios."
                 : isPersonal
@@ -265,7 +265,7 @@ export default async function VolumeReport({
                 result={result}
                 extra={
                   visao === "realizado" ? (
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-muted">
                       {sessions} {sessions === 1 ? "treino registrado" : "treinos registrados"} no período.
                     </p>
                   ) : null
@@ -283,7 +283,7 @@ export default async function VolumeReport({
                 <CaloriesSection result={calories} singleWeek={!query.periodo || query.periodo === "semana"} />
               )}
               {visao === "planejado" && (
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-muted">
                   🔥 As <strong>calorias estimadas</strong> aparecem na visão <strong>Realizado</strong>, porque usam a
                   duração registrada em cada treino (check-in → check-out).
                 </p>
@@ -297,12 +297,12 @@ export default async function VolumeReport({
                       <Link
                         key={w.id}
                         href={base({ treino: w.id })}
-                        className="block rounded-xl border border-zinc-200 p-3 text-sm hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+                        className="block rounded-xl border border-line p-3 text-sm hover:bg-subtle bg-card"
                       >
                         <p className="font-medium">
                           {w.name} · {formatSets(r.totals.sets)} séries
                         </p>
-                        <p className="text-xs text-zinc-500">
+                        <p className="text-xs text-muted">
                           {r.muscles
                             .filter((m) => m.countedSets > 0)
                             .sort((a, b) => b.countedSets - a.countedSets)
@@ -317,9 +317,9 @@ export default async function VolumeReport({
             </>
           )}
 
-          <details className="rounded-xl border border-zinc-200 p-4 text-sm dark:border-zinc-800">
+          <details className="rounded-xl border border-line p-4 text-sm bg-card">
             <summary className="cursor-pointer font-medium">Como o volume é calculado</summary>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-zinc-600 dark:text-zinc-400">
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-soft">
               <li>
                 <strong>Planejado</strong>: usa a ficha (séries, repetições e carga de cada exercício). O “ciclo completo”
                 soma cada treino uma vez.

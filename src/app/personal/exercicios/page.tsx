@@ -57,14 +57,14 @@ export default async function ExerciciosPage({
       <div className="flex items-center gap-2 text-sm">
         <Link
           href="/personal/exercicios"
-          className={!arquivados ? "font-semibold underline" : "text-zinc-500"}
+          className={!arquivados ? "font-semibold underline" : "text-muted"}
         >
           Ativos
         </Link>
         <span className="text-zinc-300">·</span>
         <Link
           href="/personal/exercicios?arquivados=1"
-          className={arquivados === "1" ? "font-semibold underline" : "text-zinc-500"}
+          className={arquivados === "1" ? "font-semibold underline" : "text-muted"}
         >
           Arquivados
         </Link>
@@ -73,18 +73,18 @@ export default async function ExerciciosPage({
       {error && <p className={errorCls}>Não foi possível carregar os exercícios: {error.message}</p>}
 
       {!error && exercises?.length === 0 && (
-        <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
           Nenhum exercício encontrado com esses filtros.
         </p>
       )}
 
       <ul className="space-y-3">
         {exercises?.map((ex) => (
-          <li key={ex.id} className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+          <li key={ex.id} className="rounded-xl border border-line p-4 bg-card">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="truncate font-semibold">{ex.name}</p>
-                <p className="text-sm text-zinc-500">
+                <p className="text-sm text-muted">
                   {ex.muscle_groups?.name}
                   {ex.equipment?.name ? ` · ${ex.equipment.name}` : ""} ·{" "}
                   {DIFFICULTY_LABEL[ex.difficulty]}
@@ -97,7 +97,7 @@ export default async function ExerciciosPage({
                   </span>
                 )}
                 {ex.is_archived && (
-                  <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                  <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-medium text-strong dark:bg-zinc-800">
                     Arquivado
                   </span>
                 )}

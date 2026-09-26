@@ -75,7 +75,7 @@ function BarChart({ rows, unit, decimals }: { rows: Row[]; unit: string; decimal
   return (
     <div className="space-y-2">
       {hasSecondary && (
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-600 dark:text-zinc-400">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-soft">
           <span className="flex items-center gap-1.5">
             <span className={`inline-block size-2.5 rounded-sm ${BG_PRIMARY}`} /> Grupo principal
           </span>
@@ -87,7 +87,7 @@ function BarChart({ rows, unit, decimals }: { rows: Row[]; unit: string; decimal
       <div ref={wrapRef} className="relative" onPointerLeave={() => setActive(null)}>
         <svg width={width} height={height} role="img" aria-label="Volume por grupo muscular" className="block overflow-visible">
           {/* linha de base */}
-          <line x1={LABEL_W} x2={LABEL_W} y1={0} y2={height} className="stroke-zinc-300 dark:stroke-zinc-700" />
+          <line x1={LABEL_W} x2={LABEL_W} y1={0} y2={height} className="stroke-line-strong" />
           {rows.map((r, i) => {
             const y = i * ROW_H + (ROW_H - BAR_H) / 2 + 2;
             const wP = scale(r.primary);
@@ -110,7 +110,7 @@ function BarChart({ rows, unit, decimals }: { rows: Row[]; unit: string; decimal
               >
                 {/* área de toque maior que a barra */}
                 <rect x={0} y={i * ROW_H} width={width} height={ROW_H} fill="transparent" />
-                <text x={LABEL_W - 8} y={y + BAR_H / 2} dominantBaseline="middle" textAnchor="end" className="fill-zinc-700 text-xs dark:fill-zinc-300">
+                <text x={LABEL_W - 8} y={y + BAR_H / 2} dominantBaseline="middle" textAnchor="end" className="fill-strong text-xs">
                   {r.name.length > 15 ? `${r.name.slice(0, 14)}…` : r.name}
                 </text>
                 {wP > 0 && <path d={barPath(LABEL_W, y, wP, BAR_H, !hasS)} className={FILL_PRIMARY} />}
@@ -124,7 +124,7 @@ function BarChart({ rows, unit, decimals }: { rows: Row[]; unit: string; decimal
                   x={LABEL_W + wP + wS + 6}
                   y={y + BAR_H / 2}
                   dominantBaseline="middle"
-                  className="fill-zinc-900 text-xs font-semibold tabular-nums dark:fill-zinc-100"
+                  className="fill-brand text-xs font-semibold tabular-nums"
                 >
                   {fmt(total)}
                 </text>
@@ -170,11 +170,11 @@ export default function VolumeAnalysis({
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+      <div className="space-y-2 rounded-xl border border-line p-4 bg-card">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="font-semibold">Volume por grupo muscular</h3>
           {exact && (
-            <div role="group" aria-label="Medida do gráfico" className="flex gap-1 rounded-lg border border-zinc-200 p-0.5 dark:border-zinc-800">
+            <div role="group" aria-label="Medida do gráfico" className="flex gap-1 rounded-lg border border-line p-0.5">
               {METRICS.map((m) => (
                 <button
                   key={m.value}
@@ -182,7 +182,7 @@ export default function VolumeAnalysis({
                   aria-pressed={metric === m.value}
                   onClick={() => setMetric(m.value)}
                   className={`rounded-md px-2 py-1 text-xs font-medium ${
-                    metric === m.value ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900" : "text-zinc-600 dark:text-zinc-400"
+                    metric === m.value ? "bg-brand text-brand-contrast" : "text-soft"
                   }`}
                 >
                   {m.label}
@@ -192,20 +192,20 @@ export default function VolumeAnalysis({
           )}
         </div>
         {!exact && (
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-muted">
             Gráfico em séries. Repetições e carga da ficha podem ser faixas (ex.: 8–12), por isso aparecem só na tabela.
           </p>
         )}
         {rows.length === 0 ? (
-          <p className="py-6 text-center text-sm text-zinc-500">Sem dados para mostrar.</p>
+          <p className="py-6 text-center text-sm text-muted">Sem dados para mostrar.</p>
         ) : (
           <BarChart rows={rows} unit={effective === "kg" ? " kg" : ""} decimals={effective === "series" ? 1 : 0} />
         )}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+      <div className="overflow-x-auto rounded-xl border border-line bg-card">
         <table className="w-full min-w-[560px] text-left text-sm">
-          <thead className="bg-zinc-50 text-xs text-zinc-500 dark:bg-zinc-900">
+          <thead className="bg-subtle text-xs text-muted">
             <tr>
               <th scope="col" className="px-3 py-2 font-medium">Grupo</th>
               <th scope="col" className="px-3 py-2 font-medium">Séries</th>
@@ -217,12 +217,12 @@ export default function VolumeAnalysis({
           </thead>
           <tbody>
             {muscles.map((m) => (
-              <tr key={m.muscle.id} className="border-t border-zinc-200 align-top dark:border-zinc-800">
+              <tr key={m.muscle.id} className="border-t border-line align-top">
                 <th scope="row" className="px-3 py-2 font-medium">{m.muscle.name}</th>
                 <td className="px-3 py-2 tabular-nums">
                   <span className="font-semibold">{formatSets(m.countedSets)}</span>
                   {m.indirectSets > 0 && (
-                    <span className="block text-xs text-zinc-500">
+                    <span className="block text-xs text-muted">
                       {formatSets(m.directSets)} principal + {formatSets(m.countedSets - m.directSets)} secundário
                     </span>
                   )}
@@ -231,13 +231,13 @@ export default function VolumeAnalysis({
                 <td className="px-3 py-2 tabular-nums">
                   {formatRange(m.reps)}
                   {m.setsWithoutReps > 0 && (
-                    <span className="block text-xs text-zinc-500">{formatSets(m.setsWithoutReps)} séries sem número</span>
+                    <span className="block text-xs text-muted">{formatSets(m.setsWithoutReps)} séries sem número</span>
                   )}
                 </td>
                 <td className="px-3 py-2 tabular-nums">
                   {formatRange(m.loadVolume, "kg")}
                   {m.setsWithoutLoad > 0 && (
-                    <span className="block text-xs text-zinc-500">{formatSets(m.setsWithoutLoad)} séries sem carga</span>
+                    <span className="block text-xs text-muted">{formatSets(m.setsWithoutLoad)} séries sem carga</span>
                   )}
                 </td>
                 <td className="px-3 py-2 tabular-nums">

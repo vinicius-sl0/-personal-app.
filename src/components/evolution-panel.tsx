@@ -13,7 +13,7 @@ export default function EvolutionPanel({ series }: { series: MetricSeries[] }) {
 
   if (!current) {
     return (
-      <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+      <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
         Os gráficos aparecem aqui depois da primeira avaliação.
       </p>
     );
@@ -26,7 +26,7 @@ export default function EvolutionPanel({ series }: { series: MetricSeries[] }) {
   const groups = groupByCategory(series.map((s) => s.metric));
 
   return (
-    <div className="space-y-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+    <div className="space-y-3 rounded-xl border border-line p-4 bg-card">
       <div className="space-y-1">
         <label htmlFor="evolution-metric" className="text-sm font-medium">
           Medida
@@ -52,10 +52,10 @@ export default function EvolutionPanel({ series }: { series: MetricSeries[] }) {
       <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
         <p>
           <span className="text-2xl font-bold tabular-nums">{formatValue(last.value, metric)}</span>{" "}
-          <span className="text-sm text-zinc-500">em {formatDate(last.date)}</span>
+          <span className="text-sm text-muted">em {formatDate(last.date)}</span>
         </p>
         {points.length > 1 && (
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-muted">
             {diff === 0
               ? "Sem mudança"
               : `${diff > 0 ? "+" : "−"}${formatValue(Math.abs(diff), metric)}`}{" "}
@@ -68,7 +68,7 @@ export default function EvolutionPanel({ series }: { series: MetricSeries[] }) {
       <MetricChart key={metric.id} series={current} />
 
       {points.length === 1 && (
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-muted">
           Só há uma medição até agora. A linha de evolução aparece a partir da segunda avaliação.
         </p>
       )}
@@ -77,7 +77,7 @@ export default function EvolutionPanel({ series }: { series: MetricSeries[] }) {
         <summary className="cursor-pointer text-sm font-medium">Ver todos os valores</summary>
         <table className="mt-2 w-full text-sm">
           <thead>
-            <tr className="text-left text-zinc-500">
+            <tr className="text-left text-muted">
               <th className="py-1 font-normal">Data</th>
               <th className="py-1 text-right font-normal">{metric.label}</th>
             </tr>

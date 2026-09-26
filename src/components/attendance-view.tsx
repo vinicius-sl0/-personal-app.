@@ -42,10 +42,10 @@ export default async function AttendanceView({
 
   const tabCls = (active: boolean) =>
     `flex-1 rounded-lg px-3 py-2 text-center text-sm font-medium ${
-      active ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900" : "text-zinc-600 dark:text-zinc-400"
+      active ? "bg-brand text-brand-contrast" : "text-soft"
     }`;
   const tabs = (
-    <nav aria-label="Período" className="flex gap-1 rounded-xl border border-zinc-200 p-1 dark:border-zinc-800">
+    <nav aria-label="Período" className="flex gap-1 rounded-xl border border-line p-1 bg-card">
       <Link href={`${basePath}?ver=semana`} className={tabCls(view === "semana")} aria-current={view === "semana" ? "page" : undefined}>
         Semana
       </Link>
@@ -143,9 +143,9 @@ export default async function AttendanceView({
           <MonthSessions days={days} />
 
           <h3 className="font-semibold">Últimos {HISTORY_MONTHS} meses</h3>
-          <div className="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+          <div className="overflow-x-auto rounded-xl border border-line bg-card">
             <table className="w-full text-left text-sm">
-              <thead className="bg-zinc-50 text-xs text-zinc-500 dark:bg-zinc-900">
+              <thead className="bg-subtle text-xs text-muted">
                 <tr>
                   <th scope="col" className="px-3 py-2 font-medium">Mês</th>
                   <th scope="col" className="px-3 py-2 font-medium">Presença</th>
@@ -157,7 +157,7 @@ export default async function AttendanceView({
                 {history.map(({ ym, summary: s }) => {
                   const rate = attendanceRate(s);
                   return (
-                    <tr key={ym} className={`border-t border-zinc-200 dark:border-zinc-800 ${ym === month ? "font-semibold" : ""}`}>
+                    <tr key={ym} className={`border-t border-line ${ym === month ? "font-semibold" : ""}`}>
                       <th scope="row" className="px-3 py-2 font-normal">
                         <Link href={`${basePath}?ver=mes&mes=${ym}`} className="underline-offset-4 hover:underline">
                           {formatMonth(ym)}
@@ -174,7 +174,7 @@ export default async function AttendanceView({
               </tbody>
             </table>
           </div>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-muted">
             Presença = dias combinados com treino concluído ÷ dias combinados que já passaram. Os meses
             anteriores usam os dias combinados atuais.
           </p>

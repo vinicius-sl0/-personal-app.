@@ -24,12 +24,12 @@ export default function WeeklyPhotos({
   const [justSent, setJustSent] = useState(false);
 
   return (
-    <div className="space-y-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+    <div className="space-y-3 rounded-xl border border-line p-4 bg-card">
       <div>
         <h2 className="font-semibold">
-          Fotos da semana <span className="font-normal text-zinc-500">(opcional)</span>
+          Fotos da semana <span className="font-normal text-muted">(opcional)</span>
         </h2>
-        <p className="text-sm text-zinc-500">Ajudam seu Personal a acompanhar sua evolução.</p>
+        <p className="text-sm text-muted">Ajudam seu Personal a acompanhar sua evolução.</p>
       </div>
 
       {children}

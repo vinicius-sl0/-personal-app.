@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession, homeFor } from "@/lib/auth";
+import { btnSecondaryCls } from "@/lib/ui";
+import AuthLayout from "@/components/auth-layout";
 import { signOut } from "./actions";
 import LoginForm from "./login-form";
 
@@ -12,26 +14,19 @@ export default async function LoginPage() {
   if (user && profile) redirect(homeFor(profile.role));
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center px-5 py-10">
-      <h1 className="text-2xl font-bold">Entrar</h1>
-      <p className="mt-1 mb-8 text-sm text-zinc-500">
-        Acesse sua conta para ver seus treinos e avaliações.
-      </p>
-
+    <AuthLayout title="Bem-vindo de volta" description="Entre para ver seus treinos, sua evolução e falar com seu Personal.">
       {user && !profile ? (
         <div className="space-y-4">
-          <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+          <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 text-sm text-amber-800 dark:text-amber-200">
             Sua conta ainda não tem acesso liberado. Fale com o seu Personal.
           </p>
           <form action={signOut}>
-            <button className="h-12 w-full rounded-lg border border-zinc-300 text-base font-medium dark:border-zinc-700">
-              Sair
-            </button>
+            <button className={`${btnSecondaryCls} w-full`}>Sair</button>
           </form>
         </div>
       ) : (
         <LoginForm />
       )}
-    </main>
+    </AuthLayout>
   );
 }

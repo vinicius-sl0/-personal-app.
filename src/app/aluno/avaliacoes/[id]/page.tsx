@@ -23,12 +23,12 @@ export default async function MinhaAvaliacaoPage({
   return (
     <section className="space-y-4">
       <div>
-        <Link href="/aluno/avaliacoes" className="text-sm text-zinc-500 underline">
+        <Link href="/aluno/avaliacoes" className="text-sm text-muted underline">
           ← Voltar para minha evolução
         </Link>
         <h1 className="mt-2 text-xl font-bold">Avaliação de {formatDate(assessment.assessed_at)}</h1>
         {assessment.assessment_protocols?.name && (
-          <p className="text-sm text-zinc-500">{assessment.assessment_protocols.name}</p>
+          <p className="text-sm text-muted">{assessment.assessment_protocols.name}</p>
         )}
       </div>
 

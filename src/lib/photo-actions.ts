@@ -13,6 +13,7 @@ export type PhotoActionState = { error?: string; ok?: boolean };
 function revalidatePhotos(studentId: string) {
   revalidatePath("/aluno/fotos");
   revalidatePath("/aluno/feedback"); // as fotos também aparecem no Feedback semanal
+  revalidatePath("/aluno/perfil"); // autorização de fotos também fica no Perfil
   revalidatePath(`/personal/alunos/${studentId}/fotos`);
   revalidatePath(`/personal/alunos/${studentId}/feedback`);
   revalidatePath("/personal/feedback");

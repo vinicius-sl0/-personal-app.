@@ -17,26 +17,26 @@ export default function VolumeSummary({
   if (totals.sets === 0) return null;
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-sm dark:border-zinc-800 dark:bg-zinc-900/60">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">{title}</p>
+    <div className="rounded-xl border border-line bg-zinc-50 p-3 text-sm dark:bg-zinc-900/60">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">{title}</p>
       <ul className="space-y-1">
         {rows.map((m) => (
           <li key={m.muscle.id} className="flex items-baseline gap-2">
             <span>{m.muscle.name}</span>
-            <span aria-hidden className="flex-1 border-b border-dotted border-zinc-300 dark:border-zinc-700" />
+            <span aria-hidden className="flex-1 border-b border-dotted border-line-strong" />
             <span className="tabular-nums">
               {formatSets(m.countedSets)} {m.countedSets === 1 ? "série" : "séries"}
             </span>
           </li>
         ))}
-        <li className="flex items-baseline gap-2 border-t border-zinc-200 pt-1 font-semibold dark:border-zinc-800">
+        <li className="flex items-baseline gap-2 border-t border-line pt-1 font-semibold">
           <span>Total</span>
           <span aria-hidden className="flex-1" />
           <span className="tabular-nums">{formatSets(totals.sets)} séries</span>
         </li>
       </ul>
       {secondaryWeight > 0 && muscles.some((m) => m.indirectSets > 0) && (
-        <p className="mt-2 text-[11px] text-zinc-500">
+        <p className="mt-2 text-[11px] text-muted">
           Inclui grupos secundários ({secondaryWeightLabel(secondaryWeight).toLowerCase()}). O total conta cada série uma vez.
         </p>
       )}

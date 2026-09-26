@@ -8,7 +8,7 @@ import { errorCls } from "@/lib/ui";
 export const metadata = { title: "Feedback semanal" };
 
 const rowCls =
-  "flex items-center justify-between gap-3 rounded-xl border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900";
+  "flex items-center justify-between gap-3 rounded-xl border border-line p-4 hover:bg-subtle";
 
 export default async function FeedbackPage() {
   await requireRole("personal");
@@ -47,7 +47,7 @@ export default async function FeedbackPage() {
       <h2 className="font-semibold">Aguardando sua resposta</h2>
       {pending.error && <p className={errorCls}>Não foi possível carregar os feedbacks: {pending.error.message}</p>}
       {!pending.error && pending.data.length === 0 && (
-        <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
           Nenhum feedback esperando resposta.
         </p>
       )}
@@ -57,7 +57,7 @@ export default async function FeedbackPage() {
             <Link href={`/personal/alunos/${c.student_id}/feedback#${c.id}`} className={rowCls}>
               <span className="min-w-0">
                 <span className="block truncate font-semibold">{c.students?.full_name ?? "Aluno"}</span>
-                <span className="block text-sm text-zinc-500">
+                <span className="block text-sm text-muted">
                   {formatWeek(c.week_start)} · enviado {formatMessageTime(c.submitted_at)}
                 </span>
               </span>
@@ -87,7 +87,7 @@ export default async function FeedbackPage() {
                 <Link href={`/personal/alunos/${c.student_id}/feedback#${c.id}`} className={rowCls}>
                   <span className="min-w-0">
                     <span className="block truncate font-medium">{c.students?.full_name ?? "Aluno"}</span>
-                    <span className="block text-sm text-zinc-500">{formatWeek(c.week_start)}</span>
+                    <span className="block text-sm text-muted">{formatWeek(c.week_start)}</span>
                   </span>
                 </Link>
               </li>

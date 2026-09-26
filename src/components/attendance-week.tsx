@@ -6,9 +6,9 @@ export default function AttendanceWeek({ days, summary }: { days: AttendanceDay[
   return (
     <div className="space-y-2">
       <p className="text-sm font-semibold">{summaryText(summary)}</p>
-      <div className="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+      <div className="overflow-x-auto rounded-xl border border-line bg-card">
         <table className="w-full text-left text-xs sm:text-sm">
-          <thead className="bg-zinc-50 text-zinc-500 dark:bg-zinc-900">
+          <thead className="bg-subtle text-muted">
             <tr>
               <th scope="col" className="px-2 py-2 font-medium">Dia</th>
               <th scope="col" className="px-2 py-2 font-medium">Treino</th>
@@ -22,12 +22,12 @@ export default function AttendanceWeek({ days, summary }: { days: AttendanceDay[
               const dayCell = (
                 <th scope="row" className="whitespace-nowrap px-2 py-2 font-medium">
                   {d.weekday.short}
-                  <span className="block text-[10px] font-normal text-zinc-500">{shortDate(d.date)}</span>
+                  <span className="block text-[10px] font-normal text-muted">{shortDate(d.date)}</span>
                 </th>
               );
               if (d.sessions.length === 0) {
                 return [
-                  <tr key={d.date} className={`border-t border-zinc-200 dark:border-zinc-800 ${d.planned ? "" : "bg-zinc-50/60 dark:bg-zinc-900/40"}`}>
+                  <tr key={d.date} className={`border-t border-line ${d.planned ? "" : "bg-zinc-50/60 dark:bg-zinc-900/40"}`}>
                     {dayCell}
                     <td className="px-2 py-2 text-zinc-400">—</td>
                     <td className="px-2 py-2 text-zinc-400">—</td>
@@ -39,7 +39,7 @@ export default function AttendanceWeek({ days, summary }: { days: AttendanceDay[
                 ];
               }
               return d.sessions.map((s, i) => (
-                <tr key={s.id} className={i === 0 ? "border-t border-zinc-200 dark:border-zinc-800" : ""}>
+                <tr key={s.id} className={i === 0 ? "border-t border-line" : ""}>
                   {i === 0 ? dayCell : <td />}
                   <td className="px-2 py-2">{s.workout_name_snapshot}</td>
                   <td className="px-2 py-2 tabular-nums">{formatClock(s.started_at)}</td>
@@ -47,7 +47,7 @@ export default function AttendanceWeek({ days, summary }: { days: AttendanceDay[
                   <td className={`whitespace-nowrap px-2 py-2 font-medium ${STATUS_INFO[s.dayStatus].cls}`}>
                     {STATUS_INFO[s.dayStatus].label}
                     {!d.planned && s.dayStatus === "concluido" && (
-                      <span className="block text-[10px] font-normal text-zinc-500">dia extra</span>
+                      <span className="block text-[10px] font-normal text-muted">dia extra</span>
                     )}
                   </td>
                 </tr>

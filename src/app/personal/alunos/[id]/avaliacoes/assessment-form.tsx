@@ -170,17 +170,17 @@ export default function AssessmentForm({
             ))}
             <option value="">Todas as medidas</option>
           </select>
-          {protocol?.description && <p className="text-xs text-zinc-500">{protocol.description}</p>}
+          {protocol?.description && <p className="text-xs text-muted">{protocol.description}</p>}
         </div>
       </div>
 
-      <p className="text-sm text-zinc-500">
+      <p className="text-sm text-muted">
         Preencha só o que foi medido. Campos em branco são ignorados. Use vírgula ou ponto para
         decimais.
       </p>
 
       {groups.map((g) => (
-        <fieldset key={g.category} className="space-y-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+        <fieldset key={g.category} className="space-y-3 rounded-xl border border-line p-4 bg-card">
           <legend className="px-1 font-semibold">{g.label}</legend>
           <div className="grid gap-3 sm:grid-cols-2">
             {g.metrics.map((m) => {
@@ -193,7 +193,7 @@ export default function AssessmentForm({
                     <p className="flex h-12 items-center rounded-lg bg-zinc-100 px-3 text-base dark:bg-zinc-900">
                       {v !== undefined ? formatValue(v, m) : "—"}
                     </p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-muted">
                       {m.formula_key ? FORMULA_HINT[m.formula_key] : "Calculado automaticamente."}
                     </p>
                   </div>
@@ -206,7 +206,7 @@ export default function AssessmentForm({
                 <div key={m.id} className="space-y-1">
                   <label htmlFor={`m_${m.id}`} className="text-sm font-medium">
                     {m.label}
-                    {m.unit && <span className="font-normal text-zinc-500"> ({m.unit})</span>}
+                    {m.unit && <span className="font-normal text-muted"> ({m.unit})</span>}
                   </label>
                   <input
                     id={`m_${m.id}`}
@@ -222,7 +222,7 @@ export default function AssessmentForm({
                     <p className="text-xs text-red-600 dark:text-red-400">Digite só números.</p>
                   ) : (
                     prev && (
-                      <p className="text-xs text-zinc-500">
+                      <p className="text-xs text-muted">
                         Última: {formatValue(prev.value, m)} em {formatDate(prev.date)}
                       </p>
                     )
@@ -240,7 +240,7 @@ export default function AssessmentForm({
         </button>
       )}
 
-      <details className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+      <details className="rounded-xl border border-line p-4 bg-card">
         <summary className="cursor-pointer font-semibold">Observações (opcional)</summary>
         <div className="mt-3 space-y-3">
           <div className="space-y-1">
@@ -278,7 +278,7 @@ export default function AssessmentForm({
               rows={3}
               className={`${inputCls} h-auto py-2`}
             />
-            <p className="text-xs text-zinc-500">O aluno também verá estas anotações.</p>
+            <p className="text-xs text-muted">O aluno também verá estas anotações.</p>
           </div>
         </div>
       </details>

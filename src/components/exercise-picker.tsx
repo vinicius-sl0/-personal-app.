@@ -43,7 +43,7 @@ export default function ExercisePicker({
           />
           <ul className="max-h-64 overflow-y-auto">
             {filtered.length === 0 && (
-              <li className="p-2 text-sm text-zinc-500">Nenhum exercício encontrado.</li>
+              <li className="p-2 text-sm text-muted">Nenhum exercício encontrado.</li>
             )}
             {filtered.map((ex) => (
               <li key={ex.id}>
@@ -57,7 +57,7 @@ export default function ExercisePicker({
                   className="flex w-full flex-col items-start rounded-lg px-2 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 >
                   <span className="font-medium">{ex.name}</span>
-                  <span className="text-xs text-zinc-500">
+                  <span className="text-xs text-muted">
                     {ex.muscle_group}
                     {ex.equipment ? ` · ${ex.equipment}` : ""}
                   </span>

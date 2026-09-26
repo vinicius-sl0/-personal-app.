@@ -29,19 +29,19 @@ export default async function TreinoDetalhePage({
 
   return (
     <section className="space-y-4">
-      <Link href="/aluno/treinos" className="text-sm text-zinc-500 underline">
+      <Link href="/aluno/treinos" className="text-sm text-muted underline">
         ← Meus treinos
       </Link>
       <h1 className="text-xl font-bold">{workout.name}</h1>
-      {workout.notes && <p className="text-sm text-zinc-500">{workout.notes}</p>}
+      {workout.notes && <p className="text-sm text-muted">{workout.notes}</p>}
 
       <ul className="space-y-3">
         {exercises.map((we) => {
           const explanation = techniqueExplanation(we.technique as Technique, we.technique_detail);
           return (
-            <li key={we.id} className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+            <li key={we.id} className="rounded-xl border border-line p-4 bg-card">
               <p className="font-semibold">{we.exercises?.name}</p>
-              <p className="text-sm text-zinc-500">
+              <p className="text-sm text-muted">
                 {we.sets}× {repsLabel(we.reps_min, we.reps_max, we.reps_text)}
                 {we.target_load_kg ? ` · ${we.target_load_kg} kg` : ""}
               </p>
@@ -50,7 +50,7 @@ export default async function TreinoDetalhePage({
                   {explanation}
                 </p>
               )}
-              {we.notes && <p className="mt-2 text-xs text-zinc-500">Obs.: {we.notes}</p>}
+              {we.notes && <p className="mt-2 text-xs text-muted">Obs.: {we.notes}</p>}
             </li>
           );
         })}

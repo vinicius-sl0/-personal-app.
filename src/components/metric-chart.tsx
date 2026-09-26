@@ -108,14 +108,14 @@ export default function MetricChart({ series }: { series: MetricSeries }) {
               y1={y(t)}
               y2={y(t)}
               strokeWidth={1}
-              className="stroke-zinc-200 dark:stroke-zinc-800"
+              className="stroke-line"
             />
             <text
               x={PAD.left - 8}
               y={y(t)}
               textAnchor="end"
               dominantBaseline="middle"
-              className="fill-zinc-500 text-[11px] tabular-nums"
+              className="fill-muted text-[11px] tabular-nums"
             >
               {tickLabel(t)}
             </text>
@@ -123,11 +123,11 @@ export default function MetricChart({ series }: { series: MetricSeries }) {
         ))}
 
         {/* Datas: primeira e última */}
-        <text x={xy[0].cx} y={HEIGHT - 8} textAnchor={xy.length > 1 ? "start" : "middle"} className="fill-zinc-500 text-[11px]">
+        <text x={xy[0].cx} y={HEIGHT - 8} textAnchor={xy.length > 1 ? "start" : "middle"} className="fill-muted text-[11px]">
           {shortDate(points[0].date)}
         </text>
         {xy.length > 1 && (
-          <text x={last.cx} y={HEIGHT - 8} textAnchor="end" className="fill-zinc-500 text-[11px]">
+          <text x={last.cx} y={HEIGHT - 8} textAnchor="end" className="fill-muted text-[11px]">
             {shortDate(last.date)}
           </text>
         )}
@@ -166,7 +166,7 @@ export default function MetricChart({ series }: { series: MetricSeries }) {
             x={last.cx}
             y={last.cy - 12}
             textAnchor={xy.length > 1 ? "end" : "middle"}
-            className="fill-zinc-900 text-xs font-semibold tabular-nums dark:fill-zinc-100"
+            className="fill-brand text-xs font-semibold tabular-nums"
           >
             {formatValue(last.value, metric)}
           </text>
@@ -175,10 +175,10 @@ export default function MetricChart({ series }: { series: MetricSeries }) {
 
       {shown !== null && (
         <div
-          className="pointer-events-none absolute top-0 -translate-x-1/2 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
+          className="pointer-events-none absolute top-0 -translate-x-1/2 rounded-lg border border-line bg-white px-2.5 py-1.5 text-xs shadow-sm dark:bg-zinc-950"
           style={{ left: Math.min(Math.max(xy[shown].cx, 60), width - 60) }}
         >
-          <p className="text-zinc-500">{formatDate(xy[shown].date)}</p>
+          <p className="text-muted">{formatDate(xy[shown].date)}</p>
           <p className="font-semibold tabular-nums">{formatValue(xy[shown].value, metric)}</p>
         </div>
       )}

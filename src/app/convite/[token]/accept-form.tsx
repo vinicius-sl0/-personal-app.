@@ -40,7 +40,7 @@ export default function AcceptForm({
           required
           className={inputCls}
         />
-        <p className="text-xs text-zinc-500">Mínimo de 8 caracteres.</p>
+        <p className="text-xs text-muted">Mínimo de 8 caracteres.</p>
       </div>
 
       <div className="space-y-1.5">

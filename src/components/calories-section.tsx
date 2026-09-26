@@ -5,10 +5,10 @@ import { formatWeek } from "@/lib/feedback";
 
 function Tile({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
-      <p className="text-xs text-zinc-500">{label}</p>
+    <div className="rounded-xl border border-line p-3 bg-card">
+      <p className="text-xs text-muted">{label}</p>
       <p className="text-xl font-bold tabular-nums">{value}</p>
-      {sub && <p className="text-xs text-zinc-500">{sub}</p>}
+      {sub && <p className="text-xs text-muted">{sub}</p>}
     </div>
   );
 }
@@ -32,10 +32,10 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+    <div className="space-y-3 rounded-xl border border-line p-4 bg-card">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-semibold">🔥 Calorias estimadas</h3>
-        <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+        <span className="rounded-full bg-subtle-strong px-2.5 py-1 text-xs font-medium text-zinc-600 dark:text-zinc-300">
           Aproximação, não é medição
         </span>
       </div>
@@ -64,12 +64,12 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
       {!singleWeek && result.weeks.length > 0 && (
         <div className="space-y-1">
           <h4 className="text-sm font-medium">Por semana</h4>
-          <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 text-sm dark:divide-zinc-800 dark:border-zinc-800">
+          <ul className="divide-y divide-line rounded-xl border border-line text-sm bg-card">
             {result.weeks.map((w) => (
               <li key={w.weekStart} className="flex items-center justify-between gap-3 px-3 py-2">
                 <span>
                   {formatWeek(w.weekStart)}
-                  <span className="block text-xs text-zinc-500">
+                  <span className="block text-xs text-muted">
                     {w.sessions} {w.sessions === 1 ? "treino" : "treinos"}
                   </span>
                 </span>
@@ -83,12 +83,12 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
       {result.sessions.length > 0 && (
         <div className="space-y-1">
           <h4 className="text-sm font-medium">Por treino</h4>
-          <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 text-sm dark:divide-zinc-800 dark:border-zinc-800">
+          <ul className="divide-y divide-line rounded-xl border border-line text-sm bg-card">
             {result.sessions.map((s) => (
               <li key={s.id} className="flex items-center justify-between gap-3 px-3 py-2">
                 <span className="min-w-0">
                   <span className="block truncate font-medium">{s.name}</span>
-                  <span className="block text-xs text-zinc-500">
+                  <span className="block text-xs text-muted">
                     {formatDate(s.date)} ·{" "}
                     {s.durationMin === null ? "sem check-out" : formatMinutes(s.durationMin)} · {s.sets}{" "}
                     {s.sets === 1 ? "série" : "séries"}
@@ -96,11 +96,11 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
                 </span>
                 <span className="shrink-0 text-right tabular-nums">
                   {s.durationMin === null || s.sets === 0 ? (
-                    <span className="text-xs text-zinc-500">não estimado</span>
+                    <span className="text-xs text-muted">não estimado</span>
                   ) : (
                     <>
                       <span className="font-semibold">{formatKcal(s.kcal)}</span>
-                      {s.partial && <span className="block text-[11px] text-zinc-500">parcial*</span>}
+                      {s.partial && <span className="block text-[11px] text-muted">parcial*</span>}
                     </>
                   )}
                 </span>
@@ -108,7 +108,7 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
             ))}
           </ul>
           {result.sessions.some((s) => s.partial) && (
-            <p className="text-[11px] text-zinc-500">* Parte dos exercícios desse treino não tem kcal/min cadastrado.</p>
+            <p className="text-[11px] text-muted">* Parte dos exercícios desse treino não tem kcal/min cadastrado.</p>
           )}
         </div>
       )}
@@ -116,9 +116,9 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
       {result.exercises.length > 0 && (
         <div className="space-y-1">
           <h4 className="text-sm font-medium">Por exercício</h4>
-          <div className="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+          <div className="overflow-x-auto rounded-xl border border-line bg-card">
             <table className="w-full min-w-[520px] text-left text-sm">
-              <thead className="bg-zinc-50 text-xs text-zinc-500 dark:bg-zinc-900">
+              <thead className="bg-subtle text-xs text-muted">
                 <tr>
                   <th scope="col" className="px-3 py-2 font-medium">Exercício</th>
                   <th scope="col" className="px-3 py-2 font-medium">Séries</th>
@@ -129,15 +129,15 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
               </thead>
               <tbody>
                 {result.exercises.map((e) => (
-                  <tr key={e.key} className="border-t border-zinc-200 dark:border-zinc-800">
+                  <tr key={e.key} className="border-t border-line">
                     <th scope="row" className="px-3 py-2 font-medium">{e.name}</th>
                     <td className="px-3 py-2 tabular-nums">{e.sets}</td>
                     <td className="px-3 py-2 tabular-nums">{e.minutes > 0 ? formatMinutes(e.minutes) : "—"}</td>
                     <td className="px-3 py-2 tabular-nums">
-                      {e.kcalPerMin === null ? <span className="text-xs text-zinc-500">não cadastrado</span> : formatKcalPerMin(e.kcalPerMin)}
+                      {e.kcalPerMin === null ? <span className="text-xs text-muted">não cadastrado</span> : formatKcalPerMin(e.kcalPerMin)}
                     </td>
                     <td className="px-3 py-2 font-semibold tabular-nums">
-                      {e.kcal === null || e.minutes === 0 ? <span className="text-xs font-normal text-zinc-500">—</span> : formatKcal(e.kcal)}
+                      {e.kcal === null || e.minutes === 0 ? <span className="text-xs font-normal text-muted">—</span> : formatKcal(e.kcal)}
                     </td>
                   </tr>
                 ))}
@@ -147,7 +147,7 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
         </div>
       )}
 
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-muted">
         Como é estimado: o tempo de cada exercício é a duração do treino (check-in → check-out) dividida conforme as
         séries feitas — o descanso entra junto. Calorias estimadas = tempo × kcal/min cadastrado no exercício. O gasto
         real varia com peso, idade, intensidade e condicionamento de cada pessoa.

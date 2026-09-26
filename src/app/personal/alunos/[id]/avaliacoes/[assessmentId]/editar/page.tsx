@@ -43,7 +43,7 @@ export default async function EditarAvaliacaoPage({
       <div>
         <Link
           href={`/personal/alunos/${id}/avaliacoes/${assessmentId}`}
-          className="text-sm text-zinc-500 underline"
+          className="text-sm text-muted underline"
         >
           ← Voltar sem salvar
         </Link>

@@ -43,7 +43,7 @@ export default async function NovaAvaliacaoPage({
   return (
     <section className="space-y-4">
       <div>
-        <Link href={`/personal/alunos/${id}/avaliacoes`} className="text-sm text-zinc-500 underline">
+        <Link href={`/personal/alunos/${id}/avaliacoes`} className="text-sm text-muted underline">
           ← Voltar para as avaliações
         </Link>
         <h1 className="mt-2 text-xl font-bold">Nova avaliação de {student.full_name}</h1>

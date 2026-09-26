@@ -24,7 +24,7 @@ export default function InviteLink({ url, name }: { url: string; name: string })
         Link de convite de {name}
       </p>
       <p className="break-all rounded-lg bg-white/70 p-2 font-mono text-xs dark:bg-black/30">{url}</p>
-      <p className="text-xs text-zinc-600 dark:text-zinc-400">
+      <p className="text-xs text-soft">
         Aparece só agora: por segurança, o sistema guarda apenas uma versão criptografada. Vale por 7
         dias e uma única vez. Se perder, gere outro na lista de alunos.
       </p>

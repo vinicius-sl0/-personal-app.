@@ -41,7 +41,7 @@ export default async function FeedbackPage() {
     <section className="space-y-4">
       <div>
         <h1 className="text-xl font-bold">Feedback semanal</h1>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-muted">
           {formatWeek(weekStart)}. Leva 1 minuto e ajuda seu Personal a ajustar seu treino.
         </p>
       </div>
@@ -49,14 +49,14 @@ export default async function FeedbackPage() {
       {error && <p className={errorCls}>Não foi possível carregar seus feedbacks: {error.message}</p>}
 
       {!error && !canAnswer && (
-        <p className="rounded-lg bg-zinc-100 px-3 py-2 text-sm text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
+        <p className="rounded-lg bg-zinc-100 px-3 py-2 text-sm text-soft dark:bg-zinc-900">
           O feedback fica disponível quando seu acesso estiver ativo.
         </p>
       )}
 
       {!error && canAnswer && (
         <>
-          <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+          <div className="rounded-xl border border-line p-4 bg-card">
             <CurrentFeedback feedback={current} />
           </div>
 
@@ -82,7 +82,7 @@ export default async function FeedbackPage() {
           <h2 className="font-semibold">Semanas anteriores</h2>
           <ul className="space-y-3">
             {past.map((f) => (
-              <li key={f.id} className="space-y-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+              <li key={f.id} className="space-y-3 rounded-xl border border-line p-4 bg-card">
                 <FeedbackAnswers feedback={f} />
                 <WeekPhotos sets={photosByWeek.get(f.week_start) ?? []} />
               </li>

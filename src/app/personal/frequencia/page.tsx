@@ -42,7 +42,7 @@ export default async function FrequenciaPage() {
     <section className="space-y-4">
       <div>
         <h1 className="text-xl font-bold">Frequência</h1>
-        <p className="text-sm text-zinc-500">{formatWeek(weekStart)}</p>
+        <p className="text-sm text-muted">{formatWeek(weekStart)}</p>
       </div>
 
       {(error || sessionsError) && (
@@ -50,7 +50,7 @@ export default async function FrequenciaPage() {
       )}
 
       {!error && rows.length === 0 && (
-        <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
           Nenhum aluno ativo ainda.
         </p>
       )}
@@ -60,11 +60,11 @@ export default async function FrequenciaPage() {
           <li key={student.id}>
             <Link
               href={`/personal/alunos/${student.id}/frequencia`}
-              className="flex items-center justify-between gap-3 rounded-xl border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+              className="flex items-center justify-between gap-3 rounded-xl border border-line p-4 hover:bg-subtle bg-card"
             >
               <span className="min-w-0">
                 <span className="block truncate font-semibold">{student.full_name}</span>
-                <span className="block text-sm text-zinc-500">{summaryText(summary)}</span>
+                <span className="block text-sm text-muted">{summaryText(summary)}</span>
                 <span className="block text-xs text-zinc-400">{trainingDaysText(student.training_days)}</span>
               </span>
               {missed > 0 && (

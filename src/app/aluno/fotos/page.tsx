@@ -25,7 +25,7 @@ export default async function MinhasFotosPage() {
     <section className="space-y-4">
       <h1 className="text-xl font-bold">Fotos de evolução</h1>
 
-      <div className="space-y-3 rounded-xl border border-zinc-200 p-4 text-sm dark:border-zinc-800">
+      <div className="space-y-3 rounded-xl border border-line p-4 text-sm bg-card">
         {consent.error ? (
           <p className={errorCls}>Não foi possível verificar sua autorização: {consent.error.message}</p>
         ) : consent.active ? (
@@ -52,7 +52,7 @@ export default async function MinhasFotosPage() {
       {error && <p className={errorCls}>Não foi possível carregar suas fotos: {error}</p>}
 
       {!error && sets.length === 0 && (
-        <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
           Nenhuma foto ainda.
         </p>
       )}

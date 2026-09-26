@@ -31,7 +31,7 @@ export default function FeedbackAnswers({
       {showWeek && (
         <div>
           <p className="font-medium">{formatWeek(feedback.week_start)}</p>
-          <p className="text-xs text-zinc-500">Enviado em {formatMessageTime(feedback.submitted_at)}</p>
+          <p className="text-xs text-muted">Enviado em {formatMessageTime(feedback.submitted_at)}</p>
         </div>
       )}
 
@@ -39,8 +39,8 @@ export default function FeedbackAnswers({
         {scales.map((s) => {
           const v = feedback[s.field];
           return (
-            <div key={s.field} className="rounded-lg border border-zinc-200 p-2 dark:border-zinc-800">
-              <dt className="text-xs text-zinc-500">{s.label}</dt>
+            <div key={s.field} className="rounded-lg border border-line p-2">
+              <dt className="text-xs text-muted">{s.label}</dt>
               <dd className="mt-1">
                 {v ? (
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${toneCls(v, s.higherIsBetter)}`}>
@@ -57,14 +57,14 @@ export default function FeedbackAnswers({
 
       {texts.map((t) => (
         <div key={t.label} className="text-sm">
-          <p className={`text-xs ${t.alert ? "font-medium text-red-700 dark:text-red-400" : "text-zinc-500"}`}>{t.label}</p>
+          <p className={`text-xs ${t.alert ? "font-medium text-red-700 dark:text-red-400" : "text-muted"}`}>{t.label}</p>
           <p className="whitespace-pre-wrap">{t.value}</p>
         </div>
       ))}
 
       {feedback.personal_reply && (
         <div className="rounded-lg bg-zinc-100 p-3 text-sm dark:bg-zinc-900">
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-muted">
             Resposta do {replyAuthor}
             {feedback.replied_at && ` · ${formatMessageTime(feedback.replied_at)}`}
           </p>

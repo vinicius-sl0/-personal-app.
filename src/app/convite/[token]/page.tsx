@@ -17,7 +17,7 @@ export default async function ConvitePage({
       {invite ? (
         <>
           <h1 className="text-2xl font-bold">Olá, {invite.student.full_name.split(" ")[0]}!</h1>
-          <p className="mt-1 mb-6 text-sm text-zinc-500">
+          <p className="mt-1 mb-6 text-sm text-muted">
             Crie sua senha e aceite os termos para acessar seus treinos.
           </p>
           <AcceptForm
@@ -29,7 +29,7 @@ export default async function ConvitePage({
       ) : (
         <>
           <h1 className="text-2xl font-bold">Convite indisponível</h1>
-          <p className="mt-2 text-sm text-zinc-500">
+          <p className="mt-2 text-sm text-muted">
             Este link é inválido, já foi usado ou expirou. Peça um novo convite ao seu Personal.
           </p>
         </>

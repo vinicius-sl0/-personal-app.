@@ -47,10 +47,10 @@ export default function RestTimer({
   const finished = left <= 0;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-zinc-200 bg-white p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] dark:border-zinc-800 dark:bg-zinc-950">
+    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] dark:bg-zinc-950">
       <div className="mx-auto flex max-w-md items-center justify-between gap-4">
         <div>
-          <p className="text-xs text-zinc-500">{finished ? "Descanso terminado" : "Descansando..."}</p>
+          <p className="text-xs text-muted">{finished ? "Descanso terminado" : "Descansando..."}</p>
           <p className={`text-4xl font-bold tabular-nums ${finished ? "text-emerald-600 dark:text-emerald-400" : ""}`}>
             {mm}:{ss}
           </p>
@@ -60,7 +60,7 @@ export default function RestTimer({
             <button
               type="button"
               onClick={() => setLeft((v) => v + 15)}
-              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700"
+              className="rounded-lg border border-line-strong px-3 py-2 text-sm"
             >
               +15s
             </button>
@@ -68,7 +68,7 @@ export default function RestTimer({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white dark:bg-zinc-100 dark:text-zinc-900"
+            className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-brand-contrast"
           >
             {finished ? "Continuar" : "Pular"}
           </button>

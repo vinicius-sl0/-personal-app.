@@ -21,7 +21,7 @@ export default async function VolumePage({ searchParams }: { searchParams: Promi
     <section className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <p className="text-xs uppercase tracking-wide text-zinc-500">Treinos</p>
+          <p className="text-xs uppercase tracking-wide text-muted">Treinos</p>
           <h1 className="text-xl font-bold">Análise de volume</h1>
         </div>
         <SecondaryWeightSelect value={weight} />

@@ -29,7 +29,7 @@ export default async function FrequenciaAlunoPage({
   return (
     <section className="space-y-4">
       <div>
-        <Link href={`/personal/alunos/${id}`} className="text-sm text-zinc-500 underline">
+        <Link href={`/personal/alunos/${id}`} className="text-sm text-muted underline">
           ← Voltar para {student.full_name}
         </Link>
         <h1 className="mt-2 text-xl font-bold">Frequência (check-in / check-out)</h1>

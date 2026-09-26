@@ -21,11 +21,11 @@ export default async function NovasFotosPage() {
   return (
     <section className="space-y-4">
       <div>
-        <Link href="/aluno/fotos" className="text-sm text-zinc-500 underline">
+        <Link href="/aluno/fotos" className="text-sm text-muted underline">
           ← Voltar para Fotos
         </Link>
         <h1 className="mt-2 text-xl font-bold">Enviar fotos</h1>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-muted">
           Escolha as fotos que quiser (não precisa ter todas). Dica: mesma luz, mesma distância e
           mesma roupa facilitam a comparação.
         </p>

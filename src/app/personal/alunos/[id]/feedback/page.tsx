@@ -43,25 +43,25 @@ export default async function FeedbackAlunoPage({
   return (
     <section className="space-y-4">
       <div>
-        <Link href={`/personal/alunos/${id}`} className="text-sm text-zinc-500 underline">
+        <Link href={`/personal/alunos/${id}`} className="text-sm text-muted underline">
           ← Voltar para {student.full_name}
         </Link>
         <h1 className="mt-2 text-xl font-bold">Feedback semanal</h1>
         {!error && !sentThisWeek && (
-          <p className="text-sm text-zinc-500">O feedback desta semana ainda não foi enviado.</p>
+          <p className="text-sm text-muted">O feedback desta semana ainda não foi enviado.</p>
         )}
       </div>
 
       {error && <p className={errorCls}>Não foi possível carregar os feedbacks: {error.message}</p>}
       {photos.error && <p className={errorCls}>Não foi possível carregar as fotos: {photos.error}</p>}
       {!consent.error && !consent.active && (
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-muted">
           O aluno não autorizou fotos de evolução, por isso as fotos não aparecem aqui.
         </p>
       )}
 
       {!error && feedbacks.length === 0 && (
-        <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
           {student.full_name} ainda não enviou nenhum feedback.
         </p>
       )}
@@ -72,7 +72,7 @@ export default async function FeedbackAlunoPage({
             key={c.id}
             id={c.id}
             className={`scroll-mt-4 space-y-3 rounded-xl border p-4 ${
-              c.replied_at ? "border-zinc-200 dark:border-zinc-800" : "border-amber-300 dark:border-amber-800"
+              c.replied_at ? "border-line" : "border-amber-300 dark:border-amber-800"
             }`}
           >
             <FeedbackAnswers feedback={c} replyAuthor="Personal (você)" />

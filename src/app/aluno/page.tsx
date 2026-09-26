@@ -20,7 +20,7 @@ export default async function AlunoHome() {
     return (
       <section className="space-y-4">
         <h1 className="text-xl font-bold">Falta pouco</h1>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-muted">
           Para liberar seu acesso, aceite os consentimentos abaixo.
         </p>
         <TermsForm minor={isMinor(student.birth_date)} />

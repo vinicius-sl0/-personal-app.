@@ -21,7 +21,7 @@ export default async function HistoricoPage({
     <section className="space-y-4">
       <div>
         <h1 className="text-xl font-bold">Minha frequência</h1>
-        <p className="text-sm text-zinc-500">Dias combinados: {trainingDaysText(student.training_days)}</p>
+        <p className="text-sm text-muted">Dias combinados: {trainingDaysText(student.training_days)}</p>
       </div>
 
       {concluido === "1" && (

@@ -33,7 +33,7 @@ export default async function MinhasAvaliacoesPage() {
       {error && <p className={errorCls}>Não foi possível carregar suas avaliações: {error.message}</p>}
 
       {!error && assessments?.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
           Você ainda não tem avaliações. Quando seu Personal registrar a primeira, ela aparece aqui.
         </p>
       ) : (
@@ -46,11 +46,11 @@ export default async function MinhasAvaliacoesPage() {
               <li key={a.id}>
                 <Link
                   href={`/aluno/avaliacoes/${a.id}`}
-                  className="block rounded-xl border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+                  className="block rounded-xl border border-line p-4 hover:bg-subtle bg-card"
                 >
                   <span className="font-medium">{formatDate(a.assessed_at)}</span>
                   {a.assessment_protocols?.name && (
-                    <span className="block text-sm text-zinc-500">{a.assessment_protocols.name}</span>
+                    <span className="block text-sm text-muted">{a.assessment_protocols.name}</span>
                   )}
                 </Link>
               </li>

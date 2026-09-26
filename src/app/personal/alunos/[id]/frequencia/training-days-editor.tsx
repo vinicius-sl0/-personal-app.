@@ -32,9 +32,9 @@ export default function TrainingDaysEditor({ studentId, initial }: { studentId: 
 
   if (!editing) {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+      <div className="flex items-center justify-between gap-3 rounded-xl border border-line p-4 bg-card">
         <span>
-          <span className="block text-xs text-zinc-500">Dias combinados</span>
+          <span className="block text-xs text-muted">Dias combinados</span>
           <span className="font-medium">{trainingDaysText(initial)}</span>
         </span>
         <button type="button" onClick={() => setEditing(true)} className={`${btnSecondaryCls} !h-9 shrink-0`}>
@@ -45,9 +45,9 @@ export default function TrainingDaysEditor({ studentId, initial }: { studentId: 
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+    <div className="space-y-3 rounded-xl border border-line p-4 bg-card">
       <p className="text-sm font-medium">Em quais dias o aluno deve treinar?</p>
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-muted">
         Dia marcado sem check-in aparece como “Não foi”. Treino em dia não marcado conta como extra.
       </p>
       <div className="grid grid-cols-7 gap-1">
@@ -62,8 +62,8 @@ export default function TrainingDaysEditor({ studentId, initial }: { studentId: 
               onClick={() => toggle(w.value)}
               className={`h-11 rounded-lg border text-xs font-semibold transition ${
                 on
-                  ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
-                  : "border-zinc-300 dark:border-zinc-700"
+                  ? "border-brand bg-brand text-brand-contrast"
+                  : "border-line-strong"
               }`}
             >
               {w.short}

@@ -47,7 +47,7 @@ export default function FeedbackForm({ initial, onDone }: { initial: Feedback | 
                     defaultChecked={initial?.[s.field] === value}
                     className="peer sr-only"
                   />
-                  <span className="flex h-16 flex-col items-center justify-center rounded-lg border border-zinc-300 px-1 text-center transition peer-checked:border-zinc-900 peer-checked:bg-zinc-900 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-zinc-900/30 dark:border-zinc-700 dark:peer-checked:border-zinc-100 dark:peer-checked:bg-zinc-100 dark:peer-checked:text-zinc-900">
+                  <span className="flex h-16 flex-col items-center justify-center rounded-lg border border-line-strong px-1 text-center transition peer-checked:border-brand peer-checked:bg-brand peer-checked:text-brand-contrast peer-focus-visible:ring-2 peer-focus-visible:ring-brand/30">
                     <span className="text-base font-bold">{value}</span>
                     <span className="text-[10px] leading-tight">{label}</span>
                   </span>
@@ -61,7 +61,7 @@ export default function FeedbackForm({ initial, onDone }: { initial: Feedback | 
       {TEXTS.map((t) => (
         <label key={t.name} className="block space-y-1">
           <span className="text-sm font-medium">
-            {t.label} <span className="font-normal text-zinc-500">(opcional)</span>
+            {t.label} <span className="font-normal text-muted">(opcional)</span>
           </span>
           <textarea
             name={t.name}

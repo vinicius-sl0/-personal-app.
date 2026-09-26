@@ -33,7 +33,7 @@ export default async function MensagensAlunoPersonalPage({
   return (
     <section className="space-y-3">
       <div>
-        <Link href="/personal/mensagens" className="text-sm text-zinc-500 underline">
+        <Link href="/personal/mensagens" className="text-sm text-muted underline">
           ← Todas as conversas
         </Link>
         <h1 className="mt-2 text-xl font-bold">

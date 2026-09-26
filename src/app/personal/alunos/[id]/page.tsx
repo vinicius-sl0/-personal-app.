@@ -12,8 +12,8 @@ export const metadata = { title: "Aluno" };
 const STATUS = {
   convidado: { label: "Convite pendente", cls: "bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-200" },
   ativo: { label: "Ativo", cls: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200" },
-  pausado: { label: "Pausado", cls: "bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300" },
-  arquivado: { label: "Arquivado", cls: "bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300" },
+  pausado: { label: "Pausado", cls: "bg-zinc-200 text-strong dark:bg-zinc-800" },
+  arquivado: { label: "Arquivado", cls: "bg-zinc-200 text-strong dark:bg-zinc-800" },
 } as const;
 
 export default async function AlunoDetalhePage({
@@ -52,7 +52,7 @@ export default async function AlunoDetalhePage({
   return (
     <section className="space-y-4">
       <div>
-        <Link href="/personal/alunos" className="text-sm text-zinc-500 underline">
+        <Link href="/personal/alunos" className="text-sm text-muted underline">
           ← Voltar para Alunos
         </Link>
         <div className="mt-2 flex items-center justify-between gap-3">
@@ -61,17 +61,17 @@ export default async function AlunoDetalhePage({
             {STATUS[student.status].label}
           </span>
         </div>
-        <p className="text-sm text-zinc-500">{student.email}</p>
+        <p className="text-sm text-muted">{student.email}</p>
         {student.goal && <p className="mt-1 text-sm">Objetivo: {student.goal}</p>}
       </div>
 
       <Link
         href={`/personal/alunos/${id}/avaliacoes`}
-        className="flex items-center justify-between gap-3 rounded-xl border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+        className="flex items-center justify-between gap-3 rounded-xl border border-line p-4 hover:bg-subtle bg-card"
       >
         <span>
           <span className="font-semibold">Avaliações e evolução</span>
-          <span className="block text-sm text-zinc-500">
+          <span className="block text-sm text-muted">
             {lastAssessment
               ? `Última avaliação em ${formatDate(lastAssessment.assessed_at)}`
               : "Nenhuma avaliação ainda"}
@@ -82,44 +82,44 @@ export default async function AlunoDetalhePage({
 
       <Link
         href={`/personal/alunos/${id}/fotos`}
-        className="flex items-center justify-between gap-3 rounded-xl border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+        className="flex items-center justify-between gap-3 rounded-xl border border-line p-4 hover:bg-subtle bg-card"
       >
         <span>
           <span className="font-semibold">Fotos de evolução</span>
-          <span className="block text-sm text-zinc-500">Antes e depois, por data e ângulo</span>
+          <span className="block text-sm text-muted">Antes e depois, por data e ângulo</span>
         </span>
         <span aria-hidden className="text-zinc-400">→</span>
       </Link>
 
       <Link
         href={`/personal/alunos/${id}/frequencia`}
-        className="flex items-center justify-between gap-3 rounded-xl border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+        className="flex items-center justify-between gap-3 rounded-xl border border-line p-4 hover:bg-subtle bg-card"
       >
         <span>
           <span className="font-semibold">Frequência (check-in / check-out)</span>
-          <span className="block text-sm text-zinc-500">{trainingDaysText(student.training_days)}</span>
+          <span className="block text-sm text-muted">{trainingDaysText(student.training_days)}</span>
         </span>
         <span aria-hidden className="text-zinc-400">→</span>
       </Link>
 
       <Link
         href={`/personal/alunos/${id}/feedback`}
-        className="flex items-center justify-between gap-3 rounded-xl border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+        className="flex items-center justify-between gap-3 rounded-xl border border-line p-4 hover:bg-subtle bg-card"
       >
         <span>
           <span className="font-semibold">Feedback semanal</span>
-          <span className="block text-sm text-zinc-500">Como foi cada semana, com sua resposta</span>
+          <span className="block text-sm text-muted">Como foi cada semana, com sua resposta</span>
         </span>
         <span aria-hidden className="text-zinc-400">→</span>
       </Link>
 
       <Link
         href={`/personal/alunos/${id}/mensagens`}
-        className="flex items-center justify-between gap-3 rounded-xl border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+        className="flex items-center justify-between gap-3 rounded-xl border border-line p-4 hover:bg-subtle bg-card"
       >
         <span>
           <span className="font-semibold">Mensagens</span>
-          <span className="block text-sm text-zinc-500">Conversa com {student.full_name}</span>
+          <span className="block text-sm text-muted">Conversa com {student.full_name}</span>
         </span>
         <span aria-hidden className="text-zinc-400">→</span>
       </Link>
@@ -140,7 +140,7 @@ export default async function AlunoDetalhePage({
       {error && <p className={errorCls}>Não foi possível carregar as fichas: {error.message}</p>}
 
       {!error && plans?.length === 0 && (
-        <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
           Nenhuma ficha ainda. Clique em “Nova ficha” para montar a primeira.
         </p>
       )}
@@ -152,7 +152,7 @@ export default async function AlunoDetalhePage({
             <li key={p.id}>
               <Link
                 href={`/personal/alunos/${id}/treinos/${p.id}`}
-                className="flex items-center justify-between gap-3 rounded-xl border border-zinc-200 p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+                className="flex items-center justify-between gap-3 rounded-xl border border-line p-4 hover:bg-subtle bg-card"
               >
                 <span className="font-medium">{p.name}</span>
                 <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${s.cls}`}>
