@@ -1,10 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
-import { FEEDBACK_COLUMNS, currentWeekStart, formatWeek } from "@/lib/feedback";
+import { FEEDBACK_COLUMNS, currentWeekStart, formatWeek, shiftWeek } from "@/lib/feedback";
+import { todayIso } from "@/lib/assessment";
+import { hasPhotoConsent, loadPhotoSets } from "@/lib/photo-data";
 import { errorCls } from "@/lib/ui";
 import FeedbackAnswers from "@/components/feedback-answers";
+import WeekPhotos, { groupSetsByWeek } from "@/components/week-photos";
 import CurrentFeedback from "./current-feedback";
+import WeeklyPhotos from "./weekly-photos";
 
 export const metadata = { title: "Feedback semanal" };
+
+const HISTORY_WEEKS = 52;
 
 export default async function FeedbackPage() {
   const supabase = await createClient();
@@ -14,12 +20,18 @@ export default async function FeedbackPage() {
   if (!student) return <p className={errorCls}>Cadastro de aluno não encontrado.</p>;
 
   const weekStart = currentWeekStart();
-  const { data: feedbacks, error } = await supabase
-    .from("weekly_checkins")
-    .select(FEEDBACK_COLUMNS)
-    .eq("student_id", student.id)
-    .order("week_start", { ascending: false })
-    .limit(52);
+  const [{ data: feedbacks, error }, consent, photos] = await Promise.all([
+    supabase
+      .from("weekly_checkins")
+      .select(FEEDBACK_COLUMNS)
+      .eq("student_id", student.id)
+      .order("week_start", { ascending: false })
+      .limit(HISTORY_WEEKS),
+    hasPhotoConsent(supabase, student.id),
+    // Fotos das mesmas semanas do histórico (as mais antigas continuam na página Fotos).
+    loadPhotoSets(supabase, student.id, { from: shiftWeek(weekStart, -(HISTORY_WEEKS - 1)) }),
+  ]);
+  const photosByWeek = groupSetsByWeek(photos.sets);
 
   const current = feedbacks?.find((f) => f.week_start === weekStart) ?? null;
   const past = (feedbacks ?? []).filter((f) => f.week_start !== weekStart);
@@ -43,9 +55,26 @@ export default async function FeedbackPage() {
       )}
 
       {!error && canAnswer && (
-        <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
-          <CurrentFeedback feedback={current} />
-        </div>
+        <>
+          <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+            <CurrentFeedback feedback={current} />
+          </div>
+
+          {photos.error && <p className={errorCls}>Não foi possível carregar suas fotos: {photos.error}</p>}
+          {consent.error && (
+            <p className={errorCls}>Não foi possível verificar a autorização de fotos: {consent.error.message}</p>
+          )}
+          {!consent.error && (
+            <WeeklyPhotos
+              studentId={student.id}
+              today={todayIso()}
+              weekStart={weekStart}
+              consentActive={consent.active}
+            >
+              <WeekPhotos sets={photosByWeek.get(weekStart) ?? []} title="Enviadas nesta semana" />
+            </WeeklyPhotos>
+          )}
+        </>
       )}
 
       {past.length > 0 && (
@@ -53,8 +82,9 @@ export default async function FeedbackPage() {
           <h2 className="font-semibold">Semanas anteriores</h2>
           <ul className="space-y-3">
             {past.map((f) => (
-              <li key={f.id} className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+              <li key={f.id} className="space-y-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
                 <FeedbackAnswers feedback={f} />
+                <WeekPhotos sets={photosByWeek.get(f.week_start) ?? []} />
               </li>
             ))}
           </ul>

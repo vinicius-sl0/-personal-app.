@@ -45,10 +45,15 @@ export default function PhotoUploadForm({
   studentId,
   today,
   backHref,
+  onDone,
+  minDate,
 }: {
   studentId: string;
   today: string;
-  backHref: string;
+  minDate?: string; // ex.: segunda-feira da semana, quando o envio é pelo Feedback
+  // Depois de salvar: vai para `backHref`, ou (usado dentro do Feedback) chama `onDone` e fica na página.
+  backHref?: string;
+  onDone?: () => void;
 }) {
   const router = useRouter();
   const [takenAt, setTakenAt] = useState(today);
@@ -87,6 +92,10 @@ export default function PhotoUploadForm({
     setError(null);
     if (chosen.length === 0) {
       setError("Escolha pelo menos uma foto.");
+      return;
+    }
+    if (minDate && takenAt < minDate) {
+      setError("Escolha uma data desta semana.");
       return;
     }
 
@@ -151,7 +160,8 @@ export default function PhotoUploadForm({
       return;
     }
 
-    router.push(backHref);
+    if (onDone) onDone();
+    else if (backHref) router.push(backHref);
     router.refresh();
   }
 
@@ -162,6 +172,7 @@ export default function PhotoUploadForm({
         <input
           type="date"
           value={takenAt}
+          min={minDate}
           max={today}
           disabled={busy}
           onChange={(e) => setTakenAt(e.target.value)}

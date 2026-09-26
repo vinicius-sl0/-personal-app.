@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
 import { formatMessageTime } from "@/lib/chat";
-import { formatWeek } from "@/lib/feedback";
+import { formatWeek, weekStartOf } from "@/lib/feedback";
 import { errorCls } from "@/lib/ui";
 
 export const metadata = { title: "Feedback semanal" };
@@ -29,6 +29,17 @@ export default async function FeedbackPage() {
       .limit(20),
   ]);
 
+  // Semanas (aluno + segunda-feira) em que há fotos. A RLS só devolve fotos com autorização ativa.
+  const oldestWeek = pending.data?.map((c) => c.week_start).sort()[0];
+  const withPhotos = new Set<string>();
+  if (oldestWeek) {
+    const { data: sets } = await supabase
+      .from("progress_photo_sets")
+      .select("student_id, taken_at")
+      .gte("taken_at", oldestWeek);
+    for (const p of sets ?? []) withPhotos.add(`${p.student_id}:${weekStartOf(p.taken_at)}`);
+  }
+
   return (
     <section className="space-y-4">
       <h1 className="text-xl font-bold">Feedback semanal</h1>
@@ -50,11 +61,18 @@ export default async function FeedbackPage() {
                   {formatWeek(c.week_start)} · enviado {formatMessageTime(c.submitted_at)}
                 </span>
               </span>
-              {c.pain_notes && (
-                <span className="shrink-0 rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-800 dark:bg-red-950/50 dark:text-red-200">
-                  Relatou dor
-                </span>
-              )}
+              <span className="flex shrink-0 flex-col items-end gap-1">
+                {c.pain_notes && (
+                  <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-800 dark:bg-red-950/50 dark:text-red-200">
+                    Relatou dor
+                  </span>
+                )}
+                {withPhotos.has(`${c.student_id}:${c.week_start}`) && (
+                  <span className="rounded-full bg-sky-100 px-2.5 py-1 text-xs font-medium text-sky-800 dark:bg-sky-950/50 dark:text-sky-200">
+                    📷 Fotos
+                  </span>
+                )}
+              </span>
             </Link>
           </li>
         ))}

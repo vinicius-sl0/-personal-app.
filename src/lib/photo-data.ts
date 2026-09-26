@@ -21,13 +21,17 @@ export async function hasPhotoConsent(supabase: Supabase, studentId: string) {
 export async function loadPhotoSets(
   supabase: Supabase,
   studentId: string,
+  opts: { from?: string } = {},
 ): Promise<{ sets: PhotoSetView[]; error: string | null }> {
-  const { data, error } = await supabase
+  let query = supabase
     .from("progress_photo_sets")
     .select("id, taken_at, notes, progress_photos(id, angle, storage_path)")
     .eq("student_id", studentId)
     .order("taken_at", { ascending: false })
     .order("created_at", { ascending: false });
+  if (opts.from) query = query.gte("taken_at", opts.from);
+
+  const { data, error } = await query;
 
   if (error) return { sets: [], error: error.message };
 

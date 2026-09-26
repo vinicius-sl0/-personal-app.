@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { hasPhotoConsent, loadPhotoSets } from "@/lib/photo-data";
 import { btnPrimaryCls, errorCls } from "@/lib/ui";
 import PhotoGallery from "@/components/photo-gallery";
-import ConsentToggle from "./consent-toggle";
+import ConsentToggle from "@/components/photo-consent-toggle";
 
 export const metadata = { title: "Minhas fotos" };
 

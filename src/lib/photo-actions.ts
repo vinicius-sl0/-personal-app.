@@ -12,7 +12,10 @@ export type PhotoActionState = { error?: string; ok?: boolean };
 
 function revalidatePhotos(studentId: string) {
   revalidatePath("/aluno/fotos");
+  revalidatePath("/aluno/feedback"); // as fotos também aparecem no Feedback semanal
   revalidatePath(`/personal/alunos/${studentId}/fotos`);
+  revalidatePath(`/personal/alunos/${studentId}/feedback`);
+  revalidatePath("/personal/feedback");
 }
 
 const angleValues = PHOTO_ANGLES.map((a) => a.value) as [string, ...string[]];

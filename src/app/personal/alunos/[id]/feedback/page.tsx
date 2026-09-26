@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
-import { FEEDBACK_COLUMNS, currentWeekStart } from "@/lib/feedback";
+import { FEEDBACK_COLUMNS, currentWeekStart, shiftWeek } from "@/lib/feedback";
+import { hasPhotoConsent, loadPhotoSets } from "@/lib/photo-data";
 import { errorCls } from "@/lib/ui";
 import FeedbackAnswers from "@/components/feedback-answers";
 import FeedbackReplyForm from "@/components/feedback-reply-form";
+import WeekPhotos, { groupSetsByWeek } from "@/components/week-photos";
 
 export const metadata = { title: "Feedback do aluno" };
 
@@ -29,6 +31,13 @@ export default async function FeedbackAlunoPage({
   ]);
   if (!student) notFound();
 
+  // Fotos só com autorização ativa do aluno (sem ela a RLS não devolve nada).
+  const consent = await hasPhotoConsent(supabase, id);
+  const photos = consent.active
+    ? await loadPhotoSets(supabase, id, { from: shiftWeek(currentWeekStart(), -51) })
+    : { sets: [], error: null };
+  const photosByWeek = groupSetsByWeek(photos.sets);
+
   const sentThisWeek = feedbacks?.some((c) => c.week_start === currentWeekStart());
 
   return (
@@ -44,6 +53,12 @@ export default async function FeedbackAlunoPage({
       </div>
 
       {error && <p className={errorCls}>Não foi possível carregar os feedbacks: {error.message}</p>}
+      {photos.error && <p className={errorCls}>Não foi possível carregar as fotos: {photos.error}</p>}
+      {!consent.error && !consent.active && (
+        <p className="text-xs text-zinc-500">
+          O aluno não autorizou fotos de evolução, por isso as fotos não aparecem aqui.
+        </p>
+      )}
 
       {!error && feedbacks.length === 0 && (
         <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
@@ -61,6 +76,7 @@ export default async function FeedbackAlunoPage({
             }`}
           >
             <FeedbackAnswers feedback={c} replyAuthor="Personal (você)" />
+            <WeekPhotos sets={photosByWeek.get(c.week_start) ?? []} />
             <FeedbackReplyForm id={c.id} currentReply={c.personal_reply} />
           </li>
         ))}

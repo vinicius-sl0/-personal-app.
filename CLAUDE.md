@@ -123,6 +123,10 @@ rodar comandos locais aplica no banco.
   dificuldades, dor, observações. Aluno edita até o Personal responder (regra no banco).
   Colunas antigas (sono, estresse, treinos feitos) não são mais perguntadas, mas aparecem no
   histórico se tiverem valor. Endereços antigos `/…/checkin(s)` redirecionam (`next.config.ts`).
+  Fotos da semana (opcionais) dentro do Feedback: seção `aluno/feedback/weekly-photos.tsx`
+  reaproveita `PhotoUploadForm` (com `onDone`/`minDate`) e `photo-consent-toggle.tsx`. Não há
+  ligação no banco entre foto e feedback: a semana vem de `progress_photo_sets.taken_at`
+  (`groupSetsByWeek` em `components/week-photos.tsx`). A página Fotos continua existindo.
 - Avaliação física: Personal registra/edita/exclui avaliações por protocolo; IMC, RCQ, massa
   gorda/magra calculados no servidor; gráficos de evolução por medida; aluno vê só leitura.
   Usa o catálogo de métricas do seed (ficha real do Personal ainda não recebida).
