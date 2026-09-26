@@ -41,6 +41,9 @@
   --brand-ink: #c2410c;
   --brand-soft: rgb(249 115 22 / 0.12);
   --focus: #c2410c;
+  /* Gráficos: laranja e azul validados para daltonismo e contraste (skill dataviz). */
+  --chart-1: #eb6834;
+  --chart-2: #2a78d6;
 }
 
 /* Modo escuro (padrão da identidade). Mesmos valores repetidos em .theme-dark, usado nas
@@ -65,6 +68,8 @@
     --brand-ink: #fb923c;
     --brand-soft: rgb(249 115 22 / 0.14);
     --focus: #fb923c;
+    --chart-1: #d95926;
+    --chart-2: #3987e5;
   }
 }
 .theme-dark {
@@ -86,6 +91,8 @@
   --brand-ink: #fb923c;
   --brand-soft: rgb(249 115 22 / 0.14);
   --focus: #fb923c;
+  --chart-1: #d95926;
+  --chart-2: #3987e5;
   color: var(--ink);
 }
 

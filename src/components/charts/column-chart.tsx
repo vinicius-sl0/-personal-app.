@@ -10,12 +10,14 @@ export default function ColumnChart({
   data,
   ariaLabel,
   unit,
+  xLabel = "Dia",
   height = 220,
   format = (v) => String(v),
 }: {
   data: ColumnDatum[];
   ariaLabel: string;
   unit: string; // para a tabela, ex.: "Treinos"
+  xLabel?: string; // nome da coluna do eixo na tabela (Dia, Semana, Mês)
   height?: number;
   format?: (v: number) => string;
 }) {
@@ -26,7 +28,7 @@ export default function ColumnChart({
           <BarChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: -20 }}>
             <CartesianGrid vertical={false} stroke={CHART.grid} strokeDasharray="3 3" />
             <XAxis dataKey="label" tick={axisTick} tickLine={false} axisLine={{ stroke: CHART.axis }} interval="preserveStartEnd" minTickGap={12} />
-            <YAxis allowDecimals={false} tick={axisTick} tickLine={false} axisLine={false} width={40} />
+            <YAxis allowDecimals={false} tick={axisTick} tickLine={false} axisLine={false} width={48} tickFormatter={(v: number) => (v >= 10000 ? `${Math.round(v / 1000)}k` : String(v))} />
             <Tooltip
               cursor={{ fill: "var(--subtle)" }}
               content={<ChartTooltip format={format} titleKey="title" />}
@@ -35,7 +37,7 @@ export default function ColumnChart({
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <DataTable caption={ariaLabel} columns={["Dia", unit]} rows={data.map((d) => [d.title, format(d.value)])} />
+      <DataTable caption={ariaLabel} columns={[xLabel, unit]} rows={data.map((d) => [d.title, format(d.value)])} />
     </div>
   );
 }

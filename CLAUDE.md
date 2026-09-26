@@ -134,7 +134,7 @@ rodar comandos locais aplica no banco.
   para o principal e `personal_profiles.secondary_muscle_weight` (0 / 0,5 / 1, só o Personal
   altera) para cada secundário. Planejado = `workout_exercises` (faixa 8–12 vira faixa, nunca
   média; reps em texto/carga vazia ficam fora de reps/kg e são contadas à parte); Realizado =
-  `set_logs` do período (paginado). Gráfico de barras SVG (azul principal / laranja
+  `set_logs` do período (paginado). Gráfico de barras Recharts (laranja principal / azul
   secundário, cores validadas com a skill dataviz). "Resumo do treino" no editor de ficha.
 - Calorias estimadas (só na visão Realizado; `lib/calories.ts`): `exercises.kcal_per_min`
   (opcional, em branco nos 160 importados — o app não inventa valor). Tempo do exercício =
@@ -191,8 +191,8 @@ relevante).
   `text-soft`/`text-muted` (textos secundários), `border-line`/`border-line-strong`,
   `bg-subtle`/`bg-subtle-strong`. Não escreva `zinc-900`, `border-zinc-200 dark:...` etc. em
   código novo. Cores de STATUS (verde/âmbar/vermelho) e cinzas neutros decorativos podem ficar
-  fixos. Hoje os tokens têm os valores da paleta zinc (visual neutro provisório).
-- **Sistema visual (redesign em fases; Fases 1 a 4 feitas)**: identidade PRETO + LARANJA, pensada
+  fixos. Tokens também para `bg-card`, `border-field` (campos), `text-brand-ink`, `bg-brand-soft`.
+- **Sistema visual (redesign em fases; Fases 1 a 5 feitas)**: identidade PRETO + LARANJA, pensada
   primeiro no escuro; o claro segue o sistema do aparelho (decisão do usuário). Botão laranja
   usa texto PRETO (branco não passa contraste); texto laranja usa `text-brand-ink`. Menu
   lateral e painéis de marca usam a classe `.theme-dark` (sempre escuros). Componentes em
@@ -200,7 +200,7 @@ relevante).
   stat-card, avatar, tabs, field, toast via `useToast()`, modal). Estrutura de navegação em
   `components/app-shell.tsx` (sidebar no desktop, menu deslizante no celular); os itens de
   menu ficam nos layouts `personal/layout.tsx` e `aluno/layout.tsx`. Ícones: `lucide-react`.
-  Gráficos novos: `recharts` (instalado; migração dos gráficos antigos na Fase 5). Fases
+  Gráficos: `recharts` (ver Fase 5). Fases
   seguintes: 2 dashboards · 3 landing · 4 alunos/treinos/execução · 5 gráficos · 6 fotos,
   chat, feedback, perfil · 7 verificação responsiva. Perguntas do Feedback NÃO mudam.
 - **Landing page** (`src/app/page.tsx`, Fase 3 feita): todo o conteúdo em
@@ -220,6 +220,15 @@ relevante).
   execução do treino com trilha de exercícios, "Concluir exercício" (marca e avança; pergunta
   se faltam séries — só visual, as séries continuam gravadas uma a uma) e observação do
   Personal visível ao aluno. `RestTimer` virou card flutuante (erro antigo de lint resolvido).
+- **Fase 5 (gráficos)**: TODOS os gráficos são Recharts em `components/charts/` e usam os
+  tokens `--chart-1` (laranja) e `--chart-2` (azul) — tons próprios de gráfico, validados com
+  a skill dataviz (o laranja da marca `--brand` reprovou no escuro para gráficos). Avaliações:
+  `TrendChart` com período (3m/6m/1a/tudo) no `evolution-panel.tsx` (gráfico SVG antigo
+  removido). Volume: filtro por grupo muscular (`grupo` na URL), barras empilhadas com o grupo
+  em destaque, tabela "Volume por exercício" (`computeByExercise`) e evolução semanal (26
+  semanas) / mensal (6 meses) de séries, reps, kg, calorias ≈ e treinos (`computeTrend` +
+  `lib/volume-trends-data.ts`, usado também pela página Evolução do aluno, que mostra
+  composição corporal com período único, medidas e frequência/volume/calorias).
 - **Login**: estados de campo inválido/carregando/erro/sucesso; "Esqueci minha senha" em
   `/recuperar-senha` → e-mail do Supabase → `/auth/confirm` (troca o código por sessão) →
   `/redefinir-senha`. Exige a URL `…/auth/confirm` liberada em Supabase → Authentication →

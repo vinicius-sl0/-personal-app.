@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import { Bar, BarChart as RBarChart, CartesianGrid, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatRange, formatSets, type MuscleVolume, type Range } from "@/lib/volume";
+import { axisTick, CHART } from "@/components/charts/chart-parts";
 
-// Cores validadas (paleta de referência, modos claro e escuro): azul = grupo principal,
-// laranja = parte contabilizada como grupo secundário. Texto nunca usa a cor da série.
-const FILL_PRIMARY = "fill-[#2a78d6] dark:fill-[#3987e5]";
-const FILL_SECONDARY = "fill-[#eb6834] dark:fill-[#d95926]";
-const BG_PRIMARY = "bg-[#2a78d6] dark:bg-[#3987e5]";
-const BG_SECONDARY = "bg-[#eb6834] dark:bg-[#d95926]";
+// Cores validadas (skill dataviz, claro e escuro): laranja = grupo principal,
+// azul = parte contabilizada como grupo secundário. Texto nunca usa a cor da série.
+const BG_PRIMARY = "bg-[var(--chart-1)]";
+const BG_SECONDARY = "bg-[var(--chart-2)]";
 
 type Metric = "series" | "reps" | "kg";
 const METRICS: { value: Metric; label: string }[] = [
@@ -37,40 +37,12 @@ function rowsFor(muscles: MuscleVolume[], metric: Metric): Row[] {
     .sort((a, b) => b.primary + b.secondary - (a.primary + a.secondary));
 }
 
-const LABEL_W = 104;
-const VALUE_W = 64;
-const BAR_H = 18;
-const ROW_H = 30;
-const GAP = 2;
-const RADIUS = 4;
-
-// Retângulo com a ponta direita arredondada (a base, à esquerda, fica reta).
-function barPath(x: number, y: number, w: number, h: number, roundEnd: boolean) {
-  const r = roundEnd ? Math.min(RADIUS, w / 2, h / 2) : 0;
-  return `M${x},${y} H${x + w - r} Q${x + w},${y} ${x + w},${y + r} V${y + h - r} Q${x + w},${y + h} ${x + w - r},${y + h} H${x} Z`;
-}
-
-function BarChart({ rows, unit, decimals }: { rows: Row[]; unit: string; decimals: number }) {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(320);
-  const [active, setActive] = useState<string | null>(null);
-
-  useEffect(() => {
-    const el = wrapRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(([entry]) => setWidth(Math.max(260, entry.contentRect.width)));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
+// Barras horizontais empilhadas (principal + secundário) por grupo muscular. Interativo.
+function BarChart({ rows, unit, decimals, selectedId }: { rows: Row[]; unit: string; decimals: number; selectedId?: string | null }) {
   const hasSecondary = rows.some((r) => r.secondary > 0);
-  const max = Math.max(...rows.map((r) => r.primary + r.secondary), 0);
-  const plotW = width - LABEL_W - VALUE_W;
-  const scale = (v: number) => (max > 0 ? (v / max) * plotW : 0);
-  const height = rows.length * ROW_H + 4;
   const fmt = (v: number) => `${nf(decimals).format(v)}${unit}`;
-  const activeRow = rows.find((r) => r.id === active);
-  const activeIndex = rows.findIndex((r) => r.id === active);
+  const data = rows.map((r) => ({ ...r, total: r.primary + r.secondary }));
+  const dim = (id: string) => (selectedId && selectedId !== id ? 0.3 : 1);
 
   return (
     <div className="space-y-2">
@@ -84,71 +56,64 @@ function BarChart({ rows, unit, decimals }: { rows: Row[]; unit: string; decimal
           </span>
         </div>
       )}
-      <div ref={wrapRef} className="relative" onPointerLeave={() => setActive(null)}>
-        <svg width={width} height={height} role="img" aria-label="Volume por grupo muscular" className="block overflow-visible">
-          {/* linha de base */}
-          <line x1={LABEL_W} x2={LABEL_W} y1={0} y2={height} className="stroke-line-strong" />
-          {rows.map((r, i) => {
-            const y = i * ROW_H + (ROW_H - BAR_H) / 2 + 2;
-            const wP = scale(r.primary);
-            const wS = scale(r.secondary);
-            const hasS = r.secondary > 0 && wS > 0;
-            const total = r.primary + r.secondary;
-            const dim = active !== null && active !== r.id;
-            return (
-              <g
-                key={r.id}
-                tabIndex={0}
-                role="button"
-                aria-label={`${r.name}: ${fmt(total)}${hasSecondary ? ` (principal ${fmt(r.primary)}, secundário ${fmt(r.secondary)})` : ""}`}
-                onPointerEnter={() => setActive(r.id)}
-                onFocus={() => setActive(r.id)}
-                onBlur={() => setActive(null)}
-                onClick={() => setActive((a) => (a === r.id ? null : r.id))}
-                className="cursor-default outline-none"
-                opacity={dim ? 0.45 : 1}
+      <div role="img" aria-label="Volume por grupo muscular" style={{ height: rows.length * 34 + 24 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <RBarChart data={data} layout="vertical" margin={{ top: 4, right: 56, bottom: 0, left: 0 }} barCategoryGap={8}>
+            <CartesianGrid horizontal={false} stroke={CHART.grid} strokeDasharray="3 3" />
+            <XAxis type="number" tick={axisTick} tickLine={false} axisLine={false} tickFormatter={(v: number) => nf(0).format(v)} />
+            <YAxis type="category" dataKey="name" width={112} tick={{ ...axisTick, fill: "var(--soft)", fontSize: 12 }} tickLine={false} axisLine={{ stroke: CHART.axis }} />
+            <Tooltip
+              cursor={{ fill: "var(--subtle)" }}
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                const r = payload[0].payload as Row;
+                return (
+                  <div className="rounded-xl border border-line-strong bg-card px-3 py-2 text-xs shadow-lg">
+                    <p className="mb-1 font-semibold">{r.name}</p>
+                    <p className="flex items-center gap-1.5 text-soft">
+                      <span className={`inline-block size-2 rounded-sm ${BG_PRIMARY}`} /> Principal: <strong className="text-ink">{fmt(r.primary)}</strong>
+                    </p>
+                    {hasSecondary && (
+                      <p className="flex items-center gap-1.5 text-soft">
+                        <span className={`inline-block size-2 rounded-sm ${BG_SECONDARY}`} /> Secundário: <strong className="text-ink">{fmt(r.secondary)}</strong>
+                      </p>
+                    )}
+                    <p className="mt-0.5 font-semibold text-ink">Total: {fmt(r.primary + r.secondary)}</p>
+                  </div>
+                );
+              }}
+            />
+            <Bar dataKey="primary" name="Principal" stackId="v" fill={CHART.brand} radius={hasSecondary ? 0 : [0, 4, 4, 0]} maxBarSize={22} animationDuration={500}>
+              {data.map((r) => (
+                <Cell key={r.id} fillOpacity={dim(r.id)} />
+              ))}
+              {!hasSecondary && (
+                <LabelList dataKey="total" position="right" fill="var(--ink)" fontSize={11} fontWeight={600} formatter={(v) => fmt(Number(v))} />
+              )}
+            </Bar>
+            {hasSecondary && (
+              <Bar
+                dataKey="secondary"
+                name="Secundário"
+                stackId="v"
+                fill={CHART.series2}
+                radius={[0, 4, 4, 0]}
+                maxBarSize={22}
+                animationDuration={500}
               >
-                {/* área de toque maior que a barra */}
-                <rect x={0} y={i * ROW_H} width={width} height={ROW_H} fill="transparent" />
-                <text x={LABEL_W - 8} y={y + BAR_H / 2} dominantBaseline="middle" textAnchor="end" className="fill-strong text-xs">
-                  {r.name.length > 15 ? `${r.name.slice(0, 14)}…` : r.name}
-                </text>
-                {wP > 0 && <path d={barPath(LABEL_W, y, wP, BAR_H, !hasS)} className={FILL_PRIMARY} />}
-                {hasS && (
-                  <path
-                    d={barPath(LABEL_W + wP + (wP > 0 ? GAP : 0), y, Math.max(wS - (wP > 0 ? GAP : 0), 1), BAR_H, true)}
-                    className={FILL_SECONDARY}
-                  />
-                )}
-                <text
-                  x={LABEL_W + wP + wS + 6}
-                  y={y + BAR_H / 2}
-                  dominantBaseline="middle"
-                  className="fill-brand text-xs font-semibold tabular-nums"
-                >
-                  {fmt(total)}
-                </text>
-              </g>
-            );
-          })}
-        </svg>
-        {activeRow && hasSecondary && (
-          <div
-            role="status"
-            className="pointer-events-none absolute z-10 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs shadow-md dark:border-zinc-700 dark:bg-zinc-900"
-            style={{ left: LABEL_W, top: Math.max(0, activeIndex * ROW_H - 64) }}
-          >
-            <p className="font-semibold">{activeRow.name}</p>
-            <p className="flex items-center gap-1.5">
-              <span className={`inline-block size-2 rounded-sm ${BG_PRIMARY}`} /> Principal: {fmt(activeRow.primary)}
-            </p>
-            <p className="flex items-center gap-1.5">
-              <span className={`inline-block size-2 rounded-sm ${BG_SECONDARY}`} /> Secundário: {fmt(activeRow.secondary)}
-            </p>
-            <p className="mt-0.5 font-semibold">Total: {fmt(activeRow.primary + activeRow.secondary)}</p>
-          </div>
-        )}
+                {data.map((r) => (
+                  <Cell key={r.id} fillOpacity={dim(r.id)} />
+                ))}
+                <LabelList dataKey="total" position="right" fill="var(--ink)" fontSize={11} fontWeight={600} formatter={(v) => fmt(Number(v))} />
+              </Bar>
+            )}
+          </RBarChart>
+        </ResponsiveContainer>
       </div>
+      {/* valores diretos, em texto (não dependem só do desenho) */}
+      <p className="sr-only">
+        {data.map((r) => `${r.name}: ${fmt(r.total)}`).join("; ")}
+      </p>
     </div>
   );
 }
@@ -158,11 +123,13 @@ export default function VolumeAnalysis({
   exact,
   frequencyLabel,
   frequencyDivisor = 1,
+  selectedMuscleId,
 }: {
   muscles: MuscleVolume[];
   exact: boolean; // realizado = valores exatos; planejado pode ter faixas (8–12 repetições)
   frequencyLabel: string; // ex.: "treino(s) da ficha" (planejado) ou "×/semana" (realizado)
   frequencyDivisor?: number; // nº de semanas do período (para virar média semanal)
+  selectedMuscleId?: string | null; // grupo filtrado: destacado no gráfico e na tabela
 }) {
   const [metric, setMetric] = useState<Metric>("series");
   const effective: Metric = exact ? metric : "series";
@@ -199,7 +166,7 @@ export default function VolumeAnalysis({
         {rows.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted">Sem dados para mostrar.</p>
         ) : (
-          <BarChart rows={rows} unit={effective === "kg" ? " kg" : ""} decimals={effective === "series" ? 1 : 0} />
+          <BarChart rows={rows} unit={effective === "kg" ? " kg" : ""} decimals={effective === "series" ? 1 : 0} selectedId={selectedMuscleId} />
         )}
       </div>
 
@@ -217,7 +184,7 @@ export default function VolumeAnalysis({
           </thead>
           <tbody>
             {muscles.map((m) => (
-              <tr key={m.muscle.id} className="border-t border-line align-top">
+              <tr key={m.muscle.id} className={`border-t border-line align-top ${selectedMuscleId === m.muscle.id ? "bg-brand-soft" : ""}`}>
                 <th scope="row" className="px-3 py-2 font-medium">{m.muscle.name}</th>
                 <td className="px-3 py-2 tabular-nums">
                   <span className="font-semibold">{formatSets(m.countedSets)}</span>

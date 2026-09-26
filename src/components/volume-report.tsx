@@ -3,7 +3,15 @@ import { createClient } from "@/lib/supabase/server";
 import type { Role } from "@/lib/auth";
 import { weekRange } from "@/lib/attendance";
 import { currentWeekStart, formatWeek, shiftWeek, shortDate, weekEndOf, weekStartOf } from "@/lib/feedback";
-import { computeVolume, formatRange, formatSets, secondaryWeightLabel, type VolumeInput, type VolumeResult } from "@/lib/volume";
+import {
+  computeByExercise,
+  computeVolume,
+  formatRange,
+  formatSets,
+  secondaryWeightLabel,
+  type VolumeInput,
+  type VolumeResult,
+} from "@/lib/volume";
 import {
   loadExerciseKcal,
   loadLoggedInputs,
@@ -15,6 +23,8 @@ import {
 import { estimateCalories, type CalorieResult } from "@/lib/calories";
 import { errorCls } from "@/lib/ui";
 import VolumeAnalysis from "@/components/volume-analysis";
+import VolumeTrends, { type TrendRow } from "@/components/volume-trends";
+import { loadVolumeTrends } from "@/lib/volume-trends-data";
 import CaloriesSection from "@/components/calories-section";
 import { VolumeFilters, type VolumeQuery } from "@/components/volume-controls";
 
@@ -95,6 +105,9 @@ export default async function VolumeReport({
     }
   }
   const workout = workouts.find((w) => w.id === query.treino) ?? null;
+  const { data: muscleRows } = await supabase.from("muscle_groups").select("id, name").order("sort_order");
+  const muscles = muscleRows ?? [];
+  const grupo = muscles.find((m) => m.id === query.grupo) ?? null;
   const visao = query.visao === "realizado" ? "realizado" : "planejado";
 
   // ---------------- dados de entrada do cálculo ----------------
@@ -173,6 +186,15 @@ export default async function VolumeReport({
   const result = computeVolume(inputs, map, weight);
   const error = loadError ?? mapError;
 
+  const byExercise = computeByExercise(inputs, map, grupo?.id);
+
+  // Evolução semanal/mensal (só no realizado).
+  const trends =
+    student && visao === "realizado" && !periodError && !loadError
+      ? await loadVolumeTrends(supabase, student.id, weight, { workoutId: workout?.id, muscleId: grupo?.id, map })
+      : { weekly: [] as TrendRow[], monthly: [] as TrendRow[], error: null };
+  const { weekly, monthly } = trends;
+
   // Resumo de cada treino da ficha (só no planejado com "todos os treinos").
   const perWorkout =
     visao === "planejado" && !workout && workouts.length > 1
@@ -184,6 +206,7 @@ export default async function VolumeReport({
       <VolumeFilters
         students={students?.map((s) => ({ id: s.id, name: s.full_name }))}
         workouts={workouts.map((w) => ({ id: w.id, name: w.name }))}
+        muscles={muscles}
         query={query}
       />
 
@@ -210,6 +233,7 @@ export default async function VolumeReport({
 
       {error && <p className={errorCls}>Não foi possível calcular o volume: {error}</p>}
       {periodError && <p className={errorCls}>{periodError}</p>}
+      {trends.error && <p className={errorCls}>Não foi possível carregar a evolução semanal/mensal: {trends.error}</p>}
 
       {student && !error && !periodError && (plan || visao === "realizado") && (
         <>
@@ -277,10 +301,61 @@ export default async function VolumeReport({
                 exact={visao === "realizado"}
                 frequencyLabel={visao === "planejado" ? "treino(s) da ficha" : "×/semana"}
                 frequencyDivisor={visao === "realizado" ? weeks : 1}
+                selectedMuscleId={grupo?.id}
               />
+
+              <div className="rounded-2xl border border-line bg-card">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
+                  <h3 className="font-semibold">Volume por exercício</h3>
+                  <p className="text-xs text-muted">
+                    {grupo ? `Exercícios que trabalham ${grupo.name}` : "Todos os exercícios do período"} · volume do próprio exercício
+                  </p>
+                </div>
+                {byExercise.length === 0 ? (
+                  <p className="px-4 py-6 text-center text-sm text-muted">Nenhum exercício {grupo ? `de ${grupo.name} ` : ""}neste recorte.</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-[560px] text-left text-sm">
+                      <thead className="text-xs text-muted">
+                        <tr>
+                          <th scope="col" className="px-4 py-2 font-medium">Exercício</th>
+                          <th scope="col" className="px-4 py-2 font-medium">Séries</th>
+                          <th scope="col" className="px-4 py-2 font-medium">Repetições</th>
+                          <th scope="col" className="px-4 py-2 font-medium">Volume de carga</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {byExercise.slice(0, 20).map((e) => (
+                          <tr key={e.exerciseId} className="border-t border-line align-top">
+                            <th scope="row" className="px-4 py-2.5 font-medium">
+                              {e.name}
+                              <span className="block text-xs font-normal text-muted">
+                                {e.primary ?? "sem grupo"}
+                                {e.role === "secundário" && " · trabalha o grupo como secundário"}
+                              </span>
+                            </th>
+                            <td className="px-4 py-2.5 tabular-nums">{formatSets(e.sets)}</td>
+                            <td className="px-4 py-2.5 tabular-nums">
+                              {formatRange(e.reps)}
+                              {e.setsWithoutReps > 0 && <span className="block text-xs text-muted">{e.setsWithoutReps} séries sem número</span>}
+                            </td>
+                            <td className="px-4 py-2.5 tabular-nums">
+                              {formatRange(e.loadVolume, "kg")}
+                              {e.setsWithoutLoad > 0 && <span className="block text-xs text-muted">{e.setsWithoutLoad} séries sem carga</span>}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
 
               {calories && calories.sessions.length > 0 && (
                 <CaloriesSection result={calories} singleWeek={!query.periodo || query.periodo === "semana"} />
+              )}
+              {visao === "realizado" && weekly.length > 0 && (
+                <VolumeTrends weekly={weekly} monthly={monthly} subject={grupo?.name ?? "todos os grupos"} muscleFiltered={!!grupo} />
               )}
               {visao === "planejado" && (
                 <p className="text-xs text-muted">

@@ -14,16 +14,19 @@ export type VolumeQuery = {
   semana?: string;
   de?: string;
   ate?: string;
+  grupo?: string; // id do grupo muscular filtrado
 };
 
 // Filtros da análise: cada mudança vira um novo endereço (dá para salvar/compartilhar o link).
 export function VolumeFilters({
   students,
   workouts,
+  muscles = [],
   query,
 }: {
   students?: { id: string; name: string }[]; // só o Personal escolhe o aluno
   workouts: { id: string; name: string }[];
+  muscles?: { id: string; name: string }[];
   query: VolumeQuery;
 }) {
   const router = useRouter();
@@ -45,7 +48,7 @@ export function VolumeFilters({
 
   return (
     <div className={`space-y-3 rounded-xl border border-line bg-card p-4 ${pending ? "opacity-60" : ""}`}>
-      <div className={`grid gap-3 ${students ? "sm:grid-cols-2" : ""}`}>
+      <div className={`grid gap-3 ${students ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
         {students && (
           <label className="block space-y-1">
             <span className="text-xs font-medium text-muted">Aluno</span>
@@ -76,6 +79,23 @@ export function VolumeFilters({
             {workouts.map((w) => (
               <option key={w.id} value={w.id}>
                 {w.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="block space-y-1">
+          <span className="text-xs font-medium text-muted">Grupo muscular</span>
+          <select
+            value={query.grupo ?? ""}
+            onChange={(e) => go({ grupo: e.target.value || undefined })}
+            disabled={(students && !query.aluno) || muscles.length === 0}
+            className={selectCls}
+          >
+            <option value="">Todos os grupos</option>
+            {muscles.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
               </option>
             ))}
           </select>

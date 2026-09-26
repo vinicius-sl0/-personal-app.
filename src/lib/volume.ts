@@ -16,7 +16,7 @@
 //   • Os totais gerais contam cada série UMA vez (sem somar principal + secundário).
 
 export type Muscle = { id: string; name: string; sort: number };
-export type ExerciseMuscles = { primary: Muscle | null; secondary: Muscle[] };
+export type ExerciseMuscles = { name?: string; primary: Muscle | null; secondary: Muscle[] };
 export type MuscleMap = Record<string, ExerciseMuscles>;
 export type Range = { min: number; max: number };
 
@@ -144,6 +144,86 @@ export function computeVolume(inputs: VolumeInput[], map: MuscleMap, secondaryWe
     .map(({ _ex, _keys, ...v }) => ({ ...v, exercises: _ex.size, frequency: _keys.size }))
     .sort((a, b) => a.muscle.sort - b.muscle.sort || a.muscle.name.localeCompare(b.muscle.name));
   return { muscles, totals };
+}
+
+// ---------------------------------------------------------------------
+// Volume por EXERCÍCIO (sem peso de secundário: é o volume do próprio exercício).
+// Com `muscleId`, só entram exercícios que trabalham esse grupo (principal ou secundário).
+// ---------------------------------------------------------------------
+export type ExerciseVolume = {
+  exerciseId: string;
+  name: string;
+  primary: string | null; // nome do grupo principal
+  role: "principal" | "secundário" | null; // papel do grupo filtrado neste exercício
+  sets: number;
+  reps: Range;
+  loadVolume: Range;
+  setsWithoutReps: number;
+  setsWithoutLoad: number;
+};
+
+export function computeByExercise(inputs: VolumeInput[], map: MuscleMap, muscleId?: string | null): ExerciseVolume[] {
+  const acc = new Map<string, ExerciseVolume>();
+  for (const it of inputs) {
+    if (!it.exerciseId || it.sets <= 0) continue;
+    const m = map[it.exerciseId];
+    const isPrimary = !!muscleId && m?.primary?.id === muscleId;
+    const isSecondary = !!muscleId && !isPrimary && !!m?.secondary.some((x) => x.id === muscleId);
+    if (muscleId && !isPrimary && !isSecondary) continue;
+
+    const e = acc.get(it.exerciseId) ?? {
+      exerciseId: it.exerciseId,
+      name: m?.name ?? "Exercício",
+      primary: m?.primary?.name ?? null,
+      role: muscleId ? (isPrimary ? "principal" : "secundário") : null,
+      sets: 0,
+      reps: zero(),
+      loadVolume: zero(),
+      setsWithoutReps: 0,
+      setsWithoutLoad: 0,
+    };
+    e.sets += it.sets;
+    const reps = it.reps ? { min: it.sets * it.reps.min, max: it.sets * it.reps.max } : null;
+    if (reps) e.reps = add(e.reps, reps);
+    else e.setsWithoutReps += it.sets;
+    if (reps && it.loadKg !== null) e.loadVolume = add(e.loadVolume, { min: reps.min * it.loadKg, max: reps.max * it.loadKg });
+    else e.setsWithoutLoad += it.sets;
+    acc.set(it.exerciseId, e);
+  }
+  return [...acc.values()].sort((a, b) => b.sets - a.sets || b.loadVolume.max - a.loadVolume.max);
+}
+
+// ---------------------------------------------------------------------
+// Evolução por período (semana/mês) do volume REALIZADO.
+// `keyOf` transforma o dia (groupKey das entradas realizadas) na chave do período.
+// Sem `muscleId`: totais (cada série uma vez). Com `muscleId`: o que foi contabilizado para o grupo.
+// ---------------------------------------------------------------------
+export type TrendValue = { sets: number; reps: number; load: number };
+
+export function computeTrend(
+  inputs: VolumeInput[],
+  map: MuscleMap,
+  secondaryWeight: number,
+  keys: string[],
+  keyOf: (day: string) => string,
+  muscleId?: string | null,
+): Record<string, TrendValue> {
+  const byKey = new Map<string, VolumeInput[]>();
+  for (const it of inputs) {
+    const k = keyOf(it.groupKey);
+    byKey.set(k, [...(byKey.get(k) ?? []), it]);
+  }
+  const out: Record<string, TrendValue> = {};
+  for (const k of keys) {
+    const r = computeVolume(byKey.get(k) ?? [], map, secondaryWeight);
+    if (muscleId) {
+      const m = r.muscles.find((x) => x.muscle.id === muscleId);
+      out[k] = { sets: m?.countedSets ?? 0, reps: m?.reps.max ?? 0, load: m?.loadVolume.max ?? 0 };
+    } else {
+      out[k] = { sets: r.totals.sets, reps: r.totals.reps.max, load: r.totals.loadVolume.max };
+    }
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------------

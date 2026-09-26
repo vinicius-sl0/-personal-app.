@@ -4,7 +4,8 @@
 // e a tabela equivalente (acessibilidade: os dados nunca dependem só do desenho).
 
 export const CHART = {
-  brand: "var(--brand)",
+  brand: "var(--chart-1)", // laranja dos gráficos (validado; ver globals.css)
+  series2: "var(--chart-2)",
   muted: "var(--muted)",
   grid: "var(--line)",
   axis: "var(--line-strong)",

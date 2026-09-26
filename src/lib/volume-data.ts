@@ -28,13 +28,14 @@ export async function loadMuscleMap(supabase: Supabase, exerciseIds: string[]): 
     const { data, error } = await supabase
       .from("exercises")
       .select(
-        "id, primary:muscle_groups!exercises_primary_muscle_group_id_fkey(id, name, sort_order), exercise_muscle_groups(muscle_groups(id, name, sort_order))",
+        "id, name, primary:muscle_groups!exercises_primary_muscle_group_id_fkey(id, name, sort_order), exercise_muscle_groups(muscle_groups(id, name, sort_order))",
       )
       .in("id", ids.slice(i, i + 100));
     if (error) return { map, error: error.message };
     for (const e of data) {
       const p = e.primary as MuscleRow;
       map[e.id] = {
+        name: e.name,
         primary: p ? { id: p.id, name: p.name, sort: p.sort_order } : null,
         secondary: e.exercise_muscle_groups
           .map((x) => x.muscle_groups as MuscleRow)
