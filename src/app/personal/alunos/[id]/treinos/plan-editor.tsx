@@ -3,6 +3,8 @@
 import { useActionState, useState } from "react";
 import Link from "next/link";
 import ExercisePicker, { type ExerciseOption } from "@/components/exercise-picker";
+import VolumeSummary from "@/components/volume-summary";
+import { plannedInput, type MuscleMap, type VolumeInput } from "@/lib/volume";
 import { btnPrimaryCls, btnSecondaryCls, errorCls, inputCls } from "@/lib/ui";
 import {
   repsLabel,
@@ -46,6 +48,8 @@ export default function PlanEditor({
   action,
   initialPlan,
   planId,
+  muscleMap = {},
+  secondaryWeight = 0.5,
 }: {
   studentId: string;
   studentName: string;
@@ -54,6 +58,8 @@ export default function PlanEditor({
   action: (status: "rascunho" | "ativo", prev: PlanFormState, fd: FormData) => Promise<PlanFormState>;
   initialPlan?: { name: string; objective: string | null; workouts: Omit<Workout, "key">[] };
   planId?: string;
+  muscleMap?: MuscleMap; // grupos musculares de cada exercício (para o resumo de volume)
+  secondaryWeight?: number;
 }) {
   const [name, setName] = useState(initialPlan?.name ?? "");
   const [objective, setObjective] = useState(initialPlan?.objective ?? "");
@@ -86,6 +92,12 @@ export default function PlanEditor({
     setClientError(null);
     return true;
   }
+
+  // Entradas do resumo de volume, recalculadas a cada edição (séries ainda sendo digitadas são ignoradas).
+  const volumeInputs = (w: Workout): VolumeInput[] =>
+    w.exercises
+      .filter((ex) => Number.isFinite(ex.sets) && ex.sets > 0)
+      .map((ex) => plannedInput(ex, w.key));
 
   function addWorkout() {
     setWorkouts((prev) => [...prev, emptyWorkout(prev.length)]);
@@ -342,8 +354,24 @@ export default function PlanEditor({
           </div>
 
           <ExercisePicker exercises={exercises} onAdd={(ex) => addExercise(w.key, ex)} />
+
+          <VolumeSummary
+            title={`Resumo do ${w.name || "treino"}`}
+            inputs={volumeInputs(w)}
+            map={muscleMap}
+            secondaryWeight={secondaryWeight}
+          />
         </div>
       ))}
+
+      {workouts.length > 1 && (
+        <VolumeSummary
+          title="Resumo da ficha (todos os treinos, cada um 1 vez)"
+          inputs={workouts.flatMap(volumeInputs)}
+          map={muscleMap}
+          secondaryWeight={secondaryWeight}
+        />
+      )}
 
       <button type="button" onClick={addWorkout} className={btnSecondaryCls}>
         + Adicionar treino (ex.: Treino B)

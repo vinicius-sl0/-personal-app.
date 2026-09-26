@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
+import { loadMuscleMap, loadSecondaryWeight } from "@/lib/volume-data";
 import PlanEditor from "../plan-editor";
 import { updatePlan, archivePlan } from "../actions";
 import { PLAN_STATUS_LABEL } from "@/lib/workout-labels";
@@ -14,7 +16,7 @@ export default async function FichaPage({
 }: {
   params: Promise<{ id: string; planId: string }>;
 }) {
-  await requireRole("personal");
+  const profile = await requireRole("personal");
   const { id, planId } = await params;
   const supabase = await createClient();
 
@@ -49,6 +51,11 @@ export default async function FichaPage({
     equipment: e.equipment?.name ?? null,
   }));
   const exerciseIndex = Object.fromEntries(exercises.map((e) => [e.id, e]));
+  // Para o "Resumo do treino" (volume por grupo muscular) dentro do editor.
+  const [{ map: muscleMap }, secondaryWeight] = await Promise.all([
+    loadMuscleMap(supabase, exercises.map((e) => e.id)),
+    loadSecondaryWeight(supabase, profile.id),
+  ]);
 
   const initialPlan = {
     name: plan.name,
@@ -87,6 +94,9 @@ export default async function FichaPage({
           {statusInfo.label}
         </span>
       </div>
+      <Link href={`/personal/treinos/volume?aluno=${id}`} className="inline-block text-sm underline">
+        📊 Análise de volume desta ficha →
+      </Link>
 
       {plan.status !== "arquivado" && (
         <form action={archivePlan}>
@@ -101,6 +111,8 @@ export default async function FichaPage({
         studentName={student.full_name}
         exercises={exercises}
         exerciseIndex={exerciseIndex}
+        muscleMap={muscleMap}
+        secondaryWeight={secondaryWeight}
         action={updatePlan.bind(null, id, planId)}
         initialPlan={initialPlan}
         planId={planId}

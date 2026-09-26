@@ -25,6 +25,9 @@ export default async function AlunoTreinosPage() {
         <Link href="/aluno/treinos/historico" className="inline-block text-sm underline">
           Ver minha frequência e histórico →
         </Link>
+        <Link href="/aluno/treinos/volume" className="mt-1 block text-sm underline">
+          📊 Meu volume de treino →
+        </Link>
         <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
           Seu Personal ainda não publicou uma ficha de treino para você.
         </p>
@@ -63,6 +66,9 @@ export default async function AlunoTreinosPage() {
         {plan.objective && <p className="text-sm text-zinc-500">{plan.objective}</p>}
         <Link href="/aluno/treinos/historico" className="mt-1 inline-block text-sm underline">
           Ver minha frequência e histórico →
+        </Link>
+        <Link href="/aluno/treinos/volume" className="mt-1 block text-sm underline">
+          📊 Meu volume de treino →
         </Link>
       </div>
 

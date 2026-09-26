@@ -612,6 +612,7 @@ export type Database = {
           id: string
           instructions: string | null
           is_archived: boolean
+          kcal_per_min: number | null
           name: string
           owner_id: string | null
           primary_muscle_group_id: string | null
@@ -625,6 +626,7 @@ export type Database = {
           id?: string
           instructions?: string | null
           is_archived?: boolean
+          kcal_per_min?: number | null
           name: string
           owner_id?: string | null
           primary_muscle_group_id?: string | null
@@ -638,6 +640,7 @@ export type Database = {
           id?: string
           instructions?: string | null
           is_archived?: boolean
+          kcal_per_min?: number | null
           name?: string
           owner_id?: string | null
           primary_muscle_group_id?: string | null
@@ -829,6 +832,7 @@ export type Database = {
           created_at: string
           cref: string | null
           profile_id: string
+          secondary_muscle_weight: number
           updated_at: string
         }
         Insert: {
@@ -837,6 +841,7 @@ export type Database = {
           created_at?: string
           cref?: string | null
           profile_id: string
+          secondary_muscle_weight?: number
           updated_at?: string
         }
         Update: {
@@ -845,6 +850,7 @@ export type Database = {
           created_at?: string
           cref?: string | null
           profile_id?: string
+          secondary_muscle_weight?: number
           updated_at?: string
         }
         Relationships: [

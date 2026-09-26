@@ -133,6 +133,9 @@ export default async function AlunoDetalhePage({
           Nova ficha
         </Link>
       </div>
+      <Link href={`/personal/treinos/volume?aluno=${id}`} className="inline-block text-sm underline">
+        📊 Análise de volume por grupo muscular →
+      </Link>
 
       {error && <p className={errorCls}>Não foi possível carregar as fichas: {error.message}</p>}
 

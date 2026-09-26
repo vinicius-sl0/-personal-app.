@@ -627,6 +627,39 @@ begin
       select count(*) from x $q$, v_ck_b));
     v_res := v_res || pg_temp.r(v_r.err is not null, 'Personal NÃO altera as dificuldades relatadas pelo aluno', v_r.err);
 
+    -- configuração da análise de volume (migração 20260925000001)
+    insert into public.personal_profiles (profile_id) values (v_p1) on conflict (profile_id) do nothing;
+    select * into v_r from pg_temp.exec_as(v_p1, format($q$
+      with x as (update public.personal_profiles set secondary_muscle_weight = 1 where profile_id = %L returning 1)
+      select count(*) from x $q$, v_p1));
+    v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Personal PODE configurar como os grupos secundários contam', coalesce(v_r.err, 'linhas=' || v_r.n));
+
+    select * into v_r from pg_temp.exec_as(v_ua, format($q$
+      with x as (update public.personal_profiles set secondary_muscle_weight = 0 where profile_id = %L returning 1)
+      select count(*) from x $q$, v_p1));
+    v_res := v_res || pg_temp.r(v_r.err is not null or v_r.n = 0, 'Aluno NÃO altera a configuração de volume do Personal', coalesce(v_r.err, 'linhas=' || v_r.n));
+
+    select * into v_r from pg_temp.exec_as(v_p1, format($q$
+      with x as (update public.personal_profiles set secondary_muscle_weight = 2 where profile_id = %L returning 1)
+      select count(*) from x $q$, v_p1));
+    v_res := v_res || pg_temp.r(v_r.err is not null, 'Peso de grupo secundário fora de 0 a 1 é recusado', v_r.err);
+
+    -- calorias estimadas por exercício (migração 20260925000002)
+    select * into v_r from pg_temp.exec_as(v_p1, format($q$
+      with x as (update public.exercises set kcal_per_min = 7.5 where id = %L returning 1)
+      select count(*) from x $q$, v_ex1));
+    v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Personal PODE informar kcal/min do próprio exercício', coalesce(v_r.err, 'linhas=' || v_r.n));
+
+    select * into v_r from pg_temp.exec_as(v_p1, format($q$
+      with x as (update public.exercises set kcal_per_min = 7.5 where id = %L returning 1)
+      select count(*) from x $q$, v_ex3));
+    v_res := v_res || pg_temp.r(v_r.err is not null or v_r.n = 0, 'Personal 1 NÃO altera kcal/min de exercício do Personal 2', coalesce(v_r.err, 'linhas=' || v_r.n));
+
+    select * into v_r from pg_temp.exec_as(v_p1, format($q$
+      with x as (update public.exercises set kcal_per_min = 50 where id = %L returning 1)
+      select count(*) from x $q$, v_ex1));
+    v_res := v_res || pg_temp.r(v_r.err is not null, 'kcal/min fora de 0 a 30 é recusado', v_r.err);
+
     -- dias de treino combinados (students.training_days)
     select * into v_r from pg_temp.exec_as(v_p1, format($q$
       with x as (update public.students set training_days = '{1,3,5}' where id = %L returning 1)

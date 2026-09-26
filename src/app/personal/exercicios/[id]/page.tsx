@@ -19,7 +19,7 @@ export default async function EditarExercicioPage({
     await Promise.all([
       supabase
         .from("exercises")
-        .select("id, name, instructions, primary_muscle_group_id, equipment_id, difficulty, owner_id")
+        .select("id, name, instructions, primary_muscle_group_id, equipment_id, difficulty, owner_id, kcal_per_min")
         .eq("id", id)
         .maybeSingle(),
       supabase.from("muscle_groups").select("id, name").order("sort_order"),
@@ -60,6 +60,7 @@ export default async function EditarExercicioPage({
             difficulty: exercise.difficulty,
             instructions: exercise.instructions ?? "",
             video_url: media?.url ?? "",
+            kcal_per_min: exercise.kcal_per_min === null ? "" : String(exercise.kcal_per_min).replace(".", ","),
           }}
           submitLabel="Salvar alterações"
         />

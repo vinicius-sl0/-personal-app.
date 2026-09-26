@@ -40,6 +40,13 @@ export default async function PersonalHome() {
       </Link>
 
       <Link
+        href="/personal/treinos/volume"
+        className="block rounded-xl border border-zinc-200 p-4 font-medium hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+      >
+        Treinos · Análise de volume →
+      </Link>
+
+      <Link
         href="/personal/alunos"
         className="block rounded-xl border border-zinc-200 p-4 font-medium hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
       >

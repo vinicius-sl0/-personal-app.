@@ -14,6 +14,7 @@ type Values = {
   difficulty: string;
   instructions: string;
   video_url: string;
+  kcal_per_min: string;
 };
 
 const initialState = {} as { error?: string };
@@ -104,6 +105,24 @@ export default function ExerciseForm({
           <option value="intermediario">Intermediário</option>
           <option value="avancado">Avançado</option>
         </select>
+      </div>
+
+      <div className="space-y-1.5">
+        <label htmlFor="kcal_per_min" className="text-sm font-medium">
+          Calorias estimadas por minuto (opcional)
+        </label>
+        <input
+          id="kcal_per_min"
+          name="kcal_per_min"
+          inputMode="decimal"
+          defaultValue={defaultValues.kcal_per_min}
+          placeholder="Ex.: 7,5"
+          className={inputCls}
+        />
+        <p className="text-xs text-zinc-500">
+          Média aproximada de kcal por minuto, contando o descanso entre séries. Usada só para as
+          “Calorias estimadas” da Análise de Volume — é uma estimativa, não uma medição.
+        </p>
       </div>
 
       <div className="space-y-1.5">

@@ -23,6 +23,15 @@ const schema = z.object({
   difficulty: difficultyEnum,
   instructions: z.string().trim().max(2000, "Descrição muito longa."),
   video_url: urlOrEmpty,
+  // Gasto calórico médio ESTIMADO por minuto (opcional). Aceita vírgula: "7,5".
+  kcal_per_min: z
+    .string()
+    .trim()
+    .transform((v) => v.replace(",", "."))
+    .refine((v) => v === "" || (/^\d+(\.\d{1,2})?$/.test(v) && Number(v) > 0 && Number(v) <= 30), {
+      message: "Calorias por minuto: informe um número entre 0,1 e 30 (ex.: 7,5) ou deixe em branco.",
+    })
+    .transform((v) => (v === "" ? null : Number(v))),
 });
 
 const str = (fd: FormData, k: string) => String(fd.get(k) ?? "");
@@ -36,6 +45,7 @@ function parseForm(formData: FormData) {
     difficulty: str(formData, "difficulty") || "iniciante",
     instructions: str(formData, "instructions"),
     video_url: str(formData, "video_url").trim(),
+    kcal_per_min: str(formData, "kcal_per_min"),
   });
 }
 
@@ -75,6 +85,7 @@ export async function createExercise(
       primary_muscle_group_id: d.primary_muscle_group_id,
       equipment_id: d.equipment_id || null,
       difficulty: d.difficulty,
+      kcal_per_min: d.kcal_per_min,
     })
     .select("id")
     .single();
@@ -122,6 +133,7 @@ export async function updateExercise(
       primary_muscle_group_id: d.primary_muscle_group_id,
       equipment_id: d.equipment_id || null,
       difficulty: d.difficulty,
+      kcal_per_min: d.kcal_per_min,
     })
     .eq("id", id);
 
@@ -182,7 +194,7 @@ export async function duplicateExercise(formData: FormData) {
   const supabase = await createClient();
   const { data: original } = await supabase
     .from("exercises")
-    .select("name, instructions, primary_muscle_group_id, equipment_id, difficulty")
+    .select("name, instructions, primary_muscle_group_id, equipment_id, difficulty, kcal_per_min")
     .eq("id", id)
     .maybeSingle();
   if (!original) return;

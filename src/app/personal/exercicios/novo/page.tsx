@@ -32,6 +32,7 @@ export default async function NovoExercicioPage() {
           difficulty: "iniciante",
           instructions: "",
           video_url: "",
+          kcal_per_min: "",
         }}
         submitLabel="Cadastrar exercício"
       />

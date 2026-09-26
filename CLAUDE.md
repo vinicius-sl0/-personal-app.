@@ -127,6 +127,20 @@ rodar comandos locais aplica no banco.
   reaproveita `PhotoUploadForm` (com `onDone`/`minDate`) e `photo-consent-toggle.tsx`. Não há
   ligação no banco entre foto e feedback: a semana vem de `progress_photo_sets.taken_at`
   (`groupSetsByWeek` em `components/week-photos.tsx`). A página Fotos continua existindo.
+- Análise de volume de treino (Treinos → Análise de volume: `/personal/treinos/volume`; aluno em
+  `/aluno/treinos/volume`, só os próprios dados; relatório compartilhado
+  `components/volume-report.tsx`). Cálculo puro em `lib/volume.ts`: grupo principal =
+  `exercises.primary_muscle_group_id`, secundários = `exercise_muscle_groups`; cada série vale 1
+  para o principal e `personal_profiles.secondary_muscle_weight` (0 / 0,5 / 1, só o Personal
+  altera) para cada secundário. Planejado = `workout_exercises` (faixa 8–12 vira faixa, nunca
+  média; reps em texto/carga vazia ficam fora de reps/kg e são contadas à parte); Realizado =
+  `set_logs` do período (paginado). Gráfico de barras SVG (azul principal / laranja
+  secundário, cores validadas com a skill dataviz). "Resumo do treino" no editor de ficha.
+- Calorias estimadas (só na visão Realizado; `lib/calories.ts`): `exercises.kcal_per_min`
+  (opcional, em branco nos 160 importados — o app não inventa valor). Tempo do exercício =
+  duração check-in→check-out × (séries dele ÷ séries da sessão); kcal = tempo × kcal/min.
+  Sessão sem check-out e exercício sem kcal/min ficam fora, com aviso. Sempre exibido com "≈" e
+  "Aproximação, não é medição".
 - Avaliação física: Personal registra/edita/exclui avaliações por protocolo; IMC, RCQ, massa
   gorda/magra calculados no servidor; gráficos de evolução por medida; aluno vê só leitura.
   Usa o catálogo de métricas do seed (ficha real do Personal ainda não recebida).
@@ -155,7 +169,7 @@ rodar comandos locais aplica no banco.
   para o pré-carregamento não marcar como lido sozinho. Sem lembrete agendado de feedback
   (precisaria de pg_cron) e sem push com o app fechado (etapa PWA).
 - Banco de dados completo (32 tabelas), RLS em 100% das tabelas, 08_testes_permissoes.sql com
-  128 testes (6 novos da migração 20260923000001) (isolamento entre alunos, entre Personal e aluno, consentimento
+  134 testes (inclui os das migrações 20260923000001, 20260925000001 e 20260925000002) (isolamento entre alunos, entre Personal e aluno, consentimento
   controlando acesso a fotos, etc.). **Rode o 08 de novo sempre que alterar RLS ou triggers.**
 
 ## Pendentes do escopo original
