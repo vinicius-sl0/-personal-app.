@@ -180,7 +180,7 @@ do corpo dos alunos e mensagens, então a Política precisa cobrir isso; avisar 
 relevante).
 `src/types/database.types.ts` foi ajustado à mão para bater com a migração 20260923000001
 (e com `technique_detail`); regenerar com o comando oficial deve dar o mesmo resultado.
-Pequeno pendente: `rest-timer.tsx` tem um erro antigo de lint (`set-state-in-effect`).
+
 
 ## Convenções ao gerar código
 
@@ -192,7 +192,7 @@ Pequeno pendente: `rest-timer.tsx` tem um erro antigo de lint (`set-state-in-eff
   `bg-subtle`/`bg-subtle-strong`. Não escreva `zinc-900`, `border-zinc-200 dark:...` etc. em
   código novo. Cores de STATUS (verde/âmbar/vermelho) e cinzas neutros decorativos podem ficar
   fixos. Hoje os tokens têm os valores da paleta zinc (visual neutro provisório).
-- **Sistema visual (redesign em fases; Fases 1, 2 e 3 feitas)**: identidade PRETO + LARANJA, pensada
+- **Sistema visual (redesign em fases; Fases 1 a 4 feitas)**: identidade PRETO + LARANJA, pensada
   primeiro no escuro; o claro segue o sistema do aparelho (decisão do usuário). Botão laranja
   usa texto PRETO (branco não passa contraste); texto laranja usa `text-brand-ink`. Menu
   lateral e painéis de marca usam a classe `.theme-dark` (sempre escuros). Componentes em
@@ -213,6 +213,13 @@ Pequeno pendente: `rest-timer.tsx` tem um erro antigo de lint (`set-state-in-eff
   avaliações recentes) e `aluno/page.tsx` (treino de hoje/próximo na sequência A→B→C com
   check-in, semana em 7 dias, última avaliação com variação e mini gráfico do peso, feedback,
   mensagens, ficha). Gráficos Recharts em `components/charts/` (dica ao tocar + "Ver em tabela").
+- **Fase 4**: lista de alunos com busca/filtro/ordenação/cards ou tabela
+  (`personal/alunos/students-browser.tsx`); perfil do aluno redesenhado; editor de ficha com
+  abas por treino e arrastar para reordenar (`@dnd-kit`, também por toque e teclado; ↑↓ como
+  alternativa; `uid` só no navegador, removido antes de salvar) em `treinos/exercise-card.tsx`;
+  execução do treino com trilha de exercícios, "Concluir exercício" (marca e avança; pergunta
+  se faltam séries — só visual, as séries continuam gravadas uma a uma) e observação do
+  Personal visível ao aluno. `RestTimer` virou card flutuante (erro antigo de lint resolvido).
 - **Login**: estados de campo inválido/carregando/erro/sucesso; "Esqueci minha senha" em
   `/recuperar-senha` → e-mail do Supabase → `/auth/confirm` (troca o código por sessão) →
   `/redefinir-senha`. Exige a URL `…/auth/confirm` liberada em Supabase → Authentication →

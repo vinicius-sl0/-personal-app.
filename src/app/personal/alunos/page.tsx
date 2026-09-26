@@ -1,70 +1,60 @@
 import Link from "next/link";
+import { UserPlus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { btnPrimaryCls, errorCls } from "@/lib/ui";
-import InviteButton from "./invite-button";
+import { requireRole } from "@/lib/auth";
+import { localDate } from "@/lib/attendance";
+import { btnPrimaryCls } from "@/lib/ui";
+import { PageHeader } from "@/components/ui/page-header";
+import { ErrorState } from "@/components/ui/states";
+import StudentsBrowser, { type StudentRow } from "./students-browser";
 
 export const metadata = { title: "Alunos" };
 
-const STATUS = {
-  convidado: { label: "Convite pendente", cls: "bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-200" },
-  ativo: { label: "Ativo", cls: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200" },
-  pausado: { label: "Pausado", cls: "bg-zinc-200 text-strong dark:bg-zinc-800" },
-  arquivado: { label: "Arquivado", cls: "bg-zinc-200 text-strong dark:bg-zinc-800" },
-} as const;
-
 export default async function AlunosPage() {
+  await requireRole("personal");
   const supabase = await createClient();
 
-  // A RLS devolve somente os alunos deste Personal.
-  const { data: students, error } = await supabase
-    .from("students")
-    .select("id, full_name, email, phone, status")
-    .order("full_name");
+  // A RLS devolve somente os alunos (e registros) deste Personal.
+  const [studentsRes, sessionsRes, assessmentsRes] = await Promise.all([
+    supabase.from("students").select("id, full_name, email, phone, status, goal, created_at").order("full_name"),
+    supabase.from("workout_sessions").select("student_id, started_at").eq("status", "concluida").order("started_at", { ascending: false }).limit(2000),
+    supabase.from("assessments").select("student_id, assessed_at").order("assessed_at", { ascending: false }).limit(2000),
+  ]);
+
+  const lastWorkout = new Map<string, string>();
+  for (const s of sessionsRes.data ?? []) if (!lastWorkout.has(s.student_id)) lastWorkout.set(s.student_id, localDate(s.started_at));
+  const lastAssessment = new Map<string, string>();
+  for (const a of assessmentsRes.data ?? []) if (!lastAssessment.has(a.student_id)) lastAssessment.set(a.student_id, a.assessed_at);
+
+  const rows: StudentRow[] = (studentsRes.data ?? []).map((s) => ({
+    id: s.id,
+    name: s.full_name,
+    email: s.email,
+    phone: s.phone,
+    status: s.status,
+    goal: s.goal,
+    createdAt: s.created_at,
+    lastWorkout: lastWorkout.get(s.id) ?? null,
+    lastAssessment: lastAssessment.get(s.id) ?? null,
+  }));
 
   return (
-    <section className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-xl font-bold">Alunos</h1>
-        <Link href="/personal/alunos/novo" className={`${btnPrimaryCls} !h-11 !w-auto px-4 text-sm`}>
-          Novo aluno
-        </Link>
-      </div>
-
-      {error && <p className={errorCls}>Não foi possível carregar os alunos: {error.message}</p>}
-
-      {!error && students?.length === 0 && (
-        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
-          Nenhum aluno ainda. Clique em “Novo aluno” para cadastrar o primeiro.
-        </p>
+    <>
+      <PageHeader
+        eyebrow="Alunos"
+        title="Seus alunos"
+        description="Busque, filtre e acompanhe cada aluno."
+        actions={
+          <Link href="/personal/alunos/novo" className={`${btnPrimaryCls} !h-11 !w-auto px-5 text-sm`}>
+            <UserPlus aria-hidden className="size-4" /> Novo aluno
+          </Link>
+        }
+      />
+      {studentsRes.error ? (
+        <ErrorState message={`Não foi possível carregar os alunos: ${studentsRes.error.message}`} />
+      ) : (
+        <StudentsBrowser students={rows} />
       )}
-
-      <ul className="space-y-3">
-        {students?.map((s) => (
-          <li key={s.id} className="rounded-xl border border-line p-4 bg-card">
-            <div className="flex items-start justify-between gap-3">
-              <Link href={`/personal/alunos/${s.id}`} className="min-w-0 flex-1">
-                <p className="truncate font-semibold underline-offset-4 hover:underline">
-                  {s.full_name}
-                </p>
-                <p className="truncate text-sm text-muted">{s.email}</p>
-                {s.phone && <p className="text-sm text-muted">{s.phone}</p>}
-              </Link>
-              <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${STATUS[s.status].cls}`}>
-                {STATUS[s.status].label}
-              </span>
-            </div>
-            {s.status === "convidado" && <InviteButton studentId={s.id} />}
-            {s.status !== "convidado" && (
-              <Link
-                href={`/personal/alunos/${s.id}`}
-                className="mt-3 inline-block text-sm font-medium underline"
-              >
-                Ver perfil e fichas de treino →
-              </Link>
-            )}
-          </li>
-        ))}
-      </ul>
-    </section>
+    </>
   );
 }

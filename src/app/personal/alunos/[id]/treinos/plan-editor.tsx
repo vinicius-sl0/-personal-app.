@@ -2,27 +2,35 @@
 
 import { useActionState, useState } from "react";
 import Link from "next/link";
+import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import ExercisePicker, { type ExerciseOption } from "@/components/exercise-picker";
 import VolumeSummary from "@/components/volume-summary";
 import { plannedInput, type MuscleMap, type VolumeInput } from "@/lib/volume";
-import { btnPrimaryCls, btnSecondaryCls, errorCls, inputCls } from "@/lib/ui";
-import {
-  repsLabel,
-  TECHNIQUE_DETAIL_FIELD,
-  TECHNIQUE_LABEL,
-  techniqueExplanation,
-  type Technique,
-} from "@/lib/workout-labels";
+import { btnPrimaryCls, btnSecondaryCls, cardCls, errorCls, inputCls, labelCls } from "@/lib/ui";
+import { Spinner } from "@/components/ui/field";
 import type { PlanFormState } from "./actions";
 import { planSchema, type ExerciseItemInput, type WorkoutInput } from "./schema";
+import ExerciseCard, { type EditorExercise } from "./exercise-card";
 
-type Workout = WorkoutInput & { key: string };
+type Workout = Omit<WorkoutInput, "exercises"> & { key: string; exercises: EditorExercise[] };
 
 let uid = 0;
-const newKey = () => `w${Date.now()}_${uid++}`;
+const newKey = () => `k${Date.now()}_${uid++}`;
 
-function emptyExercise(exercise_id: string): ExerciseItemInput {
+function emptyExercise(exercise_id: string): EditorExercise {
   return {
+    uid: newKey(),
     exercise_id,
     sets: 3,
     reps_min: 8,
@@ -56,7 +64,7 @@ export default function PlanEditor({
   exercises: ExerciseOption[];
   exerciseIndex: Record<string, ExerciseOption>;
   action: (status: "rascunho" | "ativo", prev: PlanFormState, fd: FormData) => Promise<PlanFormState>;
-  initialPlan?: { name: string; objective: string | null; workouts: Omit<Workout, "key">[] };
+  initialPlan?: { name: string; objective: string | null; workouts: WorkoutInput[] };
   planId?: string;
   muscleMap?: MuscleMap; // grupos musculares de cada exercício (para o resumo de volume)
   secondaryWeight?: number;
@@ -64,318 +72,206 @@ export default function PlanEditor({
   const [name, setName] = useState(initialPlan?.name ?? "");
   const [objective, setObjective] = useState(initialPlan?.objective ?? "");
   const [workouts, setWorkouts] = useState<Workout[]>(
-    initialPlan?.workouts.map((w) => ({ ...w, key: newKey() })) ?? [emptyWorkout(0)],
+    initialPlan?.workouts.map((w) => ({ ...w, key: newKey(), exercises: w.exercises.map((ex) => ({ ...ex, uid: newKey() })) })) ?? [
+      emptyWorkout(0),
+    ],
   );
+  const [activeKey, setActiveKey] = useState(workouts[0]?.key);
+  const [openIds, setOpenIds] = useState<Set<string>>(new Set());
   const [clientError, setClientError] = useState<string | null>(null);
+  const [announce, setAnnounce] = useState("");
 
-  const publishAction = useActionState(action.bind(null, "ativo"), {} as PlanFormState);
-  const draftAction = useActionState(action.bind(null, "rascunho"), {} as PlanFormState);
-  const [publishState, publishFormAction, publishPending] = publishAction;
-  const [draftState, draftFormAction, draftPending] = draftAction;
+  const [publishState, publishFormAction, publishPending] = useActionState(action.bind(null, "ativo"), {} as PlanFormState);
+  const [draftState, draftFormAction, draftPending] = useActionState(action.bind(null, "rascunho"), {} as PlanFormState);
   const pending = publishPending || draftPending;
   const state = publishState.error ? publishState : draftState;
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const active = workouts.find((w) => w.key === activeKey) ?? workouts[0];
 
   function buildPayload() {
     return JSON.stringify({
       name,
       objective: objective.trim() || null,
-      workouts: workouts.map(({ key: _key, ...w }) => w),
+      workouts: workouts.map(({ key: _k, exercises: exs, ...w }) => ({ ...w, exercises: exs.map(({ uid: _u, ...ex }) => ex) })),
     });
   }
 
   function validateClient() {
     const parsed = planSchema.safeParse(JSON.parse(buildPayload()));
     if (!parsed.success) {
-      setClientError(parsed.error.issues[0]?.message ?? "Confira os campos da ficha.");
+      const issue = parsed.error.issues[0];
+      // Se o erro é de um treino específico, abre a aba dele para a pessoa ver.
+      const wi = issue?.path[0] === "workouts" ? Number(issue.path[1]) : NaN;
+      if (Number.isInteger(wi) && workouts[wi]) setActiveKey(workouts[wi].key);
+      setClientError(`${Number.isInteger(wi) && workouts[wi] ? `${workouts[wi].name}: ` : ""}${issue?.message ?? "Confira os campos da ficha."}`);
       return false;
     }
     setClientError(null);
     return true;
   }
 
-  // Entradas do resumo de volume, recalculadas a cada edição (séries ainda sendo digitadas são ignoradas).
   const volumeInputs = (w: Workout): VolumeInput[] =>
-    w.exercises
-      .filter((ex) => Number.isFinite(ex.sets) && ex.sets > 0)
-      .map((ex) => plannedInput(ex, w.key));
+    w.exercises.filter((ex) => Number.isFinite(ex.sets) && ex.sets > 0).map((ex) => plannedInput(ex, w.key));
+
+  const updateActive = (fn: (w: Workout) => Workout) => setWorkouts((prev) => prev.map((w) => (w.key === active.key ? fn(w) : w)));
 
   function addWorkout() {
-    setWorkouts((prev) => [...prev, emptyWorkout(prev.length)]);
+    const w = emptyWorkout(workouts.length);
+    setWorkouts((prev) => [...prev, w]);
+    setActiveKey(w.key);
+  }
+  function removeWorkout() {
+    if (!confirm(`Remover "${active.name}" e todos os exercícios dele?`)) return;
+    const idx = workouts.findIndex((w) => w.key === active.key);
+    const rest = workouts.filter((w) => w.key !== active.key);
+    setWorkouts(rest);
+    setActiveKey(rest[Math.max(0, idx - 1)]?.key);
+  }
+  function addExercise(exercise: ExerciseOption) {
+    const ex = emptyExercise(exercise.id);
+    updateActive((w) => ({ ...w, exercises: [...w.exercises, ex] }));
+    setOpenIds((s) => new Set(s).add(ex.uid));
+  }
+  function patchExercise(uidToPatch: string, patch: Partial<ExerciseItemInput>) {
+    updateActive((w) => ({ ...w, exercises: w.exercises.map((ex) => (ex.uid === uidToPatch ? { ...ex, ...patch } : ex)) }));
+  }
+  function move(from: number, to: number) {
+    if (to < 0 || to >= active.exercises.length) return;
+    updateActive((w) => ({ ...w, exercises: arrayMove(w.exercises, from, to) }));
+    const exName = exerciseIndex[active.exercises[from].exercise_id]?.name ?? "Exercício";
+    setAnnounce(`${exName} agora é o ${to + 1}º de ${active.exercises.length}.`);
+  }
+  function onDragEnd(e: DragEndEvent) {
+    if (!e.over || e.active.id === e.over.id) return;
+    const from = active.exercises.findIndex((x) => x.uid === e.active.id);
+    const to = active.exercises.findIndex((x) => x.uid === e.over!.id);
+    move(from, to);
   }
 
-  function removeWorkout(key: string) {
-    setWorkouts((prev) => prev.filter((w) => w.key !== key));
-  }
-
-  function updateWorkout(key: string, patch: Partial<Workout>) {
-    setWorkouts((prev) => prev.map((w) => (w.key === key ? { ...w, ...patch } : w)));
-  }
-
-  function addExercise(workoutKey: string, exercise: ExerciseOption) {
-    setWorkouts((prev) =>
-      prev.map((w) =>
-        w.key === workoutKey ? { ...w, exercises: [...w.exercises, emptyExercise(exercise.id)] } : w,
-      ),
-    );
-  }
-
-  function updateExercise(workoutKey: string, index: number, patch: Partial<ExerciseItemInput>) {
-    setWorkouts((prev) =>
-      prev.map((w) => {
-        if (w.key !== workoutKey) return w;
-        const exercises = w.exercises.map((ex, i) => (i === index ? { ...ex, ...patch } : ex));
-        return { ...w, exercises };
-      }),
-    );
-  }
-
-  function removeExercise(workoutKey: string, index: number) {
-    setWorkouts((prev) =>
-      prev.map((w) =>
-        w.key === workoutKey ? { ...w, exercises: w.exercises.filter((_, i) => i !== index) } : w,
-      ),
-    );
-  }
+  const submit = (formAction: (fd: FormData) => void) => (fd: FormData) => {
+    if (!validateClient()) return;
+    fd.set("payload", buildPayload());
+    formAction(fd);
+  };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <Link href={`/personal/alunos/${studentId}`} className="text-sm text-muted underline">
-          ← Voltar para {studentName}
-        </Link>
+    <div className="space-y-5 pb-28">
+      <Link href={`/personal/alunos/${studentId}`} className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink">
+        <ArrowLeft aria-hidden className="size-4" /> {studentName}
+      </Link>
+
+      {/* Dados da ficha */}
+      <div className={`${cardCls} grid gap-4 p-4 sm:grid-cols-2 sm:p-5`}>
+        <label className="space-y-1.5">
+          <span className={labelCls}>Nome da ficha</span>
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Hipertrofia ABC" className={inputCls} />
+        </label>
+        <label className="space-y-1.5">
+          <span className={labelCls}>Objetivo (opcional)</span>
+          <input value={objective} onChange={(e) => setObjective(e.target.value)} placeholder="Ex.: ganho de massa muscular" className={inputCls} />
+        </label>
       </div>
 
-      <div className="space-y-4 rounded-xl border border-line p-4 bg-card">
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium">Nome da ficha</label>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Ex.: Hipertrofia ABC"
-            className={inputCls}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium">Objetivo (opcional)</label>
-          <input
-            value={objective}
-            onChange={(e) => setObjective(e.target.value)}
-            placeholder="Ex.: ganho de massa muscular"
-            className={inputCls}
-          />
-        </div>
+      {/* Abas dos treinos A / B / C... */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Treinos da ficha">
+        {workouts.map((w) => {
+          const on = w.key === active?.key;
+          return (
+            <button
+              key={w.key}
+              type="button"
+              role="tab"
+              aria-selected={on}
+              onClick={() => setActiveKey(w.key)}
+              className={`shrink-0 rounded-xl border px-4 py-2 text-sm font-semibold transition ${
+                on ? "border-brand bg-brand text-brand-contrast" : "border-line bg-card text-soft hover:border-line-strong hover:text-ink"
+              }`}
+            >
+              {w.name || "Sem nome"}
+              <span className={`ml-2 text-xs font-medium ${on ? "opacity-80" : "text-muted"}`}>{w.exercises.length}</span>
+            </button>
+          );
+        })}
+        <button type="button" onClick={addWorkout} className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-dashed border-line-strong px-4 py-2 text-sm font-medium text-soft hover:border-brand hover:text-brand-ink">
+          <Plus aria-hidden className="size-4" /> Treino
+        </button>
       </div>
 
-      {workouts.map((w, wi) => (
-        <div key={w.key} className="space-y-4 rounded-xl border border-line p-4 bg-card">
-          <div className="flex items-center gap-2">
-            <input
-              value={w.name}
-              onChange={(e) => updateWorkout(w.key, { name: e.target.value })}
-              className={`${inputCls} !h-10 flex-1 font-semibold`}
-            />
-            {workouts.length > 1 && (
-              <button
-                type="button"
-                onClick={() => removeWorkout(w.key)}
-                className="shrink-0 rounded-lg border border-red-300 px-3 py-2 text-xs text-red-700 dark:border-red-800 dark:text-red-300"
-              >
-                Remover treino
-              </button>
-            )}
-          </div>
+      {active && (
+        <div role="tabpanel" aria-label={active.name} className="grid gap-5 xl:grid-cols-[1fr_320px]">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <label className="flex-1">
+                <span className="sr-only">Nome do treino</span>
+                <input value={active.name} onChange={(e) => updateActive((w) => ({ ...w, name: e.target.value }))} className={`${inputCls} font-semibold`} />
+              </label>
+              {workouts.length > 1 && (
+                <button type="button" onClick={removeWorkout} aria-label={`Remover ${active.name}`} title="Remover treino" className="grid size-12 shrink-0 place-items-center rounded-xl border border-line text-red-600 hover:bg-red-500/10 dark:text-red-400">
+                  <Trash2 aria-hidden className="size-4" />
+                </button>
+              )}
+            </div>
 
-          <div className="space-y-3">
-            {w.exercises.length === 0 && (
-              <p className="text-sm text-muted">Nenhum exercício adicionado ainda.</p>
-            )}
-            {w.exercises.map((ex, ei) => {
-              const info = exerciseIndex[ex.exercise_id];
-              const detailField = TECHNIQUE_DETAIL_FIELD[ex.technique];
-              const explanation = techniqueExplanation(ex.technique, ex.technique_detail);
-              return (
-                <div key={ei} className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="font-medium">{info?.name ?? "Exercício"}</p>
-                    <button
-                      type="button"
-                      onClick={() => removeExercise(w.key, ei)}
-                      className="shrink-0 text-xs text-red-700 underline dark:text-red-300"
-                    >
-                      Remover
-                    </button>
-                  </div>
-
-                  <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    <label className="space-y-1 text-xs text-muted">
-                      Séries
-                      <input
-                        type="number"
-                        min={1}
-                        max={50}
-                        value={ex.sets}
-                        onChange={(e) => updateExercise(w.key, ei, { sets: Number(e.target.value) })}
-                        className={`${inputCls} !h-10`}
-                      />
-                    </label>
-                    <label className="space-y-1 text-xs text-muted">
-                      Reps. mín.
-                      <input
-                        type="number"
-                        min={1}
-                        max={1000}
-                        value={ex.reps_min ?? ""}
-                        onChange={(e) =>
-                          updateExercise(w.key, ei, {
-                            reps_min: e.target.value === "" ? null : Number(e.target.value),
-                          })
-                        }
-                        className={`${inputCls} !h-10`}
-                      />
-                    </label>
-                    <label className="space-y-1 text-xs text-muted">
-                      Reps. máx.
-                      <input
-                        type="number"
-                        min={1}
-                        max={1000}
-                        value={ex.reps_max ?? ""}
-                        onChange={(e) =>
-                          updateExercise(w.key, ei, {
-                            reps_max: e.target.value === "" ? null : Number(e.target.value),
-                          })
-                        }
-                        className={`${inputCls} !h-10`}
-                      />
-                    </label>
-                    <label className="space-y-1 text-xs text-muted">
-                      Descanso (s)
-                      <input
-                        type="number"
-                        min={0}
-                        max={3600}
-                        value={ex.rest_seconds ?? ""}
-                        onChange={(e) =>
-                          updateExercise(w.key, ei, {
-                            rest_seconds: e.target.value === "" ? null : Number(e.target.value),
-                          })
-                        }
-                        className={`${inputCls} !h-10`}
-                      />
-                    </label>
-                  </div>
-
-                  <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    <label className="space-y-1 text-xs text-muted">
-                      Reps. em texto (opcional, substitui mín./máx.)
-                      <input
-                        value={ex.reps_text ?? ""}
-                        onChange={(e) =>
-                          updateExercise(w.key, ei, { reps_text: e.target.value || null })
-                        }
-                        placeholder='Ex.: "até a falha"'
-                        className={`${inputCls} !h-10`}
-                      />
-                    </label>
-                    <label className="space-y-1 text-xs text-muted">
-                      Carga alvo (kg, opcional)
-                      <input
-                        type="number"
-                        min={0}
-                        step="0.5"
-                        value={ex.target_load_kg ?? ""}
-                        onChange={(e) =>
-                          updateExercise(w.key, ei, {
-                            target_load_kg: e.target.value === "" ? null : Number(e.target.value),
-                          })
-                        }
-                        className={`${inputCls} !h-10`}
-                      />
-                    </label>
-                  </div>
-
-                  <label className="mt-2 block space-y-1 text-xs text-muted">
-                    Técnica
-                    <select
-                      value={ex.technique}
-                      onChange={(e) =>
-                        updateExercise(w.key, ei, {
-                          technique: e.target.value as Technique,
-                          technique_detail: e.target.value === "normal" ? null : ex.technique_detail,
-                        })
-                      }
-                      className={`${inputCls} !h-10`}
-                    >
-                      {(Object.keys(TECHNIQUE_LABEL) as Technique[]).map((t) => (
-                        <option key={t} value={t}>
-                          {TECHNIQUE_LABEL[t]}
-                        </option>
+            {active.exercises.length === 0 ? (
+              <p className="rounded-2xl border border-dashed border-line-strong px-4 py-8 text-center text-sm text-muted">
+                Nenhum exercício ainda. Busque abaixo e toque em “Adicionar”.
+              </p>
+            ) : (
+              <>
+                <p className="text-xs text-muted">Arraste pela alça ⠿ (ou use ↑ ↓) para mudar a ordem. Toque no exercício para editar.</p>
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+                  <SortableContext items={active.exercises.map((x) => x.uid)} strategy={verticalListSortingStrategy}>
+                    <ol className="space-y-2">
+                      {active.exercises.map((ex, i) => (
+                        <ExerciseCard
+                          key={ex.uid}
+                          item={ex}
+                          index={i}
+                          total={active.exercises.length}
+                          info={exerciseIndex[ex.exercise_id]}
+                          open={openIds.has(ex.uid)}
+                          onToggle={() =>
+                            setOpenIds((s) => {
+                              const n = new Set(s);
+                              if (n.has(ex.uid)) n.delete(ex.uid);
+                              else n.add(ex.uid);
+                              return n;
+                            })
+                          }
+                          onChange={(patch) => patchExercise(ex.uid, patch)}
+                          onRemove={() => updateActive((w) => ({ ...w, exercises: w.exercises.filter((x) => x.uid !== ex.uid) }))}
+                          onMove={(dir) => move(i, i + dir)}
+                        />
                       ))}
-                    </select>
-                  </label>
+                    </ol>
+                  </SortableContext>
+                </DndContext>
+              </>
+            )}
+            <p className="sr-only" aria-live="polite">
+              {announce}
+            </p>
 
-                  {detailField && (
-                    <label className="mt-2 block space-y-1 text-xs text-muted">
-                      {detailField.label}
-                      <input
-                        value={ex.technique_detail ?? ""}
-                        onChange={(e) =>
-                          updateExercise(w.key, ei, { technique_detail: e.target.value || null })
-                        }
-                        placeholder={detailField.placeholder}
-                        className={`${inputCls} !h-10`}
-                      />
-                    </label>
-                  )}
-
-                  <label className="mt-2 block space-y-1 text-xs text-muted">
-                    Observação (opcional)
-                    <input
-                      value={ex.notes ?? ""}
-                      onChange={(e) => updateExercise(w.key, ei, { notes: e.target.value || null })}
-                      placeholder="Ex.: cadência lenta na descida"
-                      className={`${inputCls} !h-10`}
-                    />
-                  </label>
-
-                  <p className="mt-2 text-xs text-muted">
-                    Prévia: {ex.sets}× {repsLabel(ex.reps_min, ex.reps_max, ex.reps_text)}
-                    {ex.target_load_kg ? ` · ${ex.target_load_kg} kg` : ""}
-                    {ex.rest_seconds ? ` · descanso ${ex.rest_seconds}s` : ""}
-                  </p>
-                  {explanation && (
-                    <p className="mt-1 rounded-lg bg-amber-50 px-2 py-1.5 text-xs text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
-                      Como o aluno vai ver: {explanation}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
+            <div className={`${cardCls} p-4`}>
+              <p className="mb-3 text-sm font-semibold">Adicionar exercício ao {active.name || "treino"}</p>
+              <ExercisePicker exercises={exercises} onAdd={addExercise} />
+            </div>
           </div>
 
-          <ExercisePicker exercises={exercises} onAdd={(ex) => addExercise(w.key, ex)} />
-
-          <VolumeSummary
-            title={`Resumo do ${w.name || "treino"}`}
-            inputs={volumeInputs(w)}
-            map={muscleMap}
-            secondaryWeight={secondaryWeight}
-          />
+          <aside className="space-y-3 xl:sticky xl:top-20 xl:self-start">
+            <VolumeSummary title={`Resumo do ${active.name || "treino"}`} inputs={volumeInputs(active)} map={muscleMap} secondaryWeight={secondaryWeight} />
+            {workouts.length > 1 && (
+              <VolumeSummary title="Resumo da ficha (cada treino 1 vez)" inputs={workouts.flatMap(volumeInputs)} map={muscleMap} secondaryWeight={secondaryWeight} />
+            )}
+          </aside>
         </div>
-      ))}
-
-      {workouts.length > 1 && (
-        <VolumeSummary
-          title="Resumo da ficha (todos os treinos, cada um 1 vez)"
-          inputs={workouts.flatMap(volumeInputs)}
-          map={muscleMap}
-          secondaryWeight={secondaryWeight}
-        />
       )}
-
-      <button type="button" onClick={addWorkout} className={btnSecondaryCls}>
-        + Adicionar treino (ex.: Treino B)
-      </button>
 
       {(clientError || state.error) && (
         <p role="alert" className={errorCls}>
@@ -383,35 +279,36 @@ export default function PlanEditor({
         </p>
       )}
 
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <form
-          action={(fd) => {
-            if (!validateClient()) return;
-            fd.set("payload", buildPayload());
-            draftFormAction(fd);
-          }}
-          className="flex-1"
-        >
-          <button type="submit" disabled={pending} className={btnSecondaryCls + " w-full"}>
-            {draftPending ? "Salvando..." : "Salvar rascunho"}
-          </button>
-        </form>
-        <form
-          action={(fd) => {
-            if (!validateClient()) return;
-            fd.set("payload", buildPayload());
-            publishFormAction(fd);
-          }}
-          className="flex-1"
-        >
-          <button type="submit" disabled={pending} className={btnPrimaryCls}>
-            {publishPending ? "Publicando..." : planId ? "Salvar e publicar" : "Publicar ficha"}
-          </button>
-        </form>
+      {/* Barra de ações fixa */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 px-4 py-3 backdrop-blur lg:left-64">
+        <div className="mx-auto flex max-w-6xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+          <p className="hidden flex-1 text-xs text-muted sm:block">Publicar encerra a ficha ativa anterior do aluno e avisa ele.</p>
+          <form action={submit(draftFormAction)}>
+            <button type="submit" disabled={pending} className={`${btnSecondaryCls} w-full sm:w-auto`}>
+              {draftPending ? (
+                <>
+                  <Spinner /> Salvando...
+                </>
+              ) : (
+                "Salvar rascunho"
+              )}
+            </button>
+          </form>
+          <form action={submit(publishFormAction)}>
+            <button type="submit" disabled={pending} className={`${btnPrimaryCls} !h-11 sm:!w-auto sm:px-6`}>
+              {publishPending ? (
+                <>
+                  <Spinner /> Publicando...
+                </>
+              ) : planId ? (
+                "Salvar e publicar"
+              ) : (
+                "Publicar ficha"
+              )}
+            </button>
+          </form>
+        </div>
       </div>
-      <p className="text-xs text-muted">
-        Publicar encerra automaticamente a ficha ativa anterior do aluno e envia uma notificação a ele.
-      </p>
     </div>
   );
 }

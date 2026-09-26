@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { errorCls } from "@/lib/ui";
+import { BarChart3, CalendarCheck, Dumbbell, Play } from "lucide-react";
+import { btnPrimaryCls, btnSecondaryCls, cardCls } from "@/lib/ui";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState, ErrorState } from "@/components/ui/states";
 
 export const metadata = { title: "Meus treinos" };
 
@@ -15,23 +18,19 @@ export default async function AlunoTreinosPage() {
     .maybeSingle();
 
   if (error) {
-    return <p className={errorCls}>Não foi possível carregar seus treinos: {error.message}</p>;
+    return <ErrorState message={`Não foi possível carregar seus treinos: ${error.message}`} />;
   }
 
   if (!plan) {
     return (
-      <section className="space-y-3">
-        <h1 className="text-xl font-bold">Meus treinos</h1>
-        <Link href="/aluno/treinos/historico" className="inline-block text-sm underline">
-          Ver minha frequência e histórico →
-        </Link>
-        <Link href="/aluno/treinos/volume" className="mt-1 block text-sm underline">
-          📊 Meu volume de treino →
-        </Link>
-        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
-          Seu Personal ainda não publicou uma ficha de treino para você.
-        </p>
-      </section>
+      <>
+        <PageHeader eyebrow="Meu treino" title="Meus treinos" />
+        <EmptyState
+          icon={<Dumbbell className="size-5" />}
+          title="Sua ficha ainda não está pronta"
+          description="Seu Personal ainda não publicou uma ficha de treino para você. Assim que publicar, ela aparece aqui."
+        />
+      </>
     );
   }
 
@@ -60,39 +59,53 @@ export default async function AlunoTreinosPage() {
   }
 
   return (
-    <section className="space-y-4">
-      <div>
-        <h1 className="text-xl font-bold">{plan.name}</h1>
-        {plan.objective && <p className="text-sm text-muted">{plan.objective}</p>}
-        <Link href="/aluno/treinos/historico" className="mt-1 inline-block text-sm underline">
-          Ver minha frequência e histórico →
-        </Link>
-        <Link href="/aluno/treinos/volume" className="mt-1 block text-sm underline">
-          📊 Meu volume de treino →
-        </Link>
-      </div>
+    <>
+      <PageHeader
+        eyebrow="Meu treino"
+        title={plan.name}
+        description={plan.objective ?? undefined}
+        actions={
+          <>
+            <Link href="/aluno/treinos/historico" className={btnSecondaryCls}>
+              <CalendarCheck aria-hidden className="size-4" /> Frequência
+            </Link>
+            <Link href="/aluno/treinos/volume" className={btnSecondaryCls}>
+              <BarChart3 aria-hidden className="size-4" /> Meu volume
+            </Link>
+          </>
+        }
+      />
 
-      <ul className="space-y-3">
-        {workouts?.map((w) => {
+      <ul className="grid gap-3 sm:grid-cols-2">
+        {workouts?.map((w, i) => {
           const last = lastByWorkout.get(w.id);
+          const n = w.workout_exercises?.length ?? 0;
           return (
-            <li key={w.id}>
-              <Link
-                href={`/aluno/treinos/${w.id}`}
-                className="block rounded-xl border border-line p-4 hover:bg-subtle bg-card"
-              >
-                <p className="font-semibold">{w.name}</p>
-                <p className="text-sm text-muted">
-                  {w.workout_exercises?.length ?? 0} exercícios
-                  {last
-                    ? ` · último treino em ${new Date(last).toLocaleDateString("pt-BR")}`
-                    : " · ainda não realizado"}
-                </p>
+            <li key={w.id} className={`${cardCls} flex flex-col p-5`}>
+              <Link href={`/aluno/treinos/${w.id}`} className="group flex items-start gap-4">
+                <span aria-hidden className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-soft text-lg font-extrabold text-brand-ink">
+                  {String.fromCharCode(65 + i)}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-lg font-semibold group-hover:text-brand-ink">{w.name}</span>
+                  <span className="block text-sm text-muted">
+                    {n} {n === 1 ? "exercício" : "exercícios"} ·{" "}
+                    {last ? `último em ${new Date(last).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}` : "ainda não realizado"}
+                  </span>
+                </span>
               </Link>
+              <div className="mt-4 flex gap-2">
+                <Link href={`/aluno/treinos/${w.id}`} className={`${btnSecondaryCls} flex-1`}>
+                  Ver exercícios
+                </Link>
+                <Link href={`/aluno/treinos/${w.id}/executar`} className={`${btnPrimaryCls} !h-11 flex-1 text-sm`}>
+                  <Play aria-hidden className="size-4" /> Treinar
+                </Link>
+              </div>
             </li>
           );
         })}
       </ul>
-    </section>
+    </>
   );
 }

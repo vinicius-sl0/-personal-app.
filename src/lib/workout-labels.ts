@@ -5,10 +5,10 @@ export const DIFFICULTY_LABEL: Record<string, string> = {
 };
 
 export const PLAN_STATUS_LABEL: Record<string, { label: string; cls: string }> = {
-  rascunho: { label: "Rascunho", cls: "bg-zinc-200 text-strong dark:bg-zinc-800" },
-  ativo: { label: "Ativo", cls: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200" },
-  encerrado: { label: "Encerrado", cls: "bg-zinc-200 text-strong dark:bg-zinc-800" },
-  arquivado: { label: "Arquivado", cls: "bg-zinc-200 text-strong dark:bg-zinc-800" },
+  rascunho: { label: "Rascunho", cls: "bg-amber-500/15 text-amber-800 dark:text-amber-300" },
+  ativo: { label: "Ativo", cls: "bg-emerald-500/12 text-emerald-700 dark:text-emerald-400" },
+  encerrado: { label: "Encerrado", cls: "bg-subtle-strong text-soft" },
+  arquivado: { label: "Arquivado", cls: "bg-subtle-strong text-soft" },
 };
 
 export function repsLabel(min: number | null, max: number | null, text: string | null) {

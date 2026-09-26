@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { PageHeader } from "@/components/ui/page-header";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
 import { loadMuscleMap, loadSecondaryWeight } from "@/lib/volume-data";
@@ -42,8 +43,8 @@ export default async function NovaFichaPage({
   ]);
 
   return (
-    <section className="space-y-4">
-      <h1 className="text-xl font-bold">Nova ficha para {student.full_name}</h1>
+    <section>
+      <PageHeader eyebrow="Criar treino" title={`Nova ficha para ${student.full_name}`} description="Monte os treinos (A, B, C...), adicione exercícios e arraste para ordenar." />
       <PlanEditor
         studentId={id}
         studentName={student.full_name}

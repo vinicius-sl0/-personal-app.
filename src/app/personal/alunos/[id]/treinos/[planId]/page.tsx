@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Archive, BarChart3 } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
@@ -87,24 +89,32 @@ export default async function FichaPage({
   const statusInfo = PLAN_STATUS_LABEL[plan.status];
 
   return (
-    <section className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-xl font-bold">{plan.name}</h1>
-        <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${statusInfo.cls}`}>
-          {statusInfo.label}
-        </span>
-      </div>
-      <Link href={`/personal/treinos/volume?aluno=${id}`} className="inline-block text-sm underline">
-        📊 Análise de volume desta ficha →
-      </Link>
-
-      {plan.status !== "arquivado" && (
-        <form action={archivePlan}>
-          <input type="hidden" name="plan_id" value={plan.id} />
-          <input type="hidden" name="student_id" value={id} />
-          <button className={`${btnSecondaryCls} !h-9 px-3 text-xs`}>Arquivar esta ficha</button>
-        </form>
-      )}
+    <section>
+      <PageHeader
+        eyebrow={`Ficha de ${student.full_name}`}
+        title={
+          <span className="flex flex-wrap items-center gap-2">
+            {plan.name}
+            <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusInfo.cls}`}>{statusInfo.label}</span>
+          </span>
+        }
+        actions={
+          <>
+            <Link href={`/personal/treinos/volume?aluno=${id}`} className={btnSecondaryCls}>
+              <BarChart3 aria-hidden className="size-4" /> Análise de volume
+            </Link>
+            {plan.status !== "arquivado" && (
+              <form action={archivePlan}>
+                <input type="hidden" name="plan_id" value={plan.id} />
+                <input type="hidden" name="student_id" value={id} />
+                <button className={btnSecondaryCls}>
+                  <Archive aria-hidden className="size-4" /> Arquivar
+                </button>
+              </form>
+            )}
+          </>
+        }
+      />
 
       <PlanEditor
         studentId={id}
