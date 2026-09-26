@@ -22,6 +22,9 @@ export default async function AlunoTreinosPage() {
     return (
       <section className="space-y-3">
         <h1 className="text-xl font-bold">Meus treinos</h1>
+        <Link href="/aluno/treinos/historico" className="inline-block text-sm underline">
+          Ver minha frequência e histórico →
+        </Link>
         <p className="rounded-xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
           Seu Personal ainda não publicou uma ficha de treino para você.
         </p>
@@ -58,6 +61,9 @@ export default async function AlunoTreinosPage() {
       <div>
         <h1 className="text-xl font-bold">{plan.name}</h1>
         {plan.objective && <p className="text-sm text-zinc-500">{plan.objective}</p>}
+        <Link href="/aluno/treinos/historico" className="mt-1 inline-block text-sm underline">
+          Ver minha frequência e histórico →
+        </Link>
       </div>
 
       <ul className="space-y-3">

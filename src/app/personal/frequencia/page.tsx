@@ -17,7 +17,7 @@ export default async function FrequenciaPage() {
   const [{ data: students, error }, { data: sessions, error: sessionsError }] = await Promise.all([
     supabase
       .from("students")
-      .select("id, full_name, training_days")
+      .select("id, full_name, training_days, start_date")
       .in("status", ["ativo", "pausado"])
       .order("full_name"),
     supabase
@@ -32,6 +32,8 @@ export default async function FrequenciaPage() {
       weekStart,
       (sessions ?? []).filter((x) => x.student_id === s.id),
       s.training_days,
+      undefined,
+      s.start_date,
     );
     return { student: s, summary, missed: days.filter((d) => d.status === "faltou").length };
   });

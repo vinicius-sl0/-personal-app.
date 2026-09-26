@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { startTransition, useActionState } from "react";
 import InviteLink from "@/components/invite-link";
 import { btnPrimaryCls, btnSecondaryCls, errorCls, inputCls } from "@/lib/ui";
+import { WEEKDAYS } from "@/lib/attendance";
 import { createStudent, type StudentFormState } from "../actions";
 
 const initialState: StudentFormState = {};
@@ -47,7 +48,16 @@ export default function StudentForm() {
   }
 
   return (
-    <form action={formAction} className="space-y-4" noValidate>
+    // onSubmit em vez de action={...}: assim o React não apaga o que foi digitado quando volta um erro.
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        startTransition(() => formAction(fd));
+      }}
+      className="space-y-4"
+      noValidate
+    >
       <Field label="Nome completo">
         <input name="full_name" required autoComplete="off" className={inputCls} />
       </Field>
@@ -81,6 +91,23 @@ export default function StudentForm() {
           placeholder="Ex.: emagrecimento, ganho de massa, condicionamento"
         />
       </Field>
+
+      <fieldset className="space-y-1.5">
+        <legend className="text-sm font-medium">Dias de treino (opcional)</legend>
+        <div className="grid grid-cols-7 gap-1">
+          {WEEKDAYS.map((w) => (
+            <label key={w.value} className="cursor-pointer">
+              <input type="checkbox" name="training_days" value={w.value} aria-label={w.long} className="peer sr-only" />
+              <span className="flex h-11 items-center justify-center rounded-lg border border-zinc-300 text-xs font-semibold transition peer-checked:border-zinc-900 peer-checked:bg-zinc-900 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-zinc-900/30 dark:border-zinc-700 dark:peer-checked:border-zinc-100 dark:peer-checked:bg-zinc-100 dark:peer-checked:text-zinc-900">
+                {w.short}
+              </span>
+            </label>
+          ))}
+        </div>
+        <p className="text-xs text-zinc-500">
+          Usados na Frequência para marcar faltas. Pode deixar em branco e definir depois.
+        </p>
+      </fieldset>
 
       <details className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
         <summary className="cursor-pointer text-sm font-medium">

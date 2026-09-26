@@ -53,6 +53,9 @@ export default async function AlunoHome() {
       <Link href="/aluno/treinos" className={btnPrimaryCls}>
         Ver meus treinos
       </Link>
+      <Link href="/aluno/treinos/historico" className={btnSecondaryCls}>
+        Minha frequência
+      </Link>
       <Link href="/aluno/avaliacoes" className={btnSecondaryCls}>
         Ver minha evolução
       </Link>

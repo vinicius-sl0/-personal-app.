@@ -45,9 +45,15 @@ export type AttendanceDay = {
   status: DayStatus;
 };
 
-export type AttendanceSummary = { planned: number; attendedPlanned: number; extraDays: number; completed: number };
+export type AttendanceSummary = {
+  planned: number; // dias combinados no período
+  plannedElapsed: number; // dias combinados que já passaram (ou hoje, se já treinou)
+  attendedPlanned: number; // dias combinados com treino concluído
+  missed: number; // dias combinados que passaram sem treino ("Não foi")
+  extraDays: number; // dias NÃO combinados com treino concluído
+  completed: number; // total de treinos concluídos no período
+};
 
-// Data (AAAA-MM-DD) de um horário, no fuso do Brasil.
 export function localDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-CA", { timeZone: TZ });
 }
@@ -68,20 +74,29 @@ function sessionStatus(s: SessionRow, today: string): DayStatus {
   return "sem_checkout";
 }
 
-export function buildAttendance(
-  weekStart: string,
+// ISO: 1 = segunda ... 7 = domingo
+function isoWeekday(date: string) {
+  const d = new Date(`${date}T00:00:00Z`).getUTCDay();
+  return d === 0 ? 7 : d;
+}
+
+// Status de cada dia de uma lista de datas (semana ou mês).
+// Antes de `since` (início do aluno) nenhum dia conta como combinado, para não gerar faltas falsas.
+function buildDays(
+  dates: string[],
   sessions: SessionRow[],
   trainingDays: number[],
-  today = todayIso(),
-): { days: AttendanceDay[]; summary: AttendanceSummary } {
+  today: string,
+  since?: string,
+): AttendanceDay[] {
   const planned = new Set(trainingDays);
-  const days = weekDays(weekStart).map((date, i) => {
-    const weekday = WEEKDAYS[i];
+  return dates.map((date) => {
+    const weekday = WEEKDAYS[isoWeekday(date) - 1];
     const daySessions = sessions
       .filter((s) => localDate(s.started_at) === date)
       .sort((a, b) => a.started_at.localeCompare(b.started_at))
       .map((s) => ({ ...s, dayStatus: sessionStatus(s, today) }));
-    const isPlanned = planned.has(weekday.value);
+    const isPlanned = planned.has(weekday.value) && (!since || date >= since);
 
     let status: DayStatus;
     if (daySessions.some((s) => s.dayStatus === "concluido")) status = "concluido";
@@ -94,17 +109,80 @@ export function buildAttendance(
 
     return { date, weekday, planned: isPlanned, sessions: daySessions, status };
   });
+}
 
+function summarize(days: AttendanceDay[], today: string): AttendanceSummary {
   const done = (d: AttendanceDay) => d.status === "concluido";
   return {
-    days,
-    summary: {
-      planned: days.filter((d) => d.planned).length,
-      attendedPlanned: days.filter((d) => d.planned && done(d)).length,
-      extraDays: days.filter((d) => !d.planned && done(d)).length,
-      completed: sessions.filter((s) => s.status === "concluida").length,
-    },
+    planned: days.filter((d) => d.planned).length,
+    plannedElapsed: days.filter((d) => d.planned && (d.date < today || done(d))).length,
+    attendedPlanned: days.filter((d) => d.planned && done(d)).length,
+    missed: days.filter((d) => d.status === "faltou").length,
+    extraDays: days.filter((d) => !d.planned && done(d)).length,
+    completed: days.reduce((n, d) => n + d.sessions.filter((s) => s.status === "concluida").length, 0),
   };
+}
+
+export function buildAttendance(
+  weekStart: string,
+  sessions: SessionRow[],
+  trainingDays: number[],
+  today = todayIso(),
+  since?: string,
+): { days: AttendanceDay[]; summary: AttendanceSummary } {
+  const days = buildDays(weekDays(weekStart), sessions, trainingDays, today, since);
+  return { days, summary: summarize(days, today) };
+}
+
+// ---------------------------------------------------------------------
+// Mês (formato "AAAA-MM")
+// ---------------------------------------------------------------------
+export function currentMonth() {
+  return todayIso().slice(0, 7);
+}
+
+export function isValidMonth(ym: string | undefined): ym is string {
+  return !!ym && /^\d{4}-(0[1-9]|1[0-2])$/.test(ym);
+}
+
+export function shiftMonth(ym: string, months: number) {
+  const [y, m] = ym.split("-").map(Number);
+  const d = new Date(Date.UTC(y, m - 1 + months, 1));
+  return d.toISOString().slice(0, 7);
+}
+
+export function monthDays(ym: string) {
+  const [y, m] = ym.split("-").map(Number);
+  const count = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  return Array.from({ length: count }, (_, i) => `${ym}-${String(i + 1).padStart(2, "0")}`);
+}
+
+// Faixa de horários de vários meses seguidos (do 1º dia de `fromYm` ao último de `toYm`).
+export function monthRange(fromYm: string, toYm = fromYm) {
+  const last = monthDays(toYm).at(-1)!;
+  return { from: `${fromYm}-01T00:00:00-03:00`, to: `${last}T23:59:59.999-03:00` };
+}
+
+export function formatMonth(ym: string) {
+  const [y, m] = ym.split("-").map(Number);
+  const name = new Date(Date.UTC(y, m - 1, 15)).toLocaleDateString("pt-BR", { month: "long", timeZone: "UTC" });
+  return `${name.charAt(0).toUpperCase()}${name.slice(1)} de ${y}`;
+}
+
+export function buildMonth(
+  ym: string,
+  sessions: SessionRow[],
+  trainingDays: number[],
+  today = todayIso(),
+  since?: string,
+): { days: AttendanceDay[]; summary: AttendanceSummary } {
+  const days = buildDays(monthDays(ym), sessions, trainingDays, today, since);
+  return { days, summary: summarize(days, today) };
+}
+
+// Presença em % sobre os dias combinados que já passaram (null se não há como calcular).
+export function attendanceRate(s: AttendanceSummary) {
+  return s.plannedElapsed > 0 ? Math.round((s.attendedPlanned / s.plannedElapsed) * 100) : null;
 }
 
 export function summaryText(s: AttendanceSummary) {

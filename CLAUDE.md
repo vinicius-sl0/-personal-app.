@@ -110,8 +110,14 @@ rodar comandos locais aplica no banco.
   com as séries já gravadas.
 - Frequência (`/personal/frequencia`, `/personal/alunos/[id]/frequencia`, lógica em
   `lib/attendance.ts`): folha de ponto semanal (Dia/Treino/Check-in/Check-out/Status), resumo
-  "X de Y dias combinados", navegação por semana, editor de dias combinados. O aluno vê a
-  semana dele no histórico de treinos. Fuso fixo `America/Sao_Paulo` (-03:00).
+  "X de Y dias combinados", navegação por semana, editor de dias combinados (também no
+  cadastro do aluno novo, opcional). Abas **Semana | Mês** (`components/attendance-view.tsx`,
+  usado pelo aluno em `/aluno/treinos/historico` — menu "Frequência" — e pelo Personal): mês
+  com calendário colorido, cartões (presença %, faltas, extras, treinos), lista do mês e
+  tabela dos últimos 6 meses. Presença = combinados com treino ÷ combinados que já passaram.
+  Dias antes de `students.start_date` não contam como falta. Limitação aceita: meses antigos
+  usam os dias combinados ATUAIS (não há histórico de mudanças de `training_days`).
+  Fuso fixo `America/Sao_Paulo` (-03:00).
 - Feedback semanal (`/aluno/feedback`, `/personal/feedback`, `/personal/alunos/[id]/feedback`;
   `lib/feedback.ts`): escalas 1–5 (sentiu nos treinos, disposição, alimentação, progresso) +
   dificuldades, dor, observações. Aluno edita até o Personal responder (regra no banco).
@@ -156,8 +162,7 @@ do corpo dos alunos e mensagens, então a Política precisa cobrir isso; avisar 
 relevante).
 `src/types/database.types.ts` foi ajustado à mão para bater com a migração 20260923000001
 (e com `technique_detail`); regenerar com o comando oficial deve dar o mesmo resultado.
-Pequenos pendentes: cadastro de aluno novo ainda não pede os dias de treino (define-se na
-Frequência); `rest-timer.tsx` tem um erro antigo de lint (`set-state-in-effect`).
+Pequeno pendente: `rest-timer.tsx` tem um erro antigo de lint (`set-state-in-effect`).
 
 ## Convenções ao gerar código
 

@@ -35,6 +35,10 @@ const schema = z.object({
   guardian_name: z.string().trim().max(120),
   guardian_email: z.email("E-mail do responsável inválido.").or(z.literal("")),
   guardian_phone: phone,
+  training_days: z
+    .array(z.coerce.number().int().min(1, "Dia de treino inválido.").max(7, "Dia de treino inválido."))
+    .max(7)
+    .refine((d) => new Set(d).size === d.length, "Dia de treino repetido."),
 });
 
 const str = (fd: FormData, k: string) => String(fd.get(k) ?? "");
@@ -55,6 +59,7 @@ export async function createStudent(
     guardian_name: str(formData, "guardian_name"),
     guardian_email: str(formData, "guardian_email").trim().toLowerCase(),
     guardian_phone: str(formData, "guardian_phone"),
+    training_days: formData.getAll("training_days").map(String),
   });
 
   if (!parsed.success) {
@@ -84,6 +89,7 @@ export async function createStudent(
       guardian_name: d.guardian_name || null,
       guardian_email: d.guardian_email || null,
       guardian_phone: d.guardian_phone || null,
+      training_days: [...d.training_days].sort((a, b) => a - b),
     })
     .select("id, full_name")
     .single();

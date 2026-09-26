@@ -38,6 +38,9 @@ export default async function AlunoLayout({
             <Link href="/aluno/treinos" className="underline-offset-4 hover:underline">
               Treinos
             </Link>
+            <Link href="/aluno/treinos/historico" className="underline-offset-4 hover:underline">
+              Frequência
+            </Link>
             <Link href="/aluno/avaliacoes" className="underline-offset-4 hover:underline">
               Evolução
             </Link>
