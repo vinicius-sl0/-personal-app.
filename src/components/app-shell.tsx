@@ -27,6 +27,7 @@ import { signOut } from "@/app/login/actions";
 import { BRAND } from "@/lib/brand";
 import { Avatar } from "@/components/ui/avatar";
 import { MessagesDot, NotificationBell } from "@/components/notification-badges";
+import { BrandMark } from "@/components/brand-mark";
 
 // Ícones por nome (o layout do servidor não pode passar componentes para cá).
 const ICONS = {
@@ -132,9 +133,7 @@ function SidebarContent({
   return (
     <div className="flex h-full flex-col">
       <Link href={homeHref} onClick={onNavigate} className="flex items-center gap-2.5 px-5 pb-5 pt-6">
-        <span aria-hidden className="grid size-9 place-items-center rounded-xl bg-brand text-brand-contrast">
-          <Dumbbell className="size-5" />
-        </span>
+        <BrandMark size="md" />
         <span className="text-[15px] font-bold leading-tight tracking-tight">{BRAND.name}</span>
       </Link>
 
@@ -215,9 +214,7 @@ export default function AppShell({
           <Menu aria-hidden className="size-5" />
         </button>
         <Link href={homeHref} className="flex min-w-0 flex-1 items-center gap-2">
-          <span aria-hidden className="grid size-8 place-items-center rounded-lg bg-brand text-brand-contrast">
-            <Dumbbell className="size-4" />
-          </span>
+          <BrandMark size="sm" />
           <span className="truncate text-sm font-bold">{BRAND.name}</span>
         </Link>
         <NotificationBell href={notificationsHref} />

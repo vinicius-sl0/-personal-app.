@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Activity, CalendarCheck, Dumbbell, LineChart } from "lucide-react";
 import { BRAND } from "@/lib/brand";
+import { BrandMark } from "@/components/brand-mark";
 
 const HIGHLIGHTS = [
   { icon: Dumbbell, text: "Treinos montados para você, com vídeo de cada exercício" },
@@ -25,9 +26,7 @@ export default function AuthLayout({
         <div aria-hidden className="pointer-events-none absolute -right-32 -top-32 size-[28rem] rounded-full bg-brand/20 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute -bottom-40 -left-24 size-[22rem] rounded-full bg-brand/10 blur-3xl" />
         <Link href="/" className="relative flex items-center gap-3">
-          <span className="grid size-10 place-items-center rounded-xl bg-brand text-brand-contrast">
-            <Dumbbell aria-hidden className="size-5" />
-          </span>
+          <BrandMark size="lg" />
           <span className="text-lg font-bold">{BRAND.name}</span>
         </Link>
         <div className="relative max-w-md">
@@ -57,9 +56,7 @@ export default function AuthLayout({
       <main className="flex items-center justify-center px-5 py-10 sm:px-8">
         <div className="w-full max-w-sm animate-slide-up">
           <Link href="/" className="mb-10 flex items-center gap-2.5 lg:hidden">
-            <span className="grid size-9 place-items-center rounded-xl bg-brand text-brand-contrast">
-              <Dumbbell aria-hidden className="size-5" />
-            </span>
+            <BrandMark size="md" />
             <span className="font-bold">{BRAND.name}</span>
           </Link>
           <h1 className="text-3xl font-bold tracking-tight">{title}</h1>

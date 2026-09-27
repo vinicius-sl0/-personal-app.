@@ -12,9 +12,17 @@ export type BrandLogo = {
 
 export const BRAND = {
   // Nome que aparece na aba do navegador, na página inicial e no login.
-  name: "Personal Trainer",
+  name: "Marília Ferreira",
   // Frase curta abaixo do nome na página inicial (e descrição para buscadores).
   tagline: "Acompanhe seus treinos, avaliações e evolução em um só lugar.",
-  // Logo: deixe null até receber o arquivo do Personal.
-  logo: null as BrandLogo | null,
+  // Símbolo quadrado (menu, login, topo da página inicial). Gerado por `pnpm fotos`
+  // a partir de material/logo-icone.png. null = ícone de halter.
+  logo: { src: "/logo-icone.png", width: 256, height: 256, alt: "Símbolo Marília Ferreira Team" } as BrandLogo | null,
+  // Logo completo (rodapé da página inicial). null = símbolo + nome.
+  logoFull: {
+    src: "/logo.png",
+    width: 518,
+    height: 272,
+    alt: "Logo Marília Ferreira Personal Trainer",
+  } as BrandLogo | null,
 };

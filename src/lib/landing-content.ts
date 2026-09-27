@@ -20,7 +20,7 @@ export const LANDING = {
     headline: "Treino personalizado para quem quer resultado de verdade.",
     description:
       "Acompanhamento individual, treino montado para o seu objetivo e evolução medida semana a semana — tudo em uma plataforma no seu celular.",
-    photo: null as Photo, // ex.: { src: "/landing/personal.jpg", alt: "Foto do Personal Trainer" }
+    photo: { src: "/landing/personal.webp", alt: "Marília Ferreira, Personal Trainer, na academia" } as Photo,
     example: true,
   },
 
@@ -50,12 +50,14 @@ export const LANDING = {
   // Resultados reais de alunos (com autorização). Enquanto vazio, mostra exemplos marcados.
   results: [
     {
+      // Fotos reais (resultado1). Falta: nome, objetivo, tempo e resultado com números reais.
+      // Só publicar com a autorização de uso de imagem assinada pela aluna/aluno.
       name: "Aluno(a) exemplo 1",
       goal: "Emagrecimento",
       duration: "0 meses de acompanhamento",
       description: "Descrição curta do resultado alcançado, com números reais da avaliação.",
-      before: null as Photo,
-      after: null as Photo,
+      before: { src: "/landing/resultados/resultado1-antes.webp", alt: "Resultado de aluno: antes" } as Photo,
+      after: { src: "/landing/resultados/resultado1-depois.webp", alt: "Resultado de aluno: depois" } as Photo,
       example: true,
     },
     {

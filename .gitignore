@@ -42,3 +42,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 supabase/.temp/
+
+# Originais das fotos (podem ter GPS) — só as versões limpas em /public vão para o Git
+/material/

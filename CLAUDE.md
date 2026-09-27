@@ -256,8 +256,16 @@ chat/e-mail (resposta em até 15 dias, prometido na Política).
   URL Configuration → Redirect URLs.
 - **Identidade do Personal** (decisão: fixa no código, não configurável pelo app): nome, frase e
   logo em `src/lib/brand.ts` (título da aba, menu, login e landing);
-  cores nos tokens de `globals.css`; ícones em `src/app` (`favicon.ico`, `icon.png`,
-  `apple-icon.png`). Material do Personal (logo, cores, estilo, textos) ainda não recebido.
+  cores nos tokens de `globals.css`; ícones em `src/app` (`icon.png`, `apple-icon.png`; o
+  `favicon.ico` padrão do Next foi removido). Nome: Marília Ferreira. Logo recebido (fundo
+  branco, com partes pretas → sempre sobre quadrado/cartão branco: `components/brand-mark.tsx`
+  no menu/login/topo; logo completo `BRAND.logoFull` no rodapé da landing).
+- **Fotos/logo do site**: originais na pasta `material/` (fora do Git — podem ter GPS);
+  `pnpm fotos` (`scripts/preparar-fotos.mjs`, usa `sharp`) remove metadados, reduz e grava em
+  `public/` (que é PÚBLICO) e gera os ícones a partir de `material/logo-icone.png`. Arquivos
+  recebidos do Personal ficam em `material/originais/`; as cópias editadas (criança ao fundo da
+  foto desfocada; rosto cortado no "depois") ficam em `material/` com os nomes esperados. Nunca
+  colocar foto direto em `public/`.
 - Toda escrita ao banco passa por Zod no servidor, mesmo já existindo RLS (defesa em camadas).
 - Ao adicionar coluna/tabela nova, gere uma migração numerada (`YYYYMMDDNNNNNN_nome.sql`) em
   vez de pedir para editar tabelas direto pelo painel do Supabase.

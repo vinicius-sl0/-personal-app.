@@ -4,7 +4,6 @@ import {
   ArrowRight,
   BarChart3,
   CheckCircle2,
-  Dumbbell,
   Mail,
   MapPin,
   MessageCircle,
@@ -20,6 +19,7 @@ import { btnPrimaryCls } from "@/lib/ui";
 import { Badge } from "@/components/ui/badge";
 import ResultsCarousel from "@/components/landing/results-carousel";
 import { InstagramIcon, WhatsAppIcon } from "@/components/landing/social-icons";
+import { BrandMark } from "@/components/brand-mark";
 
 const BENEFIT_ICONS = {
   target: Target,
@@ -74,9 +74,7 @@ export default function Home() {
       <header className="theme-dark sticky top-0 z-40 border-b border-line bg-surface/85 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
           <Link href="/" className="flex items-center gap-2.5">
-            <span aria-hidden className="grid size-9 place-items-center rounded-xl bg-brand text-brand-contrast">
-              <Dumbbell className="size-5" />
-            </span>
+            <BrandMark size="md" />
             <span className="font-bold">{BRAND.name}</span>
           </Link>
           <nav aria-label="Seções da página" className="ml-auto hidden items-center gap-1 lg:flex">
@@ -293,12 +291,16 @@ export default function Home() {
       <footer className="theme-dark border-t border-line bg-surface">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.5fr_1fr_1fr]">
           <div>
-            <div className="flex items-center gap-2.5">
-              <span aria-hidden className="grid size-9 place-items-center rounded-xl bg-brand text-brand-contrast">
-                <Dumbbell className="size-5" />
+            {BRAND.logoFull ? (
+              <span className="inline-block rounded-2xl bg-white px-4 py-3">
+                <Image src={BRAND.logoFull.src} alt={BRAND.logoFull.alt} width={BRAND.logoFull.width} height={BRAND.logoFull.height} className="h-20 w-auto" />
               </span>
-              <span className="font-bold">{BRAND.name}</span>
-            </div>
+            ) : (
+              <div className="flex items-center gap-2.5">
+                <BrandMark size="md" />
+                <span className="font-bold">{BRAND.name}</span>
+              </div>
+            )}
             <p className="mt-4 max-w-sm text-sm text-soft">{BRAND.tagline}</p>
             <div className="mt-5 flex gap-2">
               {contact.instagram && (
