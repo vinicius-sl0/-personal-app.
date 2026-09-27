@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import ExerciseVideo from "@/components/exercise-video";
 import RestTimer from "@/components/rest-timer";
 import { ArrowLeft, Check, CheckCircle2, ChevronLeft, ChevronRight, Loader2, LogIn, LogOut } from "lucide-react";
-import { btnPrimaryCls, btnSecondaryCls, errorCls, inputCls } from "@/lib/ui";
+import { btnPrimaryCls, btnSecondaryCls, displayNumberCls, errorCls, inputCls } from "@/lib/ui";
 import { repsLabel, techniqueExplanation, type Technique } from "@/lib/workout-labels";
 import { finishSession, logSet, resumeSession, startSession, type LoggedSet } from "./actions";
 
@@ -27,6 +27,9 @@ export type ExecExercise = {
   technique_detail: string | null;
   notes: string | null;
 };
+
+// Colunas da ficha do exercício no computador, conforme quantas informações existem.
+const META_COLS: Record<number, string> = { 2: "sm:grid-cols-2", 3: "sm:grid-cols-3", 4: "sm:grid-cols-4" };
 
 type SetState = { reps: string; load: string; done: boolean; saving: boolean; error: string | null };
 
@@ -167,6 +170,13 @@ export default function ExecuteWorkout({
   const exercise = exercises[current];
   const sets = setsByExercise[exercise.workout_exercise_id];
   const explanation = techniqueExplanation(exercise.technique, exercise.technique_detail);
+  // Ficha do exercício: sempre séries e repetições; carga e descanso só quando a Personal definiu.
+  const meta: { label: string; value: React.ReactNode; unit?: string }[] = [
+    { label: "Séries", value: exercise.sets },
+    { label: "Repetições", value: repsLabel(exercise.reps_min, exercise.reps_max, exercise.reps_text) },
+    ...(exercise.target_load_kg ? [{ label: "Carga", value: exercise.target_load_kg, unit: "kg" }] : []),
+    ...(exercise.rest_seconds ? [{ label: "Descanso", value: exercise.rest_seconds, unit: "s" }] : []),
+  ];
 
   const totalSets = useMemo(() => exercises.reduce((acc, e) => acc + e.sets, 0), [exercises]);
   const doneSets = useMemo(
@@ -388,8 +398,8 @@ export default function ExecuteWorkout({
       <section key={exercise.workout_exercise_id} className="animate-slide-up space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-ink">
-              Exercício {current + 1} de {exercises.length} · {workoutName}
+            <p className="text-sm text-muted">
+              {workoutName}, exercício {current + 1} de {exercises.length}
             </p>
             <h1 className="mt-1 text-2xl font-bold tracking-tight">{exercise.name}</h1>
           </div>
@@ -400,34 +410,24 @@ export default function ExecuteWorkout({
           )}
         </div>
 
-        <ul className="flex flex-wrap gap-2 text-sm" aria-label="Meta do exercício">
-          <li className="rounded-xl border border-line bg-card px-3 py-1.5">
-            <span className="text-muted">Séries </span>
-            <strong>{exercise.sets}</strong>
-          </li>
-          <li className="rounded-xl border border-line bg-card px-3 py-1.5">
-            <span className="text-muted">Reps </span>
-            <strong>{repsLabel(exercise.reps_min, exercise.reps_max, exercise.reps_text)}</strong>
-          </li>
-          {exercise.target_load_kg ? (
-            <li className="rounded-xl border border-line bg-card px-3 py-1.5">
-              <span className="text-muted">Carga </span>
-              <strong>{exercise.target_load_kg} kg</strong>
-            </li>
-          ) : null}
-          {exercise.rest_seconds ? (
-            <li className="rounded-xl border border-line bg-card px-3 py-1.5">
-              <span className="text-muted">Descanso </span>
-              <strong>{exercise.rest_seconds}s</strong>
-            </li>
-          ) : null}
-        </ul>
+        {/* Vídeo logo abaixo do nome: aparece pronto e troca junto com o exercício. */}
+        {exercise.video_url && <ExerciseVideo url={exercise.video_url} title={exercise.name} />}
 
-        {exercise.video_url && (
-          <div className="overflow-hidden rounded-2xl border border-line">
-            <ExerciseVideo url={exercise.video_url} />
-          </div>
-        )}
+        <dl
+          aria-label="O que fazer neste exercício"
+          className={`grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line ${META_COLS[meta.length] ?? "sm:grid-cols-4"}`}
+        >
+          {meta.map((m) => (
+            <div key={m.label} className="bg-card px-4 py-3">
+              <dt className="text-xs text-muted">{m.label}</dt>
+              <dd className={`mt-0.5 text-2xl leading-tight ${displayNumberCls}`}>
+                {m.value}
+                {m.unit && <span className="ml-1 text-sm font-medium text-soft">{m.unit}</span>}
+              </dd>
+            </div>
+          ))}
+        </dl>
+
         {exercise.image_url && (
           <a href={exercise.image_url} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded-2xl border border-line bg-subtle">
             {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -82,8 +82,11 @@ rodar comandos locais aplica no banco.
   literal na tela quando houver falha.
 - **Cronômetro de descanso** é só client-side (`RestTimer`, `setTimeout` de 1s), sem
   persistência — reabrir a página perde a contagem, e isso é aceitável.
-- **Vídeo de exercício**: um por exercício (`exercise_media.position = 0`), embutido só se for
-  YouTube (via `youtube-nocookie.com`, para privacidade); outros hosts abrem em nova aba.
+- **Vídeo de exercício**: um por exercício (`exercise_media.position = 0`). Na execução aparece
+  SEM botão, logo abaixo do nome, pronto mas SEM tocar sozinho (decisão do usuário: economizar
+  internet do aluno). `components/exercise-video.tsx`: YouTube via `youtube-nocookie.com`, Vimeo
+  com `dnt=1`, arquivo .mp4/.webm/.mov no player do navegador; outros hosts = link em nova aba.
+  Abaixo do vídeo, a ficha do exercício (séries, repetições, carga e descanso quando existirem).
 - **Idempotência da sessão de treino**: `workout_sessions.client_uuid` (gerado e guardado no
   `localStorage` do navegador) evita duplicar sessão se a página recarregar no meio do treino.
   A chave é apagada no check-out, e `startSession`/`resumeSession` nunca reaproveitam sessão
@@ -214,7 +217,7 @@ chat/e-mail (resposta em até 15 dias, prometido na Política).
   chat, feedback, perfil · 7 verificação responsiva. Perguntas do Feedback NÃO mudam.
 - **Evolução visual (em etapas, 2026-09-27)** — plano aprovado: 1 base visual · 2 execução com vídeo
   automático · 3 volume · 4 landing nova · 5 "Quero ser aluno" (onboarding + tabela `leads` +
-  WhatsApp) · 6 verificação. Etapa 1 feita: fontes **Saira** (títulos h1–h3 via `@layer base`,
+  WhatsApp) · 6 verificação. Etapas 1 e 2 feitas. Etapa 1: fontes **Saira** (títulos h1–h3 via `@layer base`,
   botões e números: `font-display`, eixo de largura `wdth` disponível) + **Barlow** (texto,
   `font-sans`); tokens novos `chrome` (prata do anel do logo) e `steel` (aço); laranja #f97316
   mantido (pedido do usuário: não remover as cores atuais). Cantos: controles 10px, cartões 16px.
