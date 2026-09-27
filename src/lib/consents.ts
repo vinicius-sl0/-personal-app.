@@ -5,7 +5,7 @@ import type { createClient } from "@/lib/supabase/server";
 export type ConsentType = Database["public"]["Enums"]["consent_type"];
 
 // Ao alterar o texto dos termos/política, mude a versão: o novo aceite fica registrado à parte.
-export const CONSENT_VERSION = "2026-09-v1";
+export const CONSENT_VERSION = "2026-09-v2";
 
 export function parseConsents(formData: FormData, minor: boolean) {
   const has = (k: string) => formData.get(k) === "on";

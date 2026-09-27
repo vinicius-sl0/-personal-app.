@@ -33,8 +33,9 @@ export default function ConsentFields({ minor }: { minor: boolean }) {
       <label className="flex gap-3 text-sm">
         <input type="checkbox" name="dados_saude" className={box} />
         <span>
-          Autorizo o tratamento dos meus <strong>dados de saúde</strong> (anamnese, medidas e
-          avaliações físicas) pelo meu Personal Trainer para acompanhar meu treino.{" "}
+          Autorizo o tratamento dos meus <strong>dados de saúde</strong> (anamnese, medidas,
+          avaliações físicas e respostas sobre dor e bem-estar no feedback) pelo meu Personal Trainer
+          para acompanhar meu treino.{" "}
           <span className="text-muted">(obrigatório)</span>
         </span>
       </label>

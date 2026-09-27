@@ -19,7 +19,12 @@ jargão sem explicação, e prefira poucos passos por vez.**
 ## Stack
 
 Next.js (App Router) + TypeScript + Tailwind · Supabase (Postgres, Auth, Storage, Realtime) ·
-Zod + React Hook Form · Vercel (ainda não configurado — só ambiente local até agora).
+Zod + React Hook Form · Vercel (no ar desde 2026-09-26, plano Hobby, publica sozinho a cada push
+na `main`). Na Vercel: as 3 variáveis do `.env.example` + `APP_URL` = domínio fixo `*.vercel.app`
+(nunca o endereço de publicação com código no meio). No Supabase → Authentication → URL
+Configuration: Site URL = domínio fixo; Redirect URLs com `/auth/confirm` do domínio fixo e do
+localhost. Mudou o domínio? Atualize os dois lugares. Não convidar alunos reais antes dos
+Termos/Política definitivos.
 
 ## Onde as coisas estão
 
@@ -174,10 +179,14 @@ rodar comandos locais aplica no banco.
 
 ## Pendentes do escopo original
 
-Imagem/áudio no chat, landing page final, PWA/offline, textos
-legais definitivos (Termos e Privacidade hoje são placeholders — e agora o app guarda fotos
-do corpo dos alunos e mensagens, então a Política precisa cobrir isso; avisar sempre que for
-relevante).
+Imagem/áudio no chat, landing page final, PWA/offline. **Termos e Política** (`/termos`,
+`/privacidade`, estrutura em `components/legal-page.tsx`) já têm texto completo escrito a partir
+do que o app faz; os dados do Personal (nome, CPF/CNPJ, CREF, e-mail, região do Supabase, prazo de
+guarda) ficam em `src/lib/legal.ts` e aparecem como "a preencher" até serem informados; a faixa
+de rascunho só some com `reviewedByLawyer: true` (revisão por advogado). Se o app passar a guardar
+outro tipo de dado (ex.: imagem/áudio no chat, push), ATUALIZE a Política e suba `CONSENT_VERSION`
+em `lib/consents.ts` (hoje `2026-09-v2`). Não há exclusão de conta pelo app: pedidos são pelo
+chat/e-mail (resposta em até 15 dias, prometido na Política).
 `src/types/database.types.ts` foi ajustado à mão para bater com a migração 20260923000001
 (e com `technique_detail`); regenerar com o comando oficial deve dar o mesmo resultado.
 
