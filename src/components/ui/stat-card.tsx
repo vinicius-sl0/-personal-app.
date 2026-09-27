@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { cardCls } from "@/lib/ui";
+import { cardCls, displayNumberCls } from "@/lib/ui";
 
 // Indicador numérico de resumo (dashboard). Se `href`, o card inteiro vira atalho.
 export function StatCard({
@@ -30,7 +30,7 @@ export function StatCard({
           </span>
         )}
       </div>
-      <p className="mt-3 text-3xl font-bold tracking-tight tabular-nums">{value}</p>
+      <p className={`mt-3 text-3xl ${displayNumberCls}`}>{value}</p>
       {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
     </>
   );

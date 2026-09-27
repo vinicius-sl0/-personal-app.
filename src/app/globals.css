@@ -21,6 +21,8 @@
      brand / brand-hover / brand-contrast → laranja principal (botões, seleção) e texto sobre ele
      brand-ink / brand-soft         → texto/ícone laranja legível / fundo laranja bem suave
      focus                          → anel de foco do teclado
+     chrome / steel                 → prata do anel do logo (linhas finas, detalhes) / aço
+                                      (fundo de áreas e trilhos no escuro, sem sombra)
    ===================================================================== */
 :root {
   color-scheme: light;
@@ -41,6 +43,8 @@
   --brand-ink: #c2410c;
   --brand-soft: rgb(249 115 22 / 0.12);
   --focus: #c2410c;
+  --chrome: #9ea2aa;
+  --steel: #e8e9ec;
   /* Gráficos: laranja e azul validados para daltonismo e contraste (skill dataviz). */
   --chart-1: #eb6834;
   --chart-2: #2a78d6;
@@ -68,6 +72,8 @@
     --brand-ink: #fb923c;
     --brand-soft: rgb(249 115 22 / 0.14);
     --focus: #fb923c;
+    --chrome: #b9bdc4;
+    --steel: #2a2d33;
     --chart-1: #d95926;
     --chart-2: #3987e5;
   }
@@ -91,6 +97,8 @@
   --brand-ink: #fb923c;
   --brand-soft: rgb(249 115 22 / 0.14);
   --focus: #fb923c;
+  --chrome: #b9bdc4;
+  --steel: #2a2d33;
   --chart-1: #d95926;
   --chart-2: #3987e5;
   color: var(--ink);
@@ -116,7 +124,10 @@
   --color-brand-ink: var(--brand-ink);
   --color-brand-soft: var(--brand-soft);
   --color-focus: var(--focus);
-  --font-sans: var(--font-geist-sans);
+  --color-chrome: var(--chrome);
+  --color-steel: var(--steel);
+  --font-sans: var(--font-barlow), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-saira), var(--font-barlow), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
 
   /* microinterações: rápidas e discretas */
@@ -147,7 +158,19 @@
 body {
   background: var(--surface);
   color: var(--ink);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+/* Títulos em Saira (fonte da marca). Fica na camada "base" para as classes do Tailwind
+   (text-xl, font-bold...) continuarem valendo por cima. */
+@layer base {
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
 }
 
 /* Foco do teclado sempre visível (acessibilidade). */

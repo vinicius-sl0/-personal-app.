@@ -212,6 +212,16 @@ chat/e-mail (resposta em até 15 dias, prometido na Política).
   Gráficos: `recharts` (ver Fase 5). Fases
   seguintes: 2 dashboards · 3 landing · 4 alunos/treinos/execução · 5 gráficos · 6 fotos,
   chat, feedback, perfil · 7 verificação responsiva. Perguntas do Feedback NÃO mudam.
+- **Evolução visual (em etapas, 2026-09-27)** — plano aprovado: 1 base visual · 2 execução com vídeo
+  automático · 3 volume · 4 landing nova · 5 "Quero ser aluno" (onboarding + tabela `leads` +
+  WhatsApp) · 6 verificação. Etapa 1 feita: fontes **Saira** (títulos h1–h3 via `@layer base`,
+  botões e números: `font-display`, eixo de largura `wdth` disponível) + **Barlow** (texto,
+  `font-sans`); tokens novos `chrome` (prata do anel do logo) e `steel` (aço); laranja #f97316
+  mantido (pedido do usuário: não remover as cores atuais). Cantos: controles 10px, cartões 16px.
+  `displayNumberCls` em `lib/ui.ts` para números grandes. Evitar: brilhos/manchas desfocadas,
+  rótulos em MAIÚSCULAS acima de títulos, setas → em botões. Build local: o PC tem 3,4 GB de RAM
+  e o `next build` pode estourar memória na fase paralela — rode com `experimental: { cpus: 1 }`
+  temporário no next.config (não commitar; a Vercel não precisa).
 - **Landing page** (`src/app/page.tsx`, Fase 3 feita): todo o conteúdo em
   `src/lib/landing-content.ts`. Itens com `example: true` aparecem com a etiqueta "Exemplo" e
   `draft: true` mostra faixa de "página em construção". NUNCA publicar resultados/depoimentos
