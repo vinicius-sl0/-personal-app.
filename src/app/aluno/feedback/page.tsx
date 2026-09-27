@@ -49,7 +49,7 @@ export default async function FeedbackPage() {
       {error && <p className={errorCls}>Não foi possível carregar seus feedbacks: {error.message}</p>}
 
       {!error && !canAnswer && (
-        <p className="rounded-lg bg-zinc-100 px-3 py-2 text-sm text-soft dark:bg-zinc-900">
+        <p className="rounded-lg bg-subtle px-3 py-2 text-sm text-soft">
           O feedback fica disponível quando seu acesso estiver ativo.
         </p>
       )}

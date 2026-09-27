@@ -56,7 +56,7 @@ function Totals({ result, extra, isPersonal }: { result: VolumeResult; extra?: R
       </div>
       {extra}
       {t.setsWithoutMuscle > 0 && (
-        <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+        <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-200 px-3 py-2 text-xs">
           {t.setsWithoutMuscle} séries são de exercícios sem grupo muscular principal cadastrado e não entram na divisão
           por grupo.{isPersonal && " Corrija na Biblioteca de exercícios."}
         </p>

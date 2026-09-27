@@ -38,14 +38,14 @@ export default function WeekPhotos({ sets, title = "Fotos da semana" }: { sets: 
                 src={p.url}
                 alt={`${ANGLE_LABEL[p.angle]} em ${formatDate(p.taken_at)}`}
                 loading="lazy"
-                className="aspect-[3/4] w-full rounded-md bg-zinc-100 object-cover dark:bg-zinc-900"
+                className="aspect-[3/4] w-full rounded-md bg-subtle object-cover"
               />
               <span className="block truncate text-[10px] text-muted">{ANGLE_LABEL[p.angle]}</span>
             </a>
           ) : (
             <div
               key={p.id}
-              className="flex aspect-[3/4] items-center justify-center rounded-md bg-zinc-100 p-1 text-center text-[10px] text-muted dark:bg-zinc-900"
+              className="flex aspect-[3/4] items-center justify-center rounded-md bg-subtle p-1 text-center text-[10px] text-muted"
             >
               Indisponível
             </div>

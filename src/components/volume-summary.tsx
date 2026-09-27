@@ -17,7 +17,7 @@ export default function VolumeSummary({
   if (totals.sets === 0) return null;
 
   return (
-    <div className="rounded-xl border border-line bg-zinc-50 p-3 text-sm dark:bg-zinc-900/60">
+    <div className="rounded-xl border border-line bg-subtle p-3 text-sm">
       <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">{title}</p>
       <ul className="space-y-1">
         {rows.map((m) => (

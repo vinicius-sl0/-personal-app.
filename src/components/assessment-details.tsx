@@ -24,7 +24,7 @@ export default function AssessmentDetails({
       {groups.map((g) => (
         <div key={g.category} className="rounded-xl border border-line p-4 bg-card">
           <h2 className="mb-2 font-semibold">{g.label}</h2>
-          <dl className="divide-y divide-zinc-100 dark:divide-zinc-900">
+          <dl className="divide-y divide-line">
             {g.metrics.map((m) => {
               const v = byId.get(m.id)!;
               return (

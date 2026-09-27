@@ -4,9 +4,9 @@ import { LEGACY_SCALES, SCALES, formatWeek, type Feedback } from "@/lib/feedback
 // Nota de 1 a 5 com cor: verde = bom, âmbar = atenção, vermelho = ruim.
 function toneCls(value: number, higherIsBetter: boolean) {
   const good = higherIsBetter ? value : 6 - value;
-  if (good >= 4) return "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200";
-  if (good === 3) return "bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-200";
-  return "bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-200";
+  if (good >= 4) return "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300";
+  if (good === 3) return "bg-amber-500/15 text-amber-800 dark:text-amber-200";
+  return "bg-red-500/15 text-red-700 dark:text-red-300";
 }
 
 export default function FeedbackAnswers({
@@ -63,7 +63,7 @@ export default function FeedbackAnswers({
       ))}
 
       {feedback.personal_reply && (
-        <div className="rounded-lg bg-zinc-100 p-3 text-sm dark:bg-zinc-900">
+        <div className="rounded-lg bg-subtle p-3 text-sm">
           <p className="text-xs text-muted">
             Resposta do {replyAuthor}
             {feedback.replied_at && ` · ${formatMessageTime(feedback.replied_at)}`}

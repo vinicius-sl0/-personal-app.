@@ -33,7 +33,7 @@ export default function ExercisePicker({
       </button>
 
       {open && (
-        <div className="absolute z-20 mt-2 w-80 max-w-[90vw] rounded-xl border border-zinc-200 bg-white p-3 shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
+        <div className="absolute z-20 mt-2 w-80 max-w-[90vw] rounded-xl border border-line bg-card p-3 shadow-lg">
           <input
             autoFocus
             value={q}
@@ -54,7 +54,7 @@ export default function ExercisePicker({
                     setOpen(false);
                     setQ("");
                   }}
-                  className="flex w-full flex-col items-start rounded-lg px-2 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  className="flex w-full flex-col items-start rounded-lg px-2 py-2 text-left text-sm hover:bg-subtle"
                 >
                   <span className="font-medium">{ex.name}</span>
                   <span className="text-xs text-muted">

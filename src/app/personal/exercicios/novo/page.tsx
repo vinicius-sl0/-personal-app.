@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createExercise } from "../actions";
 import ExerciseForm from "../exercise-form";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = { title: "Novo exercício" };
 
@@ -14,12 +14,10 @@ export default async function NovoExercicioPage() {
 
   return (
     <section className="space-y-4">
-      <div>
-        <Link href="/personal/exercicios" className="text-sm text-muted underline">
-          ← Voltar
-        </Link>
-        <h1 className="mt-2 text-xl font-bold">Novo exercício</h1>
-      </div>
+      <PageHeader
+        back={{ href: "/personal/exercicios", label: "Voltar" }}
+        title="Novo exercício"
+      />
       <ExerciseForm
         action={createExercise}
         muscleGroups={muscleGroups ?? []}

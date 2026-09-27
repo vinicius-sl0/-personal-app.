@@ -98,7 +98,7 @@ export default function StudentForm() {
           {WEEKDAYS.map((w) => (
             <label key={w.value} className="cursor-pointer">
               <input type="checkbox" name="training_days" value={w.value} aria-label={w.long} className="peer sr-only" />
-              <span className="flex h-11 items-center justify-center rounded-lg border border-line-strong text-xs font-semibold transition peer-checked:border-brand peer-checked:bg-brand peer-checked:text-brand-contrast peer-focus-visible:ring-2 peer-focus-visible:ring-zinc-900/30">
+              <span className="flex h-11 items-center justify-center rounded-lg border border-line-strong text-xs font-semibold transition peer-checked:border-brand peer-checked:bg-brand peer-checked:text-brand-contrast peer-focus-visible:ring-2 peer-focus-visible:ring-focus">
                 {w.short}
               </span>
             </label>

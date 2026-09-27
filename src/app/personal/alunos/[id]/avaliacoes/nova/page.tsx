@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
@@ -6,6 +5,7 @@ import { loadMetrics, loadProtocols, loadSeries } from "@/lib/assessment-data";
 import { errorCls } from "@/lib/ui";
 import AssessmentForm from "../assessment-form";
 import { createAssessment } from "../actions";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = { title: "Nova avaliação" };
 
@@ -42,12 +42,10 @@ export default async function NovaAvaliacaoPage({
 
   return (
     <section className="space-y-4">
-      <div>
-        <Link href={`/personal/alunos/${id}/avaliacoes`} className="text-sm text-muted underline">
-          ← Voltar para as avaliações
-        </Link>
-        <h1 className="mt-2 text-xl font-bold">Nova avaliação de {student.full_name}</h1>
-      </div>
+      <PageHeader
+        back={{ href: `/personal/alunos/${id}/avaliacoes`, label: "Voltar para as avaliações" }}
+        title={<>Nova avaliação de {student.full_name}</>}
+      />
 
       {error ? (
         <p className={errorCls}>Não foi possível carregar a lista de medidas: {error.message}</p>

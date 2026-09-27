@@ -61,7 +61,7 @@ export default function NotificationList({ items, openBase }: { items: Notificat
               className={`flex items-start gap-3 rounded-xl border p-3 hover:bg-subtle ${
                 n.read_at
                   ? "border-line"
-                  : "border-line-strong bg-zinc-50 dark:bg-zinc-900/60"
+                  : "border-line-strong bg-subtle"
               }`}
             >
               <span aria-hidden className="text-xl leading-6">
@@ -70,7 +70,7 @@ export default function NotificationList({ items, openBase }: { items: Notificat
               <span className="min-w-0 flex-1">
                 <span className={`block ${n.read_at ? "font-medium" : "font-bold"}`}>{notificationTitle(n)}</span>
                 {n.detail && <span className="block truncate text-sm text-muted">{n.detail}</span>}
-                <span className="block text-xs text-zinc-400">{formatMessageTime(n.created_at)}</span>
+                <span className="block text-xs text-muted">{formatMessageTime(n.created_at)}</span>
               </span>
               {!n.read_at && <span aria-label="(não lido)" className="mt-2 size-2.5 shrink-0 rounded-full bg-red-600" />}
             </a>

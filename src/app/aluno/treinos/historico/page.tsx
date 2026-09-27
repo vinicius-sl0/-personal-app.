@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { trainingDaysText } from "@/lib/attendance";
 import { errorCls } from "@/lib/ui";
 import AttendanceView, { type AttendanceParams } from "@/components/attendance-view";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = { title: "Minha frequência" };
 
@@ -19,13 +20,10 @@ export default async function HistoricoPage({
 
   return (
     <section className="space-y-4">
-      <div>
-        <h1 className="text-xl font-bold">Minha frequência</h1>
-        <p className="text-sm text-muted">Dias combinados: {trainingDaysText(student.training_days)}</p>
-      </div>
+      <PageHeader title="Minha frequência" description={<>Dias combinados: {trainingDaysText(student.training_days)}</>} />
 
       {concluido === "1" && (
-        <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
+        <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 px-3 py-2 text-sm">
           Check-out feito. Treino concluído, bom trabalho!
         </p>
       )}

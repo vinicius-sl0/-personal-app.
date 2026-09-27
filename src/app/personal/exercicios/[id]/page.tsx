@@ -40,7 +40,7 @@ export default async function EditarExercicioPage({
       <PageHeader back={{ href: "/personal/exercicios", label: "Biblioteca de exercícios" }} eyebrow="Editar exercício" title={exercise.name} />
 
       {readOnly ? (
-        <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+        <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-200 p-3 text-sm">
           Este é um exercício global e não pode ser editado. Use “Duplicar” na lista para criar sua
           própria versão.
         </p>

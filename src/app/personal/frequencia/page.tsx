@@ -4,6 +4,7 @@ import { requireRole } from "@/lib/auth";
 import { buildAttendance, summaryText, trainingDaysText, weekRange } from "@/lib/attendance";
 import { currentWeekStart, formatWeek } from "@/lib/feedback";
 import { errorCls } from "@/lib/ui";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = { title: "Frequência" };
 
@@ -40,10 +41,7 @@ export default async function FrequenciaPage() {
 
   return (
     <section className="space-y-4">
-      <div>
-        <h1 className="text-xl font-bold">Frequência</h1>
-        <p className="text-sm text-muted">{formatWeek(weekStart)}</p>
-      </div>
+      <PageHeader eyebrow={formatWeek(weekStart)} title="Frequência" />
 
       {(error || sessionsError) && (
         <p className={errorCls}>Não foi possível carregar a frequência: {(error ?? sessionsError)?.message}</p>
@@ -65,10 +63,10 @@ export default async function FrequenciaPage() {
               <span className="min-w-0">
                 <span className="block truncate font-semibold">{student.full_name}</span>
                 <span className="block text-sm text-muted">{summaryText(summary)}</span>
-                <span className="block text-xs text-zinc-400">{trainingDaysText(student.training_days)}</span>
+                <span className="block text-xs text-muted">{trainingDaysText(student.training_days)}</span>
               </span>
               {missed > 0 && (
-                <span className="shrink-0 rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-800 dark:bg-red-950/50 dark:text-red-200">
+                <span className="shrink-0 rounded-full bg-red-500/15 px-2.5 py-1 text-xs font-medium text-red-700 dark:text-red-300">
                   {missed} {missed === 1 ? "falta" : "faltas"}
                 </span>
               )}

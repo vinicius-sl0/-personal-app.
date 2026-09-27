@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
@@ -7,6 +6,7 @@ import { formatDate } from "@/lib/assessment";
 import { errorCls } from "@/lib/ui";
 import AssessmentForm from "../../assessment-form";
 import { updateAssessment } from "../../actions";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = { title: "Editar avaliação" };
 
@@ -40,15 +40,10 @@ export default async function EditarAvaliacaoPage({
 
   return (
     <section className="space-y-4">
-      <div>
-        <Link
-          href={`/personal/alunos/${id}/avaliacoes/${assessmentId}`}
-          className="text-sm text-muted underline"
-        >
-          ← Voltar sem salvar
-        </Link>
-        <h1 className="mt-2 text-xl font-bold">Editar avaliação de {formatDate(assessment.assessed_at)}</h1>
-      </div>
+      <PageHeader
+        back={{ href: `/personal/alunos/${id}/avaliacoes/${assessmentId}`, label: "Voltar sem salvar" }}
+        title={<>Editar avaliação de {formatDate(assessment.assessed_at)}</>}
+      />
 
       {error ? (
         <p className={errorCls}>Não foi possível carregar a lista de medidas: {error.message}</p>

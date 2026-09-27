@@ -192,7 +192,7 @@ relevante).
   `bg-subtle`/`bg-subtle-strong`. Não escreva `zinc-900`, `border-zinc-200 dark:...` etc. em
   código novo. Cores de STATUS (verde/âmbar/vermelho) e cinzas neutros decorativos podem ficar
   fixos. Tokens também para `bg-card`, `border-field` (campos), `text-brand-ink`, `bg-brand-soft`.
-- **Sistema visual (redesign em fases; Fases 1 a 6 feitas)**: identidade PRETO + LARANJA, pensada
+- **Sistema visual (redesign em fases; Fases 1 a 7 feitas)**: identidade PRETO + LARANJA, pensada
   primeiro no escuro; o claro segue o sistema do aparelho (decisão do usuário). Botão laranja
   usa texto PRETO (branco não passa contraste); texto laranja usa `text-brand-ink`. Menu
   lateral e painéis de marca usam a classe `.theme-dark` (sempre escuros). Componentes em
@@ -240,6 +240,7 @@ relevante).
   (`lib/exercise-media.ts`); upload na edição do exercício (compressão em
   `lib/image-compress.ts`, compartilhada com as fotos); aluno vê na execução e no detalhe do
   treino via `loadExerciseImages` (links de 1 h).
+- **Fase 7 (verificação)**: sem cores fixas antigas (zinc/pastel) — caixas de status usam o padrão translúcido `bg-<cor>-500/10 border-<cor>-500/30`; todas as páginas usam `PageHeader` (exceto o topo do chat, que tem avatar); `error.tsx` em `personal/` e `aluno/` (`components/route-error.tsx`, mostra a mensagem + "Tentar de novo") e `app/not-found.tsx`; tabelas sempre dentro de `overflow-x-auto`. Captura de tela de celular com Edge headless: use iframe de 390px (a janela headless não fica menor que ~500px e parece cortar a página).
 - **Login**: estados de campo inválido/carregando/erro/sucesso; "Esqueci minha senha" em
   `/recuperar-senha` → e-mail do Supabase → `/auth/confirm` (troca o código por sessão) →
   `/redefinir-senha`. Exige a URL `…/auth/confirm` liberada em Supabase → Authentication →

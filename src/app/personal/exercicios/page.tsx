@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { btnPrimaryCls, errorCls } from "@/lib/ui";
 import ExerciseFilters from "./filters";
 import ExerciseRowActions from "./exercise-actions";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = { title: "Exercícios" };
 
@@ -42,15 +43,7 @@ export default async function ExerciciosPage({
 
   return (
     <section className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-xl font-bold">Exercícios</h1>
-        <Link
-          href="/personal/exercicios/novo"
-          className={`${btnPrimaryCls} !h-11 !w-auto px-4 text-sm`}
-        >
-          Novo exercício
-        </Link>
-      </div>
+      <PageHeader title="Exercícios" actions={ <Link href="/personal/exercicios/novo" className={`${btnPrimaryCls} !h-11 !w-auto px-4 text-sm`}> Novo exercício </Link> } />
 
       <ExerciseFilters muscleGroups={muscleGroups ?? []} equipment={equipment ?? []} />
 
@@ -61,7 +54,7 @@ export default async function ExerciciosPage({
         >
           Ativos
         </Link>
-        <span className="text-zinc-300">·</span>
+        <span className="text-muted">·</span>
         <Link
           href="/personal/exercicios?arquivados=1"
           className={arquivados === "1" ? "font-semibold underline" : "text-muted"}
@@ -102,7 +95,7 @@ export default async function ExerciciosPage({
                   </span>
                 )}
                 {ex.is_archived && (
-                  <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-medium text-strong dark:bg-zinc-800">
+                  <span className="rounded-full bg-subtle-strong px-2 py-0.5 text-xs font-medium text-strong">
                     Arquivado
                   </span>
                 )}

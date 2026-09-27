@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { loadSecondaryWeight } from "@/lib/volume-data";
 import VolumeReport from "@/components/volume-report";
 import { SecondaryWeightSelect, type VolumeQuery } from "@/components/volume-controls";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = { title: "Análise de volume" };
 
@@ -19,13 +20,7 @@ export default async function VolumePage({ searchParams }: { searchParams: Promi
 
   return (
     <section className="space-y-4">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-muted">Treinos</p>
-          <h1 className="text-xl font-bold">Análise de volume</h1>
-        </div>
-        <SecondaryWeightSelect value={weight} />
-      </div>
+      <PageHeader eyebrow="Treinos" title="Análise de volume" actions={<SecondaryWeightSelect value={weight} />} />
 
       <VolumeReport
         role="personal"

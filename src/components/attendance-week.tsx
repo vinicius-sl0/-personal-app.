@@ -27,11 +27,11 @@ export default function AttendanceWeek({ days, summary }: { days: AttendanceDay[
               );
               if (d.sessions.length === 0) {
                 return [
-                  <tr key={d.date} className={`border-t border-line ${d.planned ? "" : "bg-zinc-50/60 dark:bg-zinc-900/40"}`}>
+                  <tr key={d.date} className={`border-t border-line ${d.planned ? "" : "bg-subtle/60"}`}>
                     {dayCell}
-                    <td className="px-2 py-2 text-zinc-400">—</td>
-                    <td className="px-2 py-2 text-zinc-400">—</td>
-                    <td className="px-2 py-2 text-zinc-400">—</td>
+                    <td className="px-2 py-2 text-muted">—</td>
+                    <td className="px-2 py-2 text-muted">—</td>
+                    <td className="px-2 py-2 text-muted">—</td>
                     <td className={`whitespace-nowrap px-2 py-2 font-medium ${STATUS_INFO[d.status].cls}`}>
                       {STATUS_INFO[d.status].label}
                     </td>

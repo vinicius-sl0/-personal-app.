@@ -11,13 +11,13 @@ import { shortDate } from "@/lib/feedback";
 
 // Cor de cada dia no calendário do mês.
 const CELL: Record<DayStatus, string> = {
-  concluido: "bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-100",
-  treinando: "bg-sky-100 text-sky-900 dark:bg-sky-950/60 dark:text-sky-100",
-  sem_checkout: "bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-100",
-  faltou: "bg-red-100 text-red-900 dark:bg-red-950/60 dark:text-red-100",
+  concluido: "bg-emerald-500/20 text-emerald-900 dark:text-emerald-100",
+  treinando: "bg-sky-500/20 text-sky-900 dark:text-sky-100",
+  sem_checkout: "bg-amber-500/20 text-amber-900 dark:text-amber-100",
+  faltou: "bg-red-500/20 text-red-900 dark:text-red-100",
   hoje: "border-2 border-brand",
-  previsto: "border border-dashed border-zinc-400 dark:border-zinc-600",
-  folga: "text-zinc-400 dark:text-zinc-600",
+  previsto: "border border-dashed border-field",
+  folga: "text-muted",
 };
 
 const ICON: Partial<Record<DayStatus, string>> = { concluido: "✅", treinando: "🏋️", sem_checkout: "⚠️", faltou: "❌" };

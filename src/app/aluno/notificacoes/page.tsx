@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { loadNotifications } from "@/lib/notification-data";
 import { errorCls } from "@/lib/ui";
 import NotificationList from "@/components/notification-list";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = { title: "Notificações" };
 
@@ -12,7 +13,7 @@ export default async function NotificacoesAlunoPage() {
 
   return (
     <section className="space-y-4">
-      <h1 className="text-xl font-bold">Notificações</h1>
+      <PageHeader title="Notificações" />
       {error ? (
         <p className={errorCls}>Não foi possível carregar os avisos: {error}</p>
       ) : (

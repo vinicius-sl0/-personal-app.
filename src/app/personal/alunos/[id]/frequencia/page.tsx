@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
 import AttendanceView, { type AttendanceParams } from "@/components/attendance-view";
 import TrainingDaysEditor from "./training-days-editor";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = { title: "Frequência" };
 
@@ -28,12 +28,10 @@ export default async function FrequenciaAlunoPage({
 
   return (
     <section className="space-y-4">
-      <div>
-        <Link href={`/personal/alunos/${id}`} className="text-sm text-muted underline">
-          ← Voltar para {student.full_name}
-        </Link>
-        <h1 className="mt-2 text-xl font-bold">Frequência (check-in / check-out)</h1>
-      </div>
+      <PageHeader
+        back={{ href: `/personal/alunos/${id}`, label: `Voltar para ${student.full_name}` }}
+        title="Frequência (check-in / check-out)"
+      />
 
       <TrainingDaysEditor studentId={id} initial={student.training_days} />
 

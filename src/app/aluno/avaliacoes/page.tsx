@@ -4,6 +4,7 @@ import { loadSeries } from "@/lib/assessment-data";
 import { formatDate } from "@/lib/assessment";
 import { errorCls } from "@/lib/ui";
 import EvolutionPanel from "@/components/evolution-panel";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = { title: "Minha evolução" };
 
@@ -28,7 +29,7 @@ export default async function MinhasAvaliacoesPage() {
 
   return (
     <section className="space-y-4">
-      <h1 className="text-xl font-bold">Minha evolução</h1>
+      <PageHeader title="Minha evolução" />
 
       {error && <p className={errorCls}>Não foi possível carregar suas avaliações: {error.message}</p>}
 

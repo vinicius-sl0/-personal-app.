@@ -19,7 +19,7 @@ export default function InviteLink({ url, name }: { url: string; name: string })
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-emerald-300 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/30">
+    <div className="space-y-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4">
       <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">
         Link de convite de {name}
       </p>

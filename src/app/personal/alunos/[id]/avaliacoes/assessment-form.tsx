@@ -190,7 +190,7 @@ export default function AssessmentForm({
                 return (
                   <div key={m.id} className="space-y-1">
                     <p className="text-sm font-medium">{m.label}</p>
-                    <p className="flex h-12 items-center rounded-lg bg-zinc-100 px-3 text-base dark:bg-zinc-900">
+                    <p className="flex h-12 items-center rounded-lg bg-subtle px-3 text-base">
                       {v !== undefined ? formatValue(v, m) : "—"}
                     </p>
                     <p className="text-xs text-muted">

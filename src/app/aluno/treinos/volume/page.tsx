@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
 import { loadSecondaryWeight } from "@/lib/volume-data";
 import VolumeReport from "@/components/volume-report";
 import type { VolumeQuery } from "@/components/volume-controls";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = { title: "Meu volume de treino" };
 
@@ -19,15 +19,11 @@ export default async function MeuVolumePage({ searchParams }: { searchParams: Pr
 
   return (
     <section className="space-y-4">
-      <div>
-        <Link href="/aluno/treinos" className="text-sm text-muted underline">
-          ← Voltar para Treinos
-        </Link>
-        <h1 className="mt-2 text-xl font-bold">Meu volume de treino</h1>
-        <p className="text-sm text-muted">
-          Quanto você treina cada grupo muscular: o que está na sua ficha e o que você realmente fez.
-        </p>
-      </div>
+      <PageHeader
+        back={{ href: "/aluno/treinos", label: "Voltar para Treinos" }}
+        title="Meu volume de treino"
+        description="Quanto você treina cada grupo muscular: o que está na sua ficha e o que você realmente fez."
+      />
 
       <VolumeReport
         role="aluno"

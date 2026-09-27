@@ -8,6 +8,7 @@ import { btnPrimaryCls } from "@/lib/ui";
 import AssessmentDetails from "@/components/assessment-details";
 import DeleteAssessmentButton from "../delete-button";
 import { deleteAssessment } from "../actions";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = { title: "Avaliação" };
 
@@ -29,18 +30,10 @@ export default async function AvaliacaoPage({
 
   return (
     <section className="space-y-4">
-      <div>
-        <Link href={`/personal/alunos/${id}/avaliacoes`} className="text-sm text-muted underline">
-          ← Voltar para as avaliações
-        </Link>
-        <h1 className="mt-2 text-xl font-bold">Avaliação de {formatDate(assessment.assessed_at)}</h1>
-        {assessment.assessment_protocols?.name && (
-          <p className="text-sm text-muted">{assessment.assessment_protocols.name}</p>
-        )}
-      </div>
+      <PageHeader back={{ href: `/personal/alunos/${id}/avaliacoes`, label: "Voltar para as avaliações" }} title={<>Avaliação de {formatDate(assessment.assessed_at)}</>} description={assessment.assessment_protocols?.name} />
 
       {salvo === "1" && (
-        <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
+        <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 px-3 py-2 text-sm">
           Avaliação salva.
         </p>
       )}

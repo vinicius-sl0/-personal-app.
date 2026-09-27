@@ -6,6 +6,7 @@ import { loadSeries } from "@/lib/assessment-data";
 import { formatDate } from "@/lib/assessment";
 import { btnPrimaryCls, errorCls } from "@/lib/ui";
 import EvolutionPanel from "@/components/evolution-panel";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = { title: "Avaliações" };
 
@@ -33,20 +34,7 @@ export default async function AvaliacoesPage({
 
   return (
     <section className="space-y-4">
-      <div>
-        <Link href={`/personal/alunos/${id}`} className="text-sm text-muted underline">
-          ← Voltar para {student.full_name}
-        </Link>
-        <div className="mt-2 flex items-center justify-between gap-3">
-          <h1 className="text-xl font-bold">Avaliações e evolução</h1>
-          <Link
-            href={`/personal/alunos/${id}/avaliacoes/nova`}
-            className={`${btnPrimaryCls} !h-10 !w-auto shrink-0 px-4 text-sm`}
-          >
-            Nova avaliação
-          </Link>
-        </div>
-      </div>
+      <PageHeader back={{ href: `/personal/alunos/${id}`, label: `Voltar para ${student.full_name}` }} title="Avaliações e evolução" actions={ <Link href={`/personal/alunos/${id}/avaliacoes/nova`} className={`${btnPrimaryCls} !h-10 !w-auto shrink-0 px-4 text-sm`}> Nova avaliação </Link> } />
 
       {error && <p className={errorCls}>Não foi possível carregar as avaliações: {error.message}</p>}
 

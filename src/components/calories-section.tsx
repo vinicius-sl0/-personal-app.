@@ -35,7 +35,7 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
     <div className="space-y-3 rounded-xl border border-line p-4 bg-card">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-semibold">🔥 Calorias estimadas</h3>
-        <span className="rounded-full bg-subtle-strong px-2.5 py-1 text-xs font-medium text-zinc-600 dark:text-zinc-300">
+        <span className="rounded-full bg-subtle-strong px-2.5 py-1 text-xs font-medium text-soft">
           Aproximação, não é medição
         </span>
       </div>
@@ -47,7 +47,7 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
       </div>
 
       {notes.length > 0 && (
-        <ul className="space-y-1 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+        <ul className="space-y-1 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-200 px-3 py-2 text-xs">
           {notes.map((n) => (
             <li key={n}>{n}</li>
           ))}
