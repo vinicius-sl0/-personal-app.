@@ -2,19 +2,20 @@ import Link from "next/link";
 import { formatDate } from "@/lib/assessment";
 import { formatKcal, formatKcalPerMin, formatMinutes, type CalorieResult } from "@/lib/calories";
 import { formatWeek } from "@/lib/feedback";
-
-function Tile({ label, value, sub }: { label: string; value: string; sub?: string }) {
-  return (
-    <div className="rounded-xl border border-line p-3 bg-card">
-      <p className="text-xs text-muted">{label}</p>
-      <p className="text-xl font-bold tabular-nums">{value}</p>
-      {sub && <p className="text-xs text-muted">{sub}</p>}
-    </div>
-  );
-}
+import { Flame } from "lucide-react";
+import { Card, CardHeader } from "@/components/ui/card";
+import { Scoreboard } from "@/components/ui/scoreboard";
 
 // Seção "Calorias estimadas" da Análise de Volume (visão Realizado). Tudo marcado como aproximação.
-export default function CaloriesSection({ result, singleWeek }: { result: CalorieResult; singleWeek: boolean }) {
+export default function CaloriesSection({
+  result,
+  singleWeek,
+  isPersonal,
+}: {
+  result: CalorieResult;
+  singleWeek: boolean;
+  isPersonal: boolean; // só o Personal edita a Biblioteca de exercícios
+}) {
   const t = result.totals;
   const notes: string[] = [];
   if (t.sessionsWithoutCheckout > 0) {
@@ -32,29 +33,31 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-line p-4 bg-card">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="font-semibold">🔥 Calorias estimadas</h3>
-        <span className="rounded-full bg-subtle-strong px-2.5 py-1 text-xs font-medium text-soft">
-          Aproximação, não é medição
-        </span>
-      </div>
+    <Card className="space-y-4">
+      <CardHeader
+        icon={<Flame className="size-4" />}
+        title="Calorias estimadas"
+        description="Aproximação, não é medição"
+      />
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        <Tile label={singleWeek ? "Total estimado da semana" : "Total estimado no período"} value={formatKcal(t.kcal)} />
-        <Tile label="Tempo de treino registrado" value={formatMinutes(t.minutes)} sub="Do check-in ao check-out" />
-        <Tile label="Treinos considerados" value={String(t.sessionsWithDuration)} sub="Com check-in e check-out" />
-      </div>
+      <Scoreboard
+        label="Calorias estimadas"
+        items={[
+          { label: singleWeek ? "Estimado na semana" : "Estimado no período", value: formatKcal(t.kcal) },
+          { label: "Tempo de treino", value: formatMinutes(t.minutes), sub: "Do check-in ao check-out" },
+          { label: "Treinos considerados", value: String(t.sessionsWithDuration), sub: "Com check-in e check-out" },
+        ]}
+      />
 
       {notes.length > 0 && (
-        <ul className="space-y-1 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-200 px-3 py-2 text-xs">
+        <ul className="space-y-1 rounded-[10px] border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 text-sm text-amber-800 dark:text-amber-200">
           {notes.map((n) => (
             <li key={n}>{n}</li>
           ))}
-          {t.setsWithoutKcal > 0 && (
+          {isPersonal && t.setsWithoutKcal > 0 && (
             <li>
               <Link href="/personal/exercicios" className="font-semibold underline">
-                Preencher na Biblioteca de exercícios →
+                Preencher na Biblioteca de exercícios
               </Link>
             </li>
           )}
@@ -63,8 +66,8 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
 
       {!singleWeek && result.weeks.length > 0 && (
         <div className="space-y-1">
-          <h4 className="text-sm font-medium">Por semana</h4>
-          <ul className="divide-y divide-line rounded-xl border border-line text-sm bg-card">
+          <h4 className="text-sm font-semibold">Por semana</h4>
+          <ul className="divide-y divide-line rounded-[10px] border border-line text-sm">
             {result.weeks.map((w) => (
               <li key={w.weekStart} className="flex items-center justify-between gap-3 px-3 py-2">
                 <span>
@@ -73,7 +76,7 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
                     {w.sessions} {w.sessions === 1 ? "treino" : "treinos"}
                   </span>
                 </span>
-                <span className="font-semibold tabular-nums">{formatKcal(w.kcal)}</span>
+                <span className="font-display font-semibold tabular-nums">{formatKcal(w.kcal)}</span>
               </li>
             ))}
           </ul>
@@ -82,8 +85,8 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
 
       {result.sessions.length > 0 && (
         <div className="space-y-1">
-          <h4 className="text-sm font-medium">Por treino</h4>
-          <ul className="divide-y divide-line rounded-xl border border-line text-sm bg-card">
+          <h4 className="text-sm font-semibold">Por treino</h4>
+          <ul className="divide-y divide-line rounded-[10px] border border-line text-sm">
             {result.sessions.map((s) => (
               <li key={s.id} className="flex items-center justify-between gap-3 px-3 py-2">
                 <span className="min-w-0">
@@ -99,7 +102,7 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
                     <span className="text-xs text-muted">não estimado</span>
                   ) : (
                     <>
-                      <span className="font-semibold">{formatKcal(s.kcal)}</span>
+                      <span className="font-display font-semibold">{formatKcal(s.kcal)}</span>
                       {s.partial && <span className="block text-[11px] text-muted">parcial*</span>}
                     </>
                   )}
@@ -115,8 +118,8 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
 
       {result.exercises.length > 0 && (
         <div className="space-y-1">
-          <h4 className="text-sm font-medium">Por exercício</h4>
-          <div className="overflow-x-auto rounded-xl border border-line bg-card">
+          <h4 className="text-sm font-semibold">Por exercício</h4>
+          <div className="overflow-x-auto rounded-[10px] border border-line">
             <table className="w-full min-w-[520px] text-left text-sm">
               <thead className="bg-subtle text-xs text-muted">
                 <tr>
@@ -149,9 +152,9 @@ export default function CaloriesSection({ result, singleWeek }: { result: Calori
 
       <p className="text-xs text-muted">
         Como é estimado: o tempo de cada exercício é a duração do treino (check-in → check-out) dividida conforme as
-        séries feitas — o descanso entra junto. Calorias estimadas = tempo × kcal/min cadastrado no exercício. O gasto
+        séries feitas, com o descanso junto. Calorias estimadas = tempo × kcal/min cadastrado no exercício. O gasto
         real varia com peso, idade, intensidade e condicionamento de cada pessoa.
       </p>
-    </div>
+    </Card>
   );
 }

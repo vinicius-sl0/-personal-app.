@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { TrendingUp } from "lucide-react";
 import ColumnChart from "@/components/charts/column-chart";
-import { cardCls } from "@/lib/ui";
+import { cardCls, segBtnCls, segGroupCls } from "@/lib/ui";
 
 export type TrendRow = {
   key: string;
@@ -64,14 +64,14 @@ export default function VolumeTrends({
             </p>
           </div>
         </div>
-        <div role="group" aria-label="Agrupar por" className="flex gap-1 rounded-xl border border-line p-1">
+        <div role="group" aria-label="Agrupar por" className={segGroupCls}>
           {(["semanal", "mensal"] as const).map((k) => (
             <button
               key={k}
               type="button"
               aria-pressed={scale === k}
               onClick={() => setScale(k)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium ${scale === k ? "bg-brand text-brand-contrast" : "text-soft hover:text-ink"}`}
+              className={`${segBtnCls(scale === k)} !text-xs`}
             >
               {k === "semanal" ? "Semana" : "Mês"}
             </button>
@@ -95,8 +95,8 @@ export default function VolumeTrends({
         ))}
       </div>
 
-      <p className="text-sm">
-        Total no gráfico: <strong className="tabular-nums">{m.format(total)}</strong>
+      <p className="text-sm text-soft">
+        Total no gráfico: <strong className="font-display font-semibold tabular-nums text-ink">{m.format(total)}</strong>
       </p>
       <ColumnChart
         data={rows.map((r) => ({ label: r.label, title: r.title, value: r[metric] }))}
@@ -106,7 +106,7 @@ export default function VolumeTrends({
         format={m.format}
       />
       {metric === "kcal" && (
-        <p className="text-xs text-muted">Calorias estimadas: aproximação a partir da duração dos treinos e do kcal/min cadastrado — não é medição.</p>
+        <p className="text-xs text-muted">Calorias estimadas: aproximação a partir da duração dos treinos e do kcal/min cadastrado. Não é medição.</p>
       )}
       {muscleFiltered && !perGroup && <p className="text-xs text-muted">Calorias e treinos são do treino inteiro (não dá para separar por grupo muscular).</p>}
     </div>

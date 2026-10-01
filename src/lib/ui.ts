@@ -33,3 +33,10 @@ export const cardCls = "rounded-2xl border border-line bg-card";
 
 // Números grandes (placares, indicadores, repetições e carga na execução do treino).
 export const displayNumberCls = "font-display font-semibold tabular-nums tracking-[-0.01em]";
+
+// Seletor segmentado (ex.: Planejado | Realizado, Semana | Mês): trilho em aço, opção ativa laranja.
+export const segGroupCls = "flex gap-1 rounded-[10px] border border-line bg-steel/60 p-1";
+export const segBtnCls = (on: boolean) =>
+  `flex-1 whitespace-nowrap rounded-[7px] px-3 py-1.5 font-display text-sm font-semibold transition-colors ${
+    on ? "bg-brand text-brand-contrast shadow-[inset_0_1px_0_rgb(255_255_255/0.28)]" : "text-soft hover:text-ink"
+  }`;

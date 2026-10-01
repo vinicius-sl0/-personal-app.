@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Bar, BarChart as RBarChart, CartesianGrid, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatRange, formatSets, type MuscleVolume, type Range } from "@/lib/volume";
 import { axisTick, CHART } from "@/components/charts/chart-parts";
+import { segBtnCls, segGroupCls } from "@/lib/ui";
 
 // Cores validadas (skill dataviz, claro e escuro): laranja = grupo principal,
 // azul = parte contabilizada como grupo secundário. Texto nunca usa a cor da série.
@@ -137,20 +138,18 @@ export default function VolumeAnalysis({
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2 rounded-xl border border-line p-4 bg-card">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="space-y-3 rounded-2xl border border-line bg-card p-4 sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="font-semibold">Volume por grupo muscular</h3>
           {exact && (
-            <div role="group" aria-label="Medida do gráfico" className="flex gap-1 rounded-lg border border-line p-0.5">
+            <div role="group" aria-label="Medida do gráfico" className={`${segGroupCls} w-full sm:w-auto`}>
               {METRICS.map((m) => (
                 <button
                   key={m.value}
                   type="button"
                   aria-pressed={metric === m.value}
                   onClick={() => setMetric(m.value)}
-                  className={`rounded-md px-2 py-1 text-xs font-medium ${
-                    metric === m.value ? "bg-brand text-brand-contrast" : "text-soft"
-                  }`}
+                  className={`${segBtnCls(metric === m.value)} !px-2.5 !text-xs sm:!text-sm`}
                 >
                   {m.label}
                 </button>
@@ -170,44 +169,44 @@ export default function VolumeAnalysis({
         )}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-line bg-card">
-        <table className="w-full min-w-[560px] text-left text-sm">
+      <div className="overflow-x-auto rounded-2xl border border-line bg-card">
+        <table className="w-full min-w-[600px] text-left text-sm">
           <thead className="bg-subtle text-xs text-muted">
             <tr>
-              <th scope="col" className="px-3 py-2 font-medium">Grupo</th>
-              <th scope="col" className="px-3 py-2 font-medium">Séries</th>
-              <th scope="col" className="px-3 py-2 font-medium">Exercícios</th>
-              <th scope="col" className="px-3 py-2 font-medium">Repetições</th>
-              <th scope="col" className="px-3 py-2 font-medium">Volume de carga</th>
-              <th scope="col" className="px-3 py-2 font-medium">Frequência</th>
+              <th scope="col" className="px-4 py-2 font-medium">Grupo</th>
+              <th scope="col" className="px-3 py-2 text-right font-medium">Séries</th>
+              <th scope="col" className="px-3 py-2 text-right font-medium">Exercícios</th>
+              <th scope="col" className="px-3 py-2 text-right font-medium">Repetições</th>
+              <th scope="col" className="px-3 py-2 text-right font-medium">Volume de carga</th>
+              <th scope="col" className="px-3 py-2 text-right font-medium">Frequência</th>
             </tr>
           </thead>
           <tbody>
             {muscles.map((m) => (
               <tr key={m.muscle.id} className={`border-t border-line align-top ${selectedMuscleId === m.muscle.id ? "bg-brand-soft" : ""}`}>
-                <th scope="row" className="px-3 py-2 font-medium">{m.muscle.name}</th>
-                <td className="px-3 py-2 tabular-nums">
-                  <span className="font-semibold">{formatSets(m.countedSets)}</span>
+                <th scope="row" className="px-4 py-2.5 font-medium">{m.muscle.name}</th>
+                <td className="px-3 py-2.5 text-right tabular-nums">
+                  <span className="font-display font-semibold">{formatSets(m.countedSets)}</span>
                   {m.indirectSets > 0 && (
                     <span className="block text-xs text-muted">
                       {formatSets(m.directSets)} principal + {formatSets(m.countedSets - m.directSets)} secundário
                     </span>
                   )}
                 </td>
-                <td className="px-3 py-2 tabular-nums">{m.exercises}</td>
-                <td className="px-3 py-2 tabular-nums">
+                <td className="px-3 py-2.5 text-right tabular-nums">{m.exercises}</td>
+                <td className="px-3 py-2.5 text-right tabular-nums">
                   {formatRange(m.reps)}
                   {m.setsWithoutReps > 0 && (
                     <span className="block text-xs text-muted">{formatSets(m.setsWithoutReps)} séries sem número</span>
                   )}
                 </td>
-                <td className="px-3 py-2 tabular-nums">
+                <td className="px-3 py-2.5 text-right tabular-nums">
                   {formatRange(m.loadVolume, "kg")}
                   {m.setsWithoutLoad > 0 && (
                     <span className="block text-xs text-muted">{formatSets(m.setsWithoutLoad)} séries sem carga</span>
                   )}
                 </td>
-                <td className="px-3 py-2 tabular-nums">
+                <td className="px-3 py-2.5 pr-4 text-right tabular-nums">
                   {nf(1).format(m.frequency / Math.max(frequencyDivisor, 1))} {frequencyLabel}
                 </td>
               </tr>

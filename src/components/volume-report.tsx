@@ -21,7 +21,11 @@ import {
   type PlanWorkout,
 } from "@/lib/volume-data";
 import { estimateCalories, type CalorieResult } from "@/lib/calories";
+import { ChevronLeft, ChevronRight, Dumbbell, Info } from "lucide-react";
 import { errorCls } from "@/lib/ui";
+import { Scoreboard } from "@/components/ui/scoreboard";
+import { EmptyState } from "@/components/ui/states";
+import { Card, CardHeader } from "@/components/ui/card";
 import VolumeAnalysis from "@/components/volume-analysis";
 import VolumeTrends, { type TrendRow } from "@/components/volume-trends";
 import { loadVolumeTrends } from "@/lib/volume-trends-data";
@@ -30,33 +34,29 @@ import { VolumeFilters, type VolumeQuery } from "@/components/volume-controls";
 
 const isDate = (v?: string): v is string => !!v && /^\d{4}-\d{2}-\d{2}$/.test(v);
 
-function Tile({ label, value, sub }: { label: string; value: string; sub?: string }) {
-  return (
-    <div className="rounded-xl border border-line p-3 bg-card">
-      <p className="text-xs text-muted">{label}</p>
-      <p className="text-xl font-bold tabular-nums">{value}</p>
-      {sub && <p className="text-xs text-muted">{sub}</p>}
-    </div>
-  );
-}
-
-function Totals({ result, extra, isPersonal }: { result: VolumeResult; extra?: React.ReactNode; isPersonal: boolean }) {
+function Totals({ result, isPersonal }: { result: VolumeResult; isPersonal: boolean }) {
   const t = result.totals;
   return (
     <div className="space-y-2">
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Tile label="Séries" value={formatSets(t.sets)} />
-        <Tile label="Exercícios" value={String(t.exercises)} />
-        <Tile label="Repetições" value={formatRange(t.reps)} sub={t.setsWithoutReps ? `${t.setsWithoutReps} séries sem número` : undefined} />
-        <Tile
-          label="Volume de carga"
-          value={formatRange(t.loadVolume, "kg")}
-          sub={t.setsWithoutLoad ? `${t.setsWithoutLoad} séries fora do cálculo` : undefined}
-        />
-      </div>
-      {extra}
+      <Scoreboard
+        label="Totais"
+        items={[
+          { label: "Séries", value: formatSets(t.sets) },
+          { label: "Exercícios", value: String(t.exercises) },
+          {
+            label: "Repetições",
+            value: formatRange(t.reps),
+            sub: t.setsWithoutReps ? `${t.setsWithoutReps} séries sem número` : undefined,
+          },
+          {
+            label: "Volume de carga",
+            value: formatRange(t.loadVolume, "kg"),
+            sub: t.setsWithoutLoad ? `${t.setsWithoutLoad} séries fora do cálculo` : undefined,
+          },
+        ]}
+      />
       {t.setsWithoutMuscle > 0 && (
-        <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-200 px-3 py-2 text-xs">
+        <p className="rounded-[10px] border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 text-sm text-amber-800 dark:text-amber-200">
           {t.setsWithoutMuscle} séries são de exercícios sem grupo muscular principal cadastrado e não entram na divisão
           por grupo.{isPersonal && " Corrija na Biblioteca de exercícios."}
         </p>
@@ -64,6 +64,9 @@ function Totals({ result, extra, isPersonal }: { result: VolumeResult; extra?: R
     </div>
   );
 }
+
+const navBtnCls =
+  "grid size-10 shrink-0 place-items-center rounded-[10px] border border-line bg-card text-soft transition-colors hover:border-chrome/70 hover:text-ink";
 
 // Relatório de volume de treino (e calorias estimadas) de UM aluno.
 // Usado pelo Personal (/personal/treinos/volume, escolhendo o aluno) e pelo próprio aluno
@@ -201,8 +204,10 @@ export default async function VolumeReport({
       ? workouts.map((w) => ({ w, r: computeVolume(w.inputs, map, weight) }))
       : [];
 
+  const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um : varios}`;
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <VolumeFilters
         students={students?.map((s) => ({ id: s.id, name: s.full_name }))}
         workouts={workouts.map((w) => ({ id: w.id, name: w.name }))}
@@ -211,24 +216,26 @@ export default async function VolumeReport({
       />
 
       {!student && (
-        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
-          {isPersonal ? "Escolha um aluno para ver o volume de treino por grupo muscular." : "Cadastro de aluno não encontrado."}
-        </p>
+        <EmptyState
+          icon={<Dumbbell className="size-5" />}
+          title={isPersonal ? "Escolha um aluno" : "Cadastro de aluno não encontrado"}
+          description={isPersonal ? "O volume de treino por grupo muscular aparece aqui depois que você escolher o aluno." : undefined}
+        />
       )}
 
       {student && !plan && visao === "planejado" && (
-        <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
-          {isPersonal ? (
-            <>
-              {student.full_name} ainda não tem ficha de treino.{" "}
-              <Link href={`/personal/alunos/${student.id}/treinos/novo`} className="underline">
+        <EmptyState
+          icon={<Dumbbell className="size-5" />}
+          title={isPersonal ? `${student.full_name} ainda não tem ficha de treino` : "Sua ficha ainda não foi publicada"}
+          description={isPersonal ? undefined : "Quando seu Personal publicar a ficha, o volume planejado aparece aqui."}
+          action={
+            isPersonal ? (
+              <Link href={`/personal/alunos/${student.id}/treinos/novo`} className="text-sm font-semibold text-brand-ink underline">
                 Montar ficha
               </Link>
-            </>
-          ) : (
-            "Seu Personal ainda não publicou uma ficha de treino para você."
-          )}
-        </p>
+            ) : undefined
+          }
+        />
       )}
 
       {error && <p className={errorCls}>Não foi possível calcular o volume: {error}</p>}
@@ -237,64 +244,65 @@ export default async function VolumeReport({
 
       {student && !error && !periodError && (plan || visao === "realizado") && (
         <>
-          <div className="space-y-1">
+          {/* O que está sendo medido: ficha (planejado) ou período (realizado). */}
+          <div className="space-y-1.5">
             {visao === "planejado" && plan && (
-              <p className="text-sm">
-                Ficha: <strong>{plan.name}</strong>
-                {plan.status !== "ativo" && <span className="text-muted"> (não é a ficha ativa)</span>} ·{" "}
-                {workout ? workout.name : `Ciclo completo: ${workouts.length} treino(s), cada um feito 1 vez`}
-              </p>
+              <div>
+                <h2 className="text-xl font-semibold">{workout ? workout.name : "Ciclo completo"}</h2>
+                <p className="text-sm text-soft">
+                  Ficha {plan.name}
+                  {plan.status !== "ativo" && " (não é a ficha ativa)"}
+                  {!workout && `, com ${plural(workouts.length, "treino", "treinos")} somados uma vez cada`}
+                </p>
+              </div>
             )}
             {visao === "realizado" && (
-              <div className="flex items-center justify-between gap-2">
-                {nav ? (
-                  <Link href={nav.prev} className="text-sm underline">
-                    ← Anterior
+              <div className="flex items-center gap-3">
+                {nav && (
+                  <Link href={nav.prev} className={navBtnCls} aria-label="Semana anterior">
+                    <ChevronLeft aria-hidden className="size-5" />
                   </Link>
-                ) : (
-                  <span />
                 )}
-                <p className="text-center text-sm font-medium">
-                  {periodLabel}
-                  {workout && ` · ${workout.name}`}
-                </p>
-                {nav?.next ? (
-                  <Link href={nav.next} className="text-sm underline">
-                    Próxima →
-                  </Link>
-                ) : (
-                  <span className="w-16" />
-                )}
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-xl font-semibold">{periodLabel}</h2>
+                  <p className="text-sm text-soft">
+                    {plural(sessions, "treino registrado", "treinos registrados")}
+                    {workout && ` de ${workout.name}`}
+                  </p>
+                </div>
+                {nav &&
+                  (nav.next ? (
+                    <Link href={nav.next} className={navBtnCls} aria-label="Próxima semana">
+                      <ChevronRight aria-hidden className="size-5" />
+                    </Link>
+                  ) : (
+                    <span aria-hidden className={`${navBtnCls} pointer-events-none opacity-35`}>
+                      <ChevronRight className="size-5" />
+                    </span>
+                  ))}
               </div>
             )}
             <p className="text-xs text-muted">
-              Grupos secundários: <strong>{secondaryWeightLabel(weight)}</strong>
-              {weight > 0 && " (a parte do secundário aparece em laranja no gráfico)"}
-              {!isPersonal && " — definido pelo seu Personal"}.
+              Grupos secundários: <strong className="font-semibold text-soft">{secondaryWeightLabel(weight)}</strong>
+              {weight > 0 && " (aparecem em azul no gráfico)"}
+              {!isPersonal && ", definido pelo seu Personal"}.
             </p>
           </div>
 
           {inputs.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">
-              {visao === "planejado"
-                ? "A ficha ainda não tem exercícios."
-                : isPersonal
-                  ? "Nenhuma série registrada neste período. O volume realizado vem das séries que o aluno marca como feitas na execução do treino."
-                  : "Nenhuma série registrada neste período. O volume realizado vem das séries que você marca com “Concluir série” durante o treino."}
-            </p>
+            <EmptyState
+              title={visao === "planejado" ? "A ficha ainda não tem exercícios" : "Nenhuma série registrada neste período"}
+              description={
+                visao === "planejado"
+                  ? undefined
+                  : isPersonal
+                    ? "O volume realizado vem das séries que o aluno marca como feitas na execução do treino."
+                    : "O volume realizado vem das séries que você marca com “Concluir série” durante o treino."
+              }
+            />
           ) : (
             <>
-              <Totals
-                isPersonal={isPersonal}
-                result={result}
-                extra={
-                  visao === "realizado" ? (
-                    <p className="text-xs text-muted">
-                      {sessions} {sessions === 1 ? "treino registrado" : "treinos registrados"} no período.
-                    </p>
-                  ) : null
-                }
-              />
+              <Totals isPersonal={isPersonal} result={result} />
 
               <VolumeAnalysis
                 muscles={result.muscles}
@@ -304,42 +312,42 @@ export default async function VolumeReport({
                 selectedMuscleId={grupo?.id}
               />
 
-              <div className="rounded-2xl border border-line bg-card">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
-                  <h3 className="font-semibold">Volume por exercício</h3>
-                  <p className="text-xs text-muted">
-                    {grupo ? `Exercícios que trabalham ${grupo.name}` : "Todos os exercícios do período"} · volume do próprio exercício
-                  </p>
+              <Card padded={false}>
+                <div className="px-4 pt-4 sm:px-5 sm:pt-5">
+                  <CardHeader
+                    title="Volume por exercício"
+                    description={grupo ? `Exercícios que trabalham ${grupo.name}` : "Todos os exercícios do recorte"}
+                  />
                 </div>
                 {byExercise.length === 0 ? (
-                  <p className="px-4 py-6 text-center text-sm text-muted">Nenhum exercício {grupo ? `de ${grupo.name} ` : ""}neste recorte.</p>
+                  <p className="px-4 pb-6 text-center text-sm text-muted">Nenhum exercício {grupo ? `de ${grupo.name} ` : ""}neste recorte.</p>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[560px] text-left text-sm">
-                      <thead className="text-xs text-muted">
+                      <thead className="border-y border-line bg-subtle text-xs text-muted">
                         <tr>
-                          <th scope="col" className="px-4 py-2 font-medium">Exercício</th>
-                          <th scope="col" className="px-4 py-2 font-medium">Séries</th>
-                          <th scope="col" className="px-4 py-2 font-medium">Repetições</th>
-                          <th scope="col" className="px-4 py-2 font-medium">Volume de carga</th>
+                          <th scope="col" className="px-4 py-2 font-medium sm:px-5">Exercício</th>
+                          <th scope="col" className="px-4 py-2 text-right font-medium">Séries</th>
+                          <th scope="col" className="px-4 py-2 text-right font-medium">Repetições</th>
+                          <th scope="col" className="px-4 py-2 text-right font-medium sm:pr-5">Volume de carga</th>
                         </tr>
                       </thead>
                       <tbody>
                         {byExercise.slice(0, 20).map((e) => (
-                          <tr key={e.exerciseId} className="border-t border-line align-top">
-                            <th scope="row" className="px-4 py-2.5 font-medium">
+                          <tr key={e.exerciseId} className="border-t border-line align-top first:border-t-0">
+                            <th scope="row" className="px-4 py-2.5 font-medium sm:px-5">
                               {e.name}
                               <span className="block text-xs font-normal text-muted">
                                 {e.primary ?? "sem grupo"}
-                                {e.role === "secundário" && " · trabalha o grupo como secundário"}
+                                {e.role === "secundário" && ", trabalha o grupo como secundário"}
                               </span>
                             </th>
-                            <td className="px-4 py-2.5 tabular-nums">{formatSets(e.sets)}</td>
-                            <td className="px-4 py-2.5 tabular-nums">
+                            <td className="px-4 py-2.5 text-right font-semibold tabular-nums">{formatSets(e.sets)}</td>
+                            <td className="px-4 py-2.5 text-right tabular-nums">
                               {formatRange(e.reps)}
                               {e.setsWithoutReps > 0 && <span className="block text-xs text-muted">{e.setsWithoutReps} séries sem número</span>}
                             </td>
-                            <td className="px-4 py-2.5 tabular-nums">
+                            <td className="px-4 py-2.5 text-right tabular-nums sm:pr-5">
                               {formatRange(e.loadVolume, "kg")}
                               {e.setsWithoutLoad > 0 && <span className="block text-xs text-muted">{e.setsWithoutLoad} séries sem carga</span>}
                             </td>
@@ -349,54 +357,61 @@ export default async function VolumeReport({
                     </table>
                   </div>
                 )}
-              </div>
-
-              {calories && calories.sessions.length > 0 && (
-                <CaloriesSection result={calories} singleWeek={!query.periodo || query.periodo === "semana"} />
-              )}
-              {visao === "realizado" && weekly.length > 0 && (
-                <VolumeTrends weekly={weekly} monthly={monthly} subject={grupo?.name ?? "todos os grupos"} muscleFiltered={!!grupo} />
-              )}
-              {visao === "planejado" && (
-                <p className="text-xs text-muted">
-                  🔥 As <strong>calorias estimadas</strong> aparecem na visão <strong>Realizado</strong>, porque usam a
-                  duração registrada em cada treino (check-in → check-out).
-                </p>
-              )}
+              </Card>
 
               {perWorkout.length > 0 && (
                 <div className="space-y-2">
                   <h3 className="font-semibold">Por treino</h3>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {perWorkout.map(({ w, r }) => (
-                      <Link
-                        key={w.id}
-                        href={base({ treino: w.id })}
-                        className="block rounded-xl border border-line p-3 text-sm hover:bg-subtle bg-card"
-                      >
-                        <p className="font-medium">
-                          {w.name} · {formatSets(r.totals.sets)} séries
-                        </p>
-                        <p className="text-xs text-muted">
+                      <Card key={w.id} href={base({ treino: w.id })} className="!p-4">
+                        <div className="flex items-baseline justify-between gap-3">
+                          <p className="font-display font-semibold">{w.name}</p>
+                          <p className="shrink-0 text-sm text-soft">
+                            <span className="font-display font-semibold tabular-nums text-ink">{formatSets(r.totals.sets)}</span> séries
+                          </p>
+                        </div>
+                        <p className="mt-1 text-xs leading-relaxed text-muted">
                           {r.muscles
                             .filter((m) => m.countedSets > 0)
                             .sort((a, b) => b.countedSets - a.countedSets)
                             .map((m) => `${m.muscle.name} ${formatSets(m.countedSets)}`)
-                            .join(" · ")}
+                            .join(", ")}
                         </p>
-                      </Link>
+                      </Card>
                     ))}
                   </div>
                 </div>
               )}
+
+              {calories && calories.sessions.length > 0 && (
+                <CaloriesSection
+                  result={calories}
+                  singleWeek={!query.periodo || query.periodo === "semana"}
+                  isPersonal={isPersonal}
+                />
+              )}
+              {visao === "realizado" && weekly.length > 0 && (
+                <VolumeTrends weekly={weekly} monthly={monthly} subject={grupo?.name ?? "todos os grupos"} muscleFiltered={!!grupo} />
+              )}
+              {visao === "planejado" && (
+                <p className="text-sm text-muted">
+                  As calorias estimadas aparecem na visão Realizado, porque usam a duração registrada em cada treino
+                  (do check-in ao check-out).
+                </p>
+              )}
             </>
           )}
 
-          <details className="rounded-xl border border-line p-4 text-sm bg-card">
-            <summary className="cursor-pointer font-medium">Como o volume é calculado</summary>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-soft">
+          <details className="group rounded-2xl border border-line bg-card text-sm">
+            <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 font-medium sm:px-5 [&::-webkit-details-marker]:hidden">
+              <Info aria-hidden className="size-4 text-muted" />
+              Como o volume é calculado
+              <ChevronRight aria-hidden className="ml-auto size-4 text-muted transition-transform group-open:rotate-90" />
+            </summary>
+            <ul className="list-disc space-y-1.5 border-t border-line py-3 pl-9 pr-4 leading-relaxed text-soft sm:pl-10 sm:pr-5">
               <li>
-                <strong>Planejado</strong>: usa a ficha (séries, repetições e carga de cada exercício). O “ciclo completo”
+                <strong>Planejado</strong>: usa a ficha (séries, repetições e carga de cada exercício). O ciclo completo
                 soma cada treino uma vez.
               </li>
               <li>
@@ -406,7 +421,7 @@ export default async function VolumeReport({
               <li>
                 Cada série conta 1 para o <strong>grupo principal</strong> do exercício e “{secondaryWeightLabel(weight)}”
                 para cada <strong>grupo secundário</strong>
-                {isPersonal ? " (configurável acima)." : " (definido pelo seu Personal)."}
+                {isPersonal ? " (configurável no topo da página)." : " (definido pelo seu Personal)."}
               </li>
               <li>
                 <strong>Repetições</strong> = séries × repetições. Faixas como 8–12 aparecem como faixa (mínimo–máximo),
@@ -414,7 +429,7 @@ export default async function VolumeReport({
               </li>
               <li>
                 <strong>Volume de carga</strong> = séries × repetições × carga (kg). Séries sem carga ou com repetição em
-                texto (ex.: “até a falha”) contam como séries, mas ficam fora desse cálculo — a tela mostra quantas.
+                texto (ex.: “até a falha”) contam como séries, mas ficam fora desse cálculo. A tela mostra quantas.
               </li>
               <li>
                 <strong>Frequência</strong>: no planejado, em quantos treinos da ficha o grupo aparece; no realizado, em

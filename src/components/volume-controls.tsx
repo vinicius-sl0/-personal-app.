@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { setSecondaryWeight } from "@/lib/volume-actions";
 import { SECONDARY_WEIGHT_OPTIONS } from "@/lib/volume";
-import { btnSecondaryCls, errorCls, inputCls } from "@/lib/ui";
+import { btnSecondaryCls, errorCls, inputCls, segBtnCls, segGroupCls } from "@/lib/ui";
 
 export type VolumeQuery = {
   aluno?: string;
@@ -47,111 +47,118 @@ export function VolumeFilters({
   const selectCls = `${inputCls} !h-10 text-sm`;
 
   return (
-    <div className={`space-y-3 rounded-xl border border-line bg-card p-4 ${pending ? "opacity-60" : ""}`}>
-      <div className={`grid gap-3 ${students ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
-        {students && (
-          <label className="block space-y-1">
-            <span className="text-xs font-medium text-muted">Aluno</span>
-            <select
-              value={query.aluno ?? ""}
-              onChange={(e) => go({ aluno: e.target.value, treino: undefined })}
-              className={selectCls}
-            >
-              <option value="">Escolha um aluno</option>
-              {students.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
-
-        <label className="block space-y-1">
-          <span className="text-xs font-medium text-muted">Treino</span>
-          <select
-            value={query.treino ?? ""}
-            onChange={(e) => go({ treino: e.target.value || undefined })}
-            disabled={(students && !query.aluno) || workouts.length === 0}
-            className={selectCls}
-          >
-            <option value="">Todos os treinos</option>
-            {workouts.map((w) => (
-              <option key={w.id} value={w.id}>
-                {w.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="block space-y-1">
-          <span className="text-xs font-medium text-muted">Grupo muscular</span>
-          <select
-            value={query.grupo ?? ""}
-            onChange={(e) => go({ grupo: e.target.value || undefined })}
-            disabled={(students && !query.aluno) || muscles.length === 0}
-            className={selectCls}
-          >
-            <option value="">Todos os grupos</option>
-            {muscles.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-
-      <div role="group" aria-label="Visão" className="flex gap-1 rounded-xl border border-line p-1 bg-card">
+    <div className={`space-y-3 transition-opacity ${pending ? "opacity-60" : ""}`} aria-busy={pending}>
+      {/* A escolha principal da tela: o que está na ficha x o que foi feito. */}
+      <div role="group" aria-label="Visão" className={segGroupCls}>
         {[
-          { v: "planejado", l: "Planejado (ficha)" },
-          { v: "realizado", l: "Realizado (treinos feitos)" },
+          { v: "planejado", l: "Planejado", d: "na ficha" },
+          { v: "realizado", l: "Realizado", d: "treinos feitos" },
         ].map((o) => (
           <button
             key={o.v}
             type="button"
             aria-pressed={visao === o.v}
             onClick={() => go({ visao: o.v })}
-            className={`flex-1 rounded-lg px-2 py-2 text-sm font-medium ${
-              visao === o.v ? "bg-brand text-brand-contrast" : "text-soft"
-            }`}
+            className={`${segBtnCls(visao === o.v)} flex flex-col items-center !py-2 !text-base leading-tight`}
           >
             {o.l}
+            <span className={`font-sans text-xs font-medium ${visao === o.v ? "opacity-75" : "text-muted"}`}>{o.d}</span>
           </button>
         ))}
       </div>
 
-      {visao === "realizado" && (
-        <div className="space-y-3">
+      <div className="rounded-2xl border border-line bg-card p-3 sm:p-4">
+        <div className={`grid gap-3 ${students ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
+          {students && (
+            <label className="block space-y-1">
+              <span className="text-xs font-medium text-muted">Aluno</span>
+              <select
+                value={query.aluno ?? ""}
+                onChange={(e) => go({ aluno: e.target.value, treino: undefined })}
+                className={selectCls}
+              >
+                <option value="">Escolha um aluno</option>
+                {students.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+
           <label className="block space-y-1">
-            <span className="text-xs font-medium text-muted">Período</span>
+            <span className="text-xs font-medium text-muted">Treino</span>
             <select
-              value={periodo}
-              onChange={(e) => go({ periodo: e.target.value, semana: undefined })}
+              value={query.treino ?? ""}
+              onChange={(e) => go({ treino: e.target.value || undefined })}
+              disabled={(students && !query.aluno) || workouts.length === 0}
               className={selectCls}
             >
-              <option value="semana">Semana</option>
-              <option value="4semanas">Últimas 4 semanas</option>
-              <option value="personalizado">Escolher datas</option>
+              <option value="">Todos os treinos</option>
+              {workouts.map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.name}
+                </option>
+              ))}
             </select>
           </label>
-          {periodo === "personalizado" && (
-            <div className="flex flex-wrap items-end gap-2">
-              <label className="block flex-1 space-y-1">
-                <span className="text-xs font-medium text-muted">De</span>
-                <input type="date" value={de} onChange={(e) => setDe(e.target.value)} className={selectCls} />
-              </label>
-              <label className="block flex-1 space-y-1">
-                <span className="text-xs font-medium text-muted">Até</span>
-                <input type="date" value={ate} onChange={(e) => setAte(e.target.value)} className={selectCls} />
-              </label>
-              <button type="button" onClick={() => go({ de, ate })} className={`${btnSecondaryCls} !h-10`}>
-                Aplicar
-              </button>
-            </div>
-          )}
+
+          <label className="block space-y-1">
+            <span className="text-xs font-medium text-muted">Grupo muscular</span>
+            <select
+              value={query.grupo ?? ""}
+              onChange={(e) => go({ grupo: e.target.value || undefined })}
+              disabled={(students && !query.aluno) || muscles.length === 0}
+              className={selectCls}
+            >
+              <option value="">Todos os grupos</option>
+              {muscles.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
-      )}
+
+        {visao === "realizado" && (
+          <div className="mt-3 space-y-3 border-t border-line pt-3">
+            <div role="group" aria-label="Período" className={segGroupCls}>
+              {[
+                { v: "semana", l: "Semana" },
+                { v: "4semanas", l: "4 semanas" },
+                { v: "personalizado", l: "Escolher datas" },
+              ].map((o) => (
+                <button
+                  key={o.v}
+                  type="button"
+                  aria-pressed={periodo === o.v}
+                  onClick={() => go({ periodo: o.v, semana: undefined })}
+                  className={segBtnCls(periodo === o.v)}
+                >
+                  {o.l}
+                </button>
+              ))}
+            </div>
+            {periodo === "personalizado" && (
+              <div className="flex flex-wrap items-end gap-2">
+                <label className="block min-w-[8.5rem] flex-1 space-y-1">
+                  <span className="text-xs font-medium text-muted">De</span>
+                  <input type="date" value={de} onChange={(e) => setDe(e.target.value)} className={selectCls} />
+                </label>
+                <label className="block min-w-[8.5rem] flex-1 space-y-1">
+                  <span className="text-xs font-medium text-muted">Até</span>
+                  <input type="date" value={ate} onChange={(e) => setAte(e.target.value)} className={selectCls} />
+                </label>
+                <button type="button" onClick={() => go({ de, ate })} className={`${btnSecondaryCls} !h-10`}>
+                  Aplicar
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -185,7 +192,7 @@ export function SecondaryWeightSelect({ value }: { value: number }) {
           value={String(value)}
           disabled={saving}
           onChange={(e) => change(Number(e.target.value))}
-          className="h-9 rounded-lg border border-line-strong bg-transparent px-2 text-sm"
+          className="h-9 rounded-[10px] border border-field bg-card px-2 text-sm text-ink"
         >
           {SECONDARY_WEIGHT_OPTIONS.map((o) => (
             <option key={o.value} value={String(o.value)}>

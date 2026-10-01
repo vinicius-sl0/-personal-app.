@@ -20,7 +20,12 @@ export default async function VolumePage({ searchParams }: { searchParams: Promi
 
   return (
     <section className="space-y-4">
-      <PageHeader eyebrow="Treinos" title="Análise de volume" actions={<SecondaryWeightSelect value={weight} />} />
+      <PageHeader
+        back={{ href: "/personal/treinos", label: "Voltar para Treinos" }}
+        title="Análise de volume"
+        description="Quanto cada aluno treina cada grupo muscular: o que está na ficha e o que foi feito."
+        actions={<SecondaryWeightSelect value={weight} />}
+      />
 
       <VolumeReport
         role="personal"
