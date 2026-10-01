@@ -100,7 +100,7 @@ export const LANDING = {
   // Contatos: deixe null o que não for usar (o botão não aparece).
   contact: {
     instagram: null as string | null, // ex.: "https://instagram.com/usuario"
-    whatsapp: null as string | null, // só números com DDI e DDD, ex.: "5511999999999"
+    whatsapp: "5585992971823" as string | null, // só números com DDI e DDD, ex.: "5511999999999"
     whatsappMessage: "Olá! Vim pelo site e quero saber mais sobre o acompanhamento.",
     email: null as string | null,
     city: null as string | null, // ex.: "São Paulo · SP" ou "Online e presencial"
