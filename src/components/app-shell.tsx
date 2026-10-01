@@ -20,6 +20,7 @@ import {
   Ruler,
   Settings,
   User,
+  UserPlus,
   Users,
   X,
 } from "lucide-react";
@@ -46,6 +47,7 @@ const ICONS = {
   settings: Settings,
   evolution: LineChart,
   user: User,
+  leads: UserPlus,
 } as const;
 
 export type NavItem = {

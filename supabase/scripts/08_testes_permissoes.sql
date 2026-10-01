@@ -52,6 +52,38 @@
   end;
   $f$;
 
+  -- Igual ao exec_as, mas para comandos que NÃO devolvem linhas (ex.: insert sem "returning",
+  -- quando o usuário não tem permissão de ler a tabela). Devolve só a mensagem de erro (ou nulo).
+  create or replace function pg_temp.run_as(p_uid uuid, p_sql text, out err text)
+  language plpgsql
+  as $f$
+  declare
+    v_orig text := current_setting('test.orig_role');
+  begin
+    execute format('set local role %I', v_orig);
+    if p_uid is null then
+      perform set_config('request.jwt.claims', '{"role":"anon"}', true);
+      perform set_config('request.jwt.claim.sub', '', true);
+      perform set_config('request.jwt.claim.role', 'anon', true);
+      execute 'set local role anon';
+    else
+      perform set_config('request.jwt.claims',
+                        json_build_object('sub', p_uid, 'role', 'authenticated')::text, true);
+      perform set_config('request.jwt.claim.sub', p_uid::text, true);
+      perform set_config('request.jwt.claim.role', 'authenticated', true);
+      execute 'set local role authenticated';
+    end if;
+
+    begin
+      execute p_sql;
+    exception when others then
+      err := sqlerrm;
+    end;
+
+    execute format('set local role %I', v_orig);
+  end;
+  $f$;
+
   drop table if exists pg_temp.teste_resultado;
   create temp table teste_resultado (n int, status text, teste text, detalhe text);
 
@@ -852,6 +884,69 @@
 
       select * into v_r from pg_temp.exec_as(null, 'select count(*) from public.messages');
       v_res := v_res || pg_temp.r(v_r.err is not null, 'Visitante ANÔNIMO não acessa messages', v_r.err);
+
+      -- =================================================================
+      -- M. INTERESSADOS ("Quero me tornar aluno") — migração 20260930000001
+      -- =================================================================
+      v_step := 'M. interessados';
+      declare
+        v_owner uuid;
+        v_other uuid;
+        v_lead  uuid;
+        v_ins   text := 'insert into public.leads (full_name, whatsapp, goal, experience, days_per_week, modality, privacy_version) '
+                     || 'values (''Teste Interessado'', ''5511900000001'', ''hipertrofia'', ''nunca'', 3, ''online'', ''teste'')';
+      begin
+        v_tmp := pg_temp.run_as(null, v_ins);
+        v_res := v_res || pg_temp.r(v_tmp is null, 'Visitante ANÔNIMO consegue enviar "Quero me tornar aluno"', v_tmp);
+
+        select l.id, l.personal_id into v_lead, v_owner
+          from public.leads l where l.whatsapp = '5511900000001' order by l.created_at desc limit 1;
+        v_res := v_res || pg_temp.r(
+          v_owner = (select pp.profile_id from public.personal_profiles pp order by pp.created_at limit 1),
+          'Interessado vai para o Personal do sistema (definido pelo banco, não pelo visitante)', coalesce(v_owner::text, 'sem linha'));
+        v_other := case when v_owner = v_p2 then v_p1 else v_p2 end;
+
+        v_res := v_res || pg_temp.r(
+          exists (select 1 from public.notifications n where n.user_id = v_owner and n.type = 'novo_interessado'
+                   and n.data ->> 'lead_id' = v_lead::text),
+          'Novo interessado gera aviso no sino do Personal');
+
+        v_tmp := pg_temp.run_as(null, v_ins);
+        v_res := v_res || pg_temp.r(v_tmp like '%LEAD_REPETIDO%', 'Mesmo WhatsApp de novo em menos de 10 min é barrado', v_tmp);
+
+        v_tmp := pg_temp.run_as(null,
+          'insert into public.leads (full_name, whatsapp, goal, experience, days_per_week, modality, privacy_version, status) '
+          || 'values (''Teste'', ''5511900000002'', ''saude'', ''nunca'', 2, ''online'', ''teste'', ''virou_aluno'')');
+        v_res := v_res || pg_temp.r(v_tmp like '%permission denied%', 'Visitante não escolhe a situação do interessado', v_tmp);
+
+        select * into v_r from pg_temp.exec_as(null, 'select count(*) from public.leads');
+        v_res := v_res || pg_temp.r(v_r.err is not null, 'Visitante ANÔNIMO não lê interessados', v_r.err);
+
+        select * into v_r from pg_temp.exec_as(v_ua, 'select count(*) from public.leads');
+        v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 0, 'Aluno não vê interessados', coalesce(v_r.err, 'visto=' || v_r.n));
+
+        select * into v_r from pg_temp.exec_as(v_other, 'select count(*) from public.leads where whatsapp = ''5511900000001''');
+        v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 0, 'Outro Personal não vê o interessado', coalesce(v_r.err, 'visto=' || v_r.n));
+
+        select * into v_r from pg_temp.exec_as(v_owner, format('select count(*) from public.leads where id = %L', v_lead));
+        v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Personal vê o próprio interessado', coalesce(v_r.err, 'visto=' || v_r.n));
+
+        select * into v_r from pg_temp.exec_as(v_owner,
+          format('with u as (update public.leads set status = ''em_conversa'' where id = %L returning 1) select count(*) from u', v_lead));
+        v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Personal muda a situação do interessado', coalesce(v_r.err, 'alterados=' || v_r.n));
+
+        v_tmp := pg_temp.run_as(v_owner,
+          format('update public.leads set whatsapp = ''5511988887777'' where id = %L', v_lead));
+        v_res := v_res || pg_temp.r(v_tmp like '%permission denied%', 'Respostas do interessado não podem ser alteradas', v_tmp);
+
+        select * into v_r from pg_temp.exec_as(v_other,
+          format('with d as (delete from public.leads where id = %L returning 1) select count(*) from d', v_lead));
+        v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 0, 'Outro Personal não exclui o interessado', coalesce(v_r.err, 'excluidos=' || v_r.n));
+
+        select * into v_r from pg_temp.exec_as(v_owner,
+          format('with d as (delete from public.leads where id = %L returning 1) select count(*) from d', v_lead));
+        v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Personal exclui o interessado (pedido de exclusão LGPD)', coalesce(v_r.err, 'excluidos=' || v_r.n));
+      end;
 
       -- fim: desfaz TUDO (fixtures incluídas)
       raise exception '__rollback__';

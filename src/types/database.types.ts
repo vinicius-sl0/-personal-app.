@@ -670,6 +670,62 @@ export type Database = {
           },
         ]
       }
+      leads: {
+        Row: {
+          created_at: string
+          days_per_week: number
+          experience: string
+          full_name: string
+          goal: string
+          id: string
+          modality: string
+          notes: string | null
+          personal_id: string
+          privacy_version: string
+          status: string
+          updated_at: string
+          whatsapp: string
+        }
+        Insert: {
+          created_at?: string
+          days_per_week: number
+          experience: string
+          full_name: string
+          goal: string
+          id?: string
+          modality: string
+          notes?: string | null
+          personal_id?: string
+          privacy_version: string
+          status?: string
+          updated_at?: string
+          whatsapp: string
+        }
+        Update: {
+          created_at?: string
+          days_per_week?: number
+          experience?: string
+          full_name?: string
+          goal?: string
+          id?: string
+          modality?: string
+          notes?: string | null
+          personal_id?: string
+          privacy_version?: string
+          status?: string
+          updated_at?: string
+          whatsapp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_personal_id_fkey"
+            columns: ["personal_id"]
+            isOneToOne: false
+            referencedRelation: "personal_profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           attachment_path: string | null
@@ -1719,6 +1775,7 @@ export type Database = {
         | "checkin_respondido"
         | "lembrete"
         | "sistema"
+        | "novo_interessado"
       photo_angle:
         | "frente"
         | "costas"
@@ -1889,6 +1946,7 @@ export const Constants = {
         "checkin_respondido",
         "lembrete",
         "sistema",
+        "novo_interessado",
       ],
       photo_angle: [
         "frente",

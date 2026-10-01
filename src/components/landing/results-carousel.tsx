@@ -4,7 +4,7 @@ import { useRef } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, ImageIcon } from "lucide-react";
 import type { Photo } from "@/lib/landing-content";
-import { Badge } from "@/components/ui/badge";
+import { ExampleTag } from "@/components/landing/example-tag";
 
 type Result = {
   name: string;
@@ -18,7 +18,7 @@ type Result = {
 
 function Shot({ photo, label }: { photo: Photo; label: string }) {
   return (
-    <figure className="relative aspect-[3/4] overflow-hidden rounded-xl bg-subtle">
+    <figure className="relative aspect-[3/4] overflow-hidden rounded-[10px] bg-subtle">
       {photo ? (
         <Image src={photo.src} alt={photo.alt} fill sizes="(min-width: 1024px) 180px, 40vw" className="object-cover" />
       ) : (
@@ -26,7 +26,7 @@ function Shot({ photo, label }: { photo: Photo; label: string }) {
           <ImageIcon aria-hidden className="size-7 opacity-60" />
         </div>
       )}
-      <figcaption className="absolute left-2 top-2 rounded-md bg-black/70 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white">
+      <figcaption className="absolute left-2 top-2 rounded-md bg-black/75 px-2 py-0.5 font-display text-xs font-semibold text-white">
         {label}
       </figcaption>
     </figure>
@@ -63,11 +63,11 @@ export default function ResultsCarousel({ results }: { results: Result[] }) {
                 <Shot photo={r.after} label="Depois" />
               </div>
               <div className="mt-4 flex flex-wrap items-center gap-2">
-                <Badge tone="brand">{r.goal}</Badge>
-                {r.example && <Badge tone="warning">Exemplo</Badge>}
+                <span className="text-sm font-semibold text-brand-ink">{r.goal}</span>
+                <ExampleTag show={r.example} />
               </div>
-              <h3 className="mt-3 font-semibold">{r.name}</h3>
-              <p className="text-xs text-muted">{r.duration}</p>
+              <h3 className="mt-1 text-lg font-semibold">{r.name}</h3>
+              <p className="text-sm text-muted">{r.duration}</p>
               <p className="mt-2 text-sm text-soft">{r.description}</p>
             </article>
           </li>
@@ -79,7 +79,7 @@ export default function ResultsCarousel({ results }: { results: Result[] }) {
             type="button"
             onClick={() => scroll(-1)}
             aria-label="Resultado anterior"
-            className="grid size-11 place-items-center rounded-full border border-line-strong bg-card text-ink transition hover:border-brand hover:text-brand-ink"
+            className="grid size-11 place-items-center rounded-[10px] border border-line-strong bg-card text-ink transition-colors hover:border-chrome hover:bg-subtle"
           >
             <ChevronLeft aria-hidden className="size-5" />
           </button>
@@ -87,7 +87,7 @@ export default function ResultsCarousel({ results }: { results: Result[] }) {
             type="button"
             onClick={() => scroll(1)}
             aria-label="Próximo resultado"
-            className="grid size-11 place-items-center rounded-full border border-line-strong bg-card text-ink transition hover:border-brand hover:text-brand-ink"
+            className="grid size-11 place-items-center rounded-[10px] border border-line-strong bg-card text-ink transition-colors hover:border-chrome hover:bg-subtle"
           >
             <ChevronRight aria-hidden className="size-5" />
           </button>

@@ -176,8 +176,8 @@ rodar comandos locais aplica no banco.
   `/…/notificacoes/abrir/[id]` (marca como lido e redireciona) — use `<a>`, nunca `<Link>`,
   para o pré-carregamento não marcar como lido sozinho. Sem lembrete agendado de feedback
   (precisaria de pg_cron) e sem push com o app fechado (etapa PWA).
-- Banco de dados completo (32 tabelas), RLS em 100% das tabelas, 08_testes_permissoes.sql com
-  137 testes (inclui os das migrações 20260923000001, 20260925000001, 20260925000002 e 20260926000001) (isolamento entre alunos, entre Personal e aluno, consentimento
+- Banco de dados completo (33 tabelas), RLS em 100% das tabelas, 08_testes_permissoes.sql com
+  150 testes (inclui os das migrações 20260923000001, 20260925000001, 20260925000002, 20260926000001 e 20260930000001) (isolamento entre alunos, entre Personal e aluno, consentimento
   controlando acesso a fotos, etc.). **Rode o 08 de novo sempre que alterar RLS ou triggers.**
 
 ## Pendentes do escopo original
@@ -188,7 +188,7 @@ do que o app faz; os dados do Personal (nome, CPF/CNPJ, CREF, e-mail, região do
 guarda) ficam em `src/lib/legal.ts` e aparecem como "a preencher" até serem informados; a faixa
 de rascunho só some com `reviewedByLawyer: true` (revisão por advogado). Se o app passar a guardar
 outro tipo de dado (ex.: imagem/áudio no chat, push), ATUALIZE a Política e suba `CONSENT_VERSION`
-em `lib/consents.ts` (hoje `2026-09-v2`). Não há exclusão de conta pelo app: pedidos são pelo
+em `lib/consents.ts` (hoje `2026-09-v3`). Não há exclusão de conta pelo app: pedidos são pelo
 chat/e-mail (resposta em até 15 dias, prometido na Política).
 `src/types/database.types.ts` foi ajustado à mão para bater com a migração 20260923000001
 (e com `technique_detail`); regenerar com o comando oficial deve dar o mesmo resultado.
@@ -217,7 +217,7 @@ chat/e-mail (resposta em até 15 dias, prometido na Política).
   chat, feedback, perfil · 7 verificação responsiva. Perguntas do Feedback NÃO mudam.
 - **Evolução visual (em etapas, 2026-09-27)** — plano aprovado: 1 base visual · 2 execução com vídeo
   automático · 3 volume · 4 landing nova · 5 "Quero ser aluno" (onboarding + tabela `leads` +
-  WhatsApp) · 6 verificação. Etapas 1, 2 e 3 feitas. Etapa 3: placar de totais `components/ui/scoreboard.tsx`
+  WhatsApp) · 6 verificação. Etapas 1 a 5 feitas. Etapa 3: placar de totais `components/ui/scoreboard.tsx`
   (números lado a lado num painel só, também nas calorias) e seletor segmentado `segGroupCls`/`segBtnCls`
   em `lib/ui.ts` (Planejado|Realizado, período, medida do gráfico). Etapa 1: fontes **Saira** (títulos h1–h3 via `@layer base`,
   botões e números: `font-display`, eixo de largura `wdth` disponível) + **Barlow** (texto,
@@ -227,6 +227,19 @@ chat/e-mail (resposta em até 15 dias, prometido na Política).
   rótulos em MAIÚSCULAS acima de títulos, setas → em botões. Build local: o PC tem 3,4 GB de RAM
   e o `next build` pode estourar memória na fase paralela — rode com `experimental: { cpus: 1 }`
   temporário no next.config (não commitar; a Vercel não precisa).
+- **Landing nova (etapa 4)**: nome em Saira larga (`[font-stretch:125%]`) sobre a foto; topo da foto em
+  preto e branco/escurecido (letreiro vermelho da academia brigava com o laranja); "Como eu trabalho"
+  numerado (é sequência de verdade); recursos do app em lista, não cartões. Com `draft: false`,
+  resultados/depoimentos `example: true` SOMEM da página (nunca publicar exemplo por engano).
+- **"Quero me tornar aluno" (etapa 5)**: botão na landing → `/quero-ser-aluno` (público, uma pergunta
+  por tela: objetivo, experiência, dias/semana, presencial/online, nome+WhatsApp+aceite da Política) →
+  grava em `leads` (migração 20260930000001; visitante anônimo só INSERE colunas das respostas; trigger
+  escolhe o Personal, força status `novo`, barra mesmo número em 10 min e >30 envios/hora, impede
+  alterar respostas; aviso `novo_interessado` no sino) → abre `wa.me` do Personal com as respostas no
+  texto (`lib/leads.ts`). Sem número em `landing-content.ts` → tela final diz que o Personal vai chamar.
+  Personal: `/personal/interessados` (situação, observação, chamar no WhatsApp, excluir; alerta de
+  12 meses — prazo prometido na Política). Sem perguntas de saúde de propósito (dado sensível).
+  `CONSENT_VERSION` subiu para `2026-09-v3` por causa disso.
 - **Landing page** (`src/app/page.tsx`, Fase 3 feita): todo o conteúdo em
   `src/lib/landing-content.ts`. Itens com `example: true` aparecem com a etiqueta "Exemplo" e
   `draft: true` mostra faixa de "página em construção". NUNCA publicar resultados/depoimentos

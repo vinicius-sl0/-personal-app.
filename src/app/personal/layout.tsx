@@ -7,9 +7,10 @@ import AppShell, { type NavItem } from "@/components/app-shell";
 export default async function PersonalLayout({ children }: { children: React.ReactNode }) {
   const profile = await requireRole("personal");
   const supabase = await createClient();
-  const [counts, { count: pendingFeedbacks }] = await Promise.all([
+  const [counts, { count: pendingFeedbacks }, { count: newLeads }] = await Promise.all([
     unreadCounts(supabase, profile.id),
     supabase.from("weekly_checkins").select("id", { count: "exact", head: true }).is("replied_at", null),
+    supabase.from("leads").select("id", { count: "exact", head: true }).eq("status", "novo"),
   ]);
 
   const nav: NavItem[] = [
@@ -26,6 +27,7 @@ export default async function PersonalLayout({ children }: { children: React.Rea
         { label: "Frequência", href: "/personal/frequencia", icon: "calendar" },
       ],
     },
+    { label: "Interessados", href: "/personal/interessados", icon: "leads", count: newLeads ?? 0 },
     { label: "Avaliações", href: "/personal/avaliacoes", icon: "ruler" },
     { label: "Feedback", href: "/personal/feedback", icon: "feedback", count: pendingFeedbacks ?? 0 },
     { label: "Mensagens", href: "/personal/mensagens", icon: "messages", messagesDot: true },

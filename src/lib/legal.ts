@@ -17,7 +17,7 @@ export const LEGAL = {
   // Por quanto tempo os dados ficam guardados depois do fim do acompanhamento.
   retentionAfterEnd: null as string | null, // ex.: "6 meses"
   // Data da versão atual dos textos (AAAA-MM-DD).
-  updatedAt: "2026-09-26",
+  updatedAt: "2026-09-30",
   // Mude para true só depois que um advogado revisar os textos.
   reviewedByLawyer: false,
 };

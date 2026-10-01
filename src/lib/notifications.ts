@@ -26,6 +26,7 @@ const LABELS: Partial<Record<NotificationType, { icon: string; title: string }>>
   checkin_recebido: { icon: "📝", title: "Novo feedback semanal" },
   checkin_respondido: { icon: "✅", title: "Seu Personal respondeu seu feedback" },
   checkin_pendente: { icon: "📝", title: "Feedback semanal pendente" },
+  novo_interessado: { icon: "🙋", title: "Novo interessado em virar aluno" },
 };
 
 export function notificationIcon(n: Pick<NotificationRow, "type">) {

@@ -67,6 +67,12 @@ const sections: LegalSection[] = [
             <span className={b}>Avisos</span> do app (ex.: “nova mensagem”, “novo treino”).
           </li>
           <li>
+            <span className={b}>Interessados</span> (antes de virar aluno): quem usa o formulário “Quero
+            me tornar aluno” da página inicial informa nome, WhatsApp, objetivo, experiência com treino,
+            quantos dias por semana pode treinar e se prefere atendimento online ou presencial. O
+            formulário não pede dados de saúde.
+          </li>
+          <li>
             <span className={b}>Registros técnicos:</span> data, hora, endereço IP e tipo de navegador
             no momento em que você aceita estes termos, para comprovar o aceite; e registros de acesso
             guardados pelos provedores de hospedagem.
@@ -102,6 +108,12 @@ const sections: LegalSection[] = [
           <li>
             <span className={b}>Menores de 18 anos:</span> consentimento do responsável legal (LGPD,
             art. 14).
+          </li>
+          <li>
+            <span className={b}>Responder a quem pediu contato</span> pelo formulário “Quero me tornar
+            aluno”: procedimentos preliminares a um contrato, a seu pedido (LGPD, art. 7º, V). Ao final do
+            formulário, a conversa continua no WhatsApp, um serviço de outra empresa (Meta), com as regras
+            de privacidade dele.
           </li>
           <li>
             <span className={b}>Comprovar aceites e guardar registros de acesso:</span> cumprimento de
@@ -206,6 +218,10 @@ const sections: LegalSection[] = [
         </p>
         <p>
           As fotos de evolução podem ser apagadas por você a qualquer momento, direto no app.
+        </p>
+        <p>
+          As respostas de quem preencheu o formulário “Quero me tornar aluno” e não virou aluno são
+          apagadas em até 12 meses após o envio, ou antes, se a pessoa pedir.
         </p>
       </>
     ),
