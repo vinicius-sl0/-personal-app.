@@ -25,7 +25,6 @@ export default async function MinhasFotosPage() {
   return (
     <section className="space-y-4">
       <PageHeader
-        eyebrow="Evolução"
         title="Fotos de progresso"
         description="Frente, costas e lados. Compare antes e depois arrastando a divisória."
         back={{ href: "/aluno/evolucao", label: "Evolução" }}

@@ -40,3 +40,7 @@ export const segBtnCls = (on: boolean) =>
   `flex-1 whitespace-nowrap rounded-[7px] px-3 py-1.5 font-display text-sm font-semibold transition-colors ${
     on ? "bg-brand text-brand-contrast shadow-[inset_0_1px_0_rgb(255_255_255/0.28)]" : "text-soft hover:text-ink"
   }`;
+
+// Botão quadrado só com ícone (ex.: setas de semana/mês anterior e próximo). Use sempre com aria-label.
+export const navBtnCls =
+  "grid size-10 shrink-0 place-items-center rounded-[10px] border border-line bg-card text-soft transition-colors hover:border-chrome/70 hover:text-ink";

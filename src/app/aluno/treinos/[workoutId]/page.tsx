@@ -40,7 +40,6 @@ export default async function TreinoDetalhePage({
     <div className="pb-28">
       <PageHeader
         back={{ href: "/aluno/treinos", label: "Meus treinos" }}
-        eyebrow="Treino"
         title={workout.name}
         description={`${exercises.length} ${exercises.length === 1 ? "exercício" : "exercícios"} · ${totalSets} séries${workout.notes ? ` · ${workout.notes}` : ""}`}
       />

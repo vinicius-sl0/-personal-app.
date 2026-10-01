@@ -27,7 +27,7 @@ export default async function PerfilPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Conta" title="Perfil" />
+      <PageHeader title="Perfil" />
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <div className="mb-5 flex items-center gap-4">

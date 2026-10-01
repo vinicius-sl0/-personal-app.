@@ -292,8 +292,7 @@ export default function ExecuteWorkout({
           <ArrowLeft aria-hidden className="size-4" /> Voltar
         </Link>
         <section className="theme-dark relative overflow-hidden rounded-3xl border border-line bg-surface p-6 sm:p-8">
-          <div aria-hidden className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-brand/25 blur-3xl" />
-          <p className="relative text-xs font-semibold uppercase tracking-[0.18em] text-brand-ink">Treino de hoje</p>
+          <p className="relative font-display text-sm font-semibold text-brand-ink">Treino de hoje</p>
           <h1 className="relative mt-2 text-3xl font-bold">{workoutName}</h1>
           <p className="relative mt-1 text-sm text-soft">
             {exercises.length} {exercises.length === 1 ? "exercício" : "exercícios"} · {totalSets} séries
@@ -454,7 +453,7 @@ export default function ExecuteWorkout({
 
         {/* Séries */}
         <div className="space-y-2">
-          <div className="grid grid-cols-[2.25rem_1fr_1fr_auto] items-center gap-2 px-1 text-[11px] font-medium uppercase tracking-wide text-muted">
+          <div className="grid grid-cols-[2.25rem_1fr_1fr_auto] items-center gap-2 px-1 text-xs font-medium text-muted">
             <span>Série</span>
             <span>Reps</span>
             <span>Carga (kg)</span>

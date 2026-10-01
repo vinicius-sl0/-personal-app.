@@ -44,7 +44,7 @@ export default async function NovaFichaPage({
 
   return (
     <section>
-      <PageHeader eyebrow="Criar treino" title={`Nova ficha para ${student.full_name}`} description="Monte os treinos (A, B, C...), adicione exercícios e arraste para ordenar." />
+      <PageHeader title={`Nova ficha para ${student.full_name}`} description="Monte os treinos (A, B, C...), adicione exercícios e arraste para ordenar." />
       <PlanEditor
         studentId={id}
         studentName={student.full_name}

@@ -27,10 +27,10 @@ export default function BeforeAfterSlider({
         draggable={false}
       />
 
-      <span className="pointer-events-none absolute left-3 top-3 rounded-lg bg-black/70 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
+      <span className="pointer-events-none absolute left-3 top-3 rounded-md bg-black/75 px-2 py-0.5 font-display text-xs font-semibold text-white">
         Antes
       </span>
-      <span className="pointer-events-none absolute right-3 top-3 rounded-lg bg-black/70 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
+      <span className="pointer-events-none absolute right-3 top-3 rounded-md bg-black/75 px-2 py-0.5 font-display text-xs font-semibold text-white">
         Depois
       </span>
 

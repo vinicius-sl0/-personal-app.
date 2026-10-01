@@ -13,7 +13,7 @@ export function PageHeader({
   description?: React.ReactNode;
   actions?: React.ReactNode;
   back?: { href: string; label: string };
-  eyebrow?: string;
+  eyebrow?: string; // contexto curto acima do título (data, semana, "Ficha de Ana"); nunca repita o menu
 }) {
   return (
     <header className="mb-6 space-y-3">
@@ -25,7 +25,7 @@ export function PageHeader({
       )}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
-          {eyebrow && <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-brand-ink">{eyebrow}</p>}
+          {eyebrow && <p className="mb-0.5 text-sm font-medium text-soft">{eyebrow}</p>}
           {title && <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>}
           {description && <p className="mt-1 max-w-2xl text-sm text-muted sm:text-base">{description}</p>}
         </div>

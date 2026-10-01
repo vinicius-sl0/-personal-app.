@@ -217,7 +217,10 @@ chat/e-mail (resposta em até 15 dias, prometido na Política).
   chat, feedback, perfil · 7 verificação responsiva. Perguntas do Feedback NÃO mudam.
 - **Evolução visual (em etapas, 2026-09-27)** — plano aprovado: 1 base visual · 2 execução com vídeo
   automático · 3 volume · 4 landing nova · 5 "Quero ser aluno" (onboarding + tabela `leads` +
-  WhatsApp) · 6 verificação. Etapas 1 a 5 feitas. Etapa 3: placar de totais `components/ui/scoreboard.tsx`
+  WhatsApp) · 6 verificação. Etapas 1 a 6 feitas (6: varredura no código + capturas das telas públicas;
+  telas logadas conferidas pelo usuário no celular). `PageHeader eyebrow` agora é texto normal (sem
+  maiúsculas/laranja) e só para contexto real (data, semana, "Ficha de Ana") — nunca repetir o menu.
+  Setas de período anterior/próximo: ícones com `navBtnCls` (`lib/ui.ts`), nunca "← Anterior". Etapa 3: placar de totais `components/ui/scoreboard.tsx`
   (números lado a lado num painel só, também nas calorias) e seletor segmentado `segGroupCls`/`segBtnCls`
   em `lib/ui.ts` (Planejado|Realizado, período, medida do gráfico). Etapa 1: fontes **Saira** (títulos h1–h3 via `@layer base`,
   botões e números: `font-display`, eixo de largura `wdth` disponível) + **Barlow** (texto,

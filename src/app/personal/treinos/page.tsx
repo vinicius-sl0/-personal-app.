@@ -43,7 +43,6 @@ export default async function MeusTreinosPage({ searchParams }: { searchParams: 
   return (
     <>
       <PageHeader
-        eyebrow="Treinos"
         title="Meus treinos"
         description="Todas as fichas de treino dos seus alunos."
         actions={

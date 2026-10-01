@@ -2,7 +2,7 @@
 
 import { startTransition, useActionState } from "react";
 import Link from "next/link";
-import { MailCheck } from "lucide-react";
+import { ArrowLeft, MailCheck } from "lucide-react";
 import { requestPasswordReset, type ResetState } from "@/app/login/actions";
 import { btnPrimaryCls, errorCls } from "@/lib/ui";
 import { Field, Spinner } from "@/components/ui/field";
@@ -20,8 +20,8 @@ export default function ResetForm() {
             vale por pouco tempo.
           </p>
         </div>
-        <Link href="/login" className="font-medium text-brand-ink hover:underline">
-          ← Voltar para o login
+        <Link href="/login" className="inline-flex items-center gap-1.5 font-medium text-brand-ink hover:underline">
+          <ArrowLeft aria-hidden className="size-4" /> Voltar para o login
         </Link>
       </div>
     );

@@ -24,7 +24,7 @@ export default async function AlunoTreinosPage() {
   if (!plan) {
     return (
       <>
-        <PageHeader eyebrow="Meu treino" title="Meus treinos" />
+        <PageHeader title="Meus treinos" />
         <EmptyState
           icon={<Dumbbell className="size-5" />}
           title="Sua ficha ainda não está pronta"
@@ -61,7 +61,6 @@ export default async function AlunoTreinosPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Meu treino"
         title={plan.name}
         description={plan.objective ?? undefined}
         actions={

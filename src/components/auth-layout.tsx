@@ -23,18 +23,15 @@ export default function AuthLayout({
     <div className="grid min-h-dvh lg:grid-cols-[1.05fr_1fr]">
       {/* Painel da marca (computador) — sempre escuro. */}
       <aside className="theme-dark relative hidden overflow-hidden bg-surface lg:flex lg:flex-col lg:justify-between lg:p-12">
-        <div aria-hidden className="pointer-events-none absolute -right-32 -top-32 size-[28rem] rounded-full bg-brand/20 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-40 -left-24 size-[22rem] rounded-full bg-brand/10 blur-3xl" />
         <Link href="/" className="relative flex items-center gap-3">
           <BrandMark size="lg" />
           <span className="text-lg font-bold">{BRAND.name}</span>
         </Link>
         <div className="relative max-w-md">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-brand-ink">Plataforma do aluno</p>
           <p className="text-4xl font-bold leading-tight tracking-tight">
             Treino sério,
             <br />
-            <span className="text-brand-ink">resultado medido.</span>
+            resultado medido.
           </p>
           <ul className="mt-8 space-y-4">
             {HIGHLIGHTS.map(({ icon: Icon, text }) => (

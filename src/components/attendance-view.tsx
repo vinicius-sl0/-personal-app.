@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import {
   attendanceRate,
@@ -13,7 +14,7 @@ import {
   type SessionRow,
 } from "@/lib/attendance";
 import { currentWeekStart, formatWeek, shiftWeek, weekStartOf } from "@/lib/feedback";
-import { errorCls } from "@/lib/ui";
+import { errorCls, navBtnCls } from "@/lib/ui";
 import AttendanceWeek from "@/components/attendance-week";
 import { MonthCalendar, MonthSessions, MonthSummaryCards } from "@/components/attendance-month";
 
@@ -57,16 +58,18 @@ export default async function AttendanceView({
 
   const navRow = (prevHref: string, label: string, nextHref: string | null) => (
     <div className="flex items-center justify-between gap-2">
-      <Link href={prevHref} className="text-sm underline">
-        ← Anterior
+      <Link href={prevHref} className={navBtnCls} aria-label="Período anterior">
+        <ChevronLeft aria-hidden className="size-5" />
       </Link>
-      <p className="text-center text-sm font-medium">{label}</p>
+      <p className="text-center font-display font-semibold">{label}</p>
       {nextHref ? (
-        <Link href={nextHref} className="text-sm underline">
-          Próximo →
+        <Link href={nextHref} className={navBtnCls} aria-label="Próximo período">
+          <ChevronRight aria-hidden className="size-5" />
         </Link>
       ) : (
-        <span className="w-16" />
+        <span aria-hidden className={`${navBtnCls} pointer-events-none opacity-35`}>
+          <ChevronRight className="size-5" />
+        </span>
       )}
     </div>
   );

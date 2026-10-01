@@ -45,7 +45,7 @@ export default async function EvolucaoPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Evolução" title="Sua evolução" description="Seu corpo, sua frequência e seu treino ao longo do tempo." />
+      <PageHeader title="Sua evolução" description="Seu corpo, sua frequência e seu treino ao longo do tempo." />
 
       <div className="space-y-8">
         <section aria-labelledby="corpo" className="space-y-3">
@@ -110,7 +110,7 @@ export default async function EvolucaoPage() {
           </div>
           <p className="text-xs text-muted">
             <Link href="/aluno/feedback" className="underline-offset-2 hover:underline">
-              Conte como foi sua semana no Feedback semanal →
+              Conte como foi sua semana no Feedback semanal
             </Link>
           </p>
         </section>

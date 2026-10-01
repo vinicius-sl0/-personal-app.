@@ -102,7 +102,7 @@ function NavList({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => v
       {items.map((item) =>
         item.children ? (
           <div key={item.label} className="space-y-1 pt-1">
-            <p className="flex items-center gap-3 px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+            <p className="flex items-center gap-3 px-3 pb-1 pt-2 font-display text-xs font-semibold text-muted">
               {(() => {
                 const Icon = ICONS[item.icon];
                 return <Icon aria-hidden className="size-4" />;

@@ -44,7 +44,7 @@ export default async function MensagensPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Mensagens" title="Conversas" description="Fale com cada aluno em tempo real." />
+      <PageHeader title="Conversas" description="Fale com cada aluno em tempo real." />
 
       {error && <ErrorState message={`Não foi possível carregar as conversas: ${error.message}`} />}
 

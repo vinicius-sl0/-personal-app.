@@ -23,7 +23,6 @@ export default async function CriarTreinoPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Treinos"
         title="Criar treino"
         description="Para quem é esta ficha? Escolha o aluno para abrir o editor."
         back={{ href: "/personal/treinos", label: "Meus treinos" }}

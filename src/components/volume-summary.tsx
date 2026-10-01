@@ -18,7 +18,7 @@ export default function VolumeSummary({
 
   return (
     <div className="rounded-xl border border-line bg-subtle p-3 text-sm">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">{title}</p>
+      <p className="mb-2 text-sm font-semibold text-soft">{title}</p>
       <ul className="space-y-1">
         {rows.map((m) => (
           <li key={m.muscle.id} className="flex items-baseline gap-2">

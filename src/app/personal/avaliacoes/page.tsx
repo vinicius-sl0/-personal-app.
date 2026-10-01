@@ -29,7 +29,6 @@ export default async function AvaliacoesPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Avaliações"
         title="Avaliações físicas"
         description="Antropometria e composição corporal de cada aluno, com histórico e gráficos."
       />

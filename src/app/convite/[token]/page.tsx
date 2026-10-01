@@ -1,4 +1,9 @@
+import Link from "next/link";
+import { LinkIcon } from "lucide-react";
 import { getValidInvite } from "@/lib/invite";
+import { BRAND } from "@/lib/brand";
+import { btnSecondaryCls } from "@/lib/ui";
+import { BrandMark } from "@/components/brand-mark";
 import { isMinor } from "@/lib/utils";
 import AcceptForm from "./accept-form";
 
@@ -14,6 +19,10 @@ export default async function ConvitePage({
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center px-5 py-10">
+      <p className="mb-8 flex items-center gap-2.5">
+        <BrandMark size="md" />
+        <span className="font-display font-semibold">{BRAND.name}</span>
+      </p>
       {invite ? (
         <>
           <h1 className="text-2xl font-bold">Olá, {invite.student.full_name.split(" ")[0]}!</h1>
@@ -27,12 +36,19 @@ export default async function ConvitePage({
           />
         </>
       ) : (
-        <>
+        <div className="space-y-4">
+          <span aria-hidden className="grid size-14 place-items-center rounded-2xl bg-brand-soft text-brand-ink">
+            <LinkIcon className="size-7" />
+          </span>
           <h1 className="text-2xl font-bold">Convite indisponível</h1>
-          <p className="mt-2 text-sm text-muted">
-            Este link é inválido, já foi usado ou expirou. Peça um novo convite ao seu Personal.
+          <p className="text-sm text-muted">
+            Este link é inválido, já foi usado ou expirou. Peça um novo convite ao seu Personal. Se você já ativou sua
+            conta, é só entrar.
           </p>
-        </>
+          <Link href="/login" className={`${btnSecondaryCls} w-full`}>
+            Entrar
+          </Link>
+        </div>
       )}
     </main>
   );

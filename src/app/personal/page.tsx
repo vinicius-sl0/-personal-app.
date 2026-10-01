@@ -107,7 +107,6 @@ export default async function PersonalDashboard() {
   return (
     <>
       <PageHeader
-        eyebrow="Dashboard"
         title={`${greeting}, ${profile.full_name.split(" ")[0]}`}
         description="Um resumo rápido de como estão seus alunos."
         actions={

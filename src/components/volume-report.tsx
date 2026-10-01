@@ -22,7 +22,7 @@ import {
 } from "@/lib/volume-data";
 import { estimateCalories, type CalorieResult } from "@/lib/calories";
 import { ChevronLeft, ChevronRight, Dumbbell, Info } from "lucide-react";
-import { errorCls } from "@/lib/ui";
+import { errorCls, navBtnCls } from "@/lib/ui";
 import { Scoreboard } from "@/components/ui/scoreboard";
 import { EmptyState } from "@/components/ui/states";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -64,9 +64,6 @@ function Totals({ result, isPersonal }: { result: VolumeResult; isPersonal: bool
     </div>
   );
 }
-
-const navBtnCls =
-  "grid size-10 shrink-0 place-items-center rounded-[10px] border border-line bg-card text-soft transition-colors hover:border-chrome/70 hover:text-ink";
 
 // Relatório de volume de treino (e calorias estimadas) de UM aluno.
 // Usado pelo Personal (/personal/treinos/volume, escolhendo o aluno) e pelo próprio aluno

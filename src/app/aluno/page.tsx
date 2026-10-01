@@ -51,7 +51,7 @@ export default async function AlunoHome() {
   if (student?.status === "convidado") {
     return (
       <div className="mx-auto max-w-xl">
-        <PageHeader eyebrow="Bem-vindo" title="Falta pouco" description="Para liberar seu acesso, aceite os consentimentos abaixo." />
+        <PageHeader title="Falta pouco" description="Para liberar seu acesso, aceite os consentimentos abaixo." />
         <Card>
           <TermsForm minor={isMinor(student.birth_date)} />
         </Card>
@@ -128,10 +128,9 @@ export default async function AlunoHome() {
         aria-label="Treino de hoje"
         className="theme-dark relative overflow-hidden rounded-3xl border border-line bg-surface p-6 sm:p-8"
       >
-        <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-brand/25 blur-3xl" />
         <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-ink">
+            <p className="font-display text-sm font-semibold text-brand-ink">
               {inProgress ? "Treinando agora" : doneToday ? "Treino de hoje" : "Próximo treino"}
             </p>
             {!plan || !next ? (

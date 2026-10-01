@@ -41,7 +41,6 @@ export default async function AlunosPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Alunos"
         title="Seus alunos"
         description="Busque, filtre e acompanhe cada aluno."
         actions={
