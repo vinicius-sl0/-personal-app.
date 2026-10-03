@@ -894,6 +894,8 @@ export type Database = {
           feedback_reminder_enabled: boolean
           feedback_reminder_hour: number
           profile_id: string
+          absence_alert_days: number
+          absence_alert_enabled: boolean
           secondary_muscle_weight: number
           updated_at: string
         }
@@ -906,6 +908,8 @@ export type Database = {
           feedback_reminder_enabled?: boolean
           feedback_reminder_hour?: number
           profile_id: string
+          absence_alert_days?: number
+          absence_alert_enabled?: boolean
           secondary_muscle_weight?: number
           updated_at?: string
         }
@@ -918,6 +922,8 @@ export type Database = {
           feedback_reminder_enabled?: boolean
           feedback_reminder_hour?: number
           profile_id?: string
+          absence_alert_days?: number
+          absence_alert_enabled?: boolean
           secondary_muscle_weight?: number
           updated_at?: string
         }
@@ -942,6 +948,8 @@ export type Database = {
           locale: string
           phone: string | null
           role: Database["public"]["Enums"]["user_role"]
+          training_reminder_enabled: boolean
+          training_reminder_hour: number
           timezone: string
           updated_at: string
         }
@@ -955,6 +963,8 @@ export type Database = {
           locale?: string
           phone?: string | null
           role: Database["public"]["Enums"]["user_role"]
+          training_reminder_enabled?: boolean
+          training_reminder_hour?: number
           timezone?: string
           updated_at?: string
         }
@@ -968,6 +978,8 @@ export type Database = {
           locale?: string
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          training_reminder_enabled?: boolean
+          training_reminder_hour?: number
           timezone?: string
           updated_at?: string
         }

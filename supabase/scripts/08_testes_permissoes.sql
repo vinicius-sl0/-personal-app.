@@ -1122,6 +1122,79 @@
         v_res := v_res || pg_temp.r(v_n = 0, 'Lembrete: desligado pelo Personal, ninguém recebe', 'avisos=' || v_n);
       end;
 
+      -- =================================================================
+      -- Q. LEMBRETE DE TREINO E AVISO DE FALTAS — migração 20261003000003
+      -- =================================================================
+      v_step := 'Q. lembrete de treino e faltas';
+      declare
+        v_today date := (now() at time zone 'America/Sao_Paulo')::date;
+        v_n     int;
+        v_cnt   text := 'select count(*) from public.notifications n where n.user_id = %L and n.type = ''lembrete'' and n.data ->> ''kind'' = %L';
+      begin
+        -- preferências: cada um mexe só no que é seu
+        select * into v_r from pg_temp.exec_as(v_ua, format(
+          'with u as (update public.profiles set training_reminder_hour = 7 where id = %L returning 1) select count(*) from u', v_ua));
+        v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Lembrete de treino: aluno muda o próprio horário', coalesce(v_r.err, 'alterados=' || v_r.n));
+
+        select * into v_r from pg_temp.exec_as(v_ua, format(
+          'with u as (update public.profiles set training_reminder_enabled = false where id = %L returning 1) select count(*) from u', v_ub));
+        v_res := v_res || pg_temp.r(v_r.err is not null or v_r.n = 0, 'Lembrete de treino: aluno NÃO muda o lembrete de outro aluno', coalesce(v_r.err, 'alterados=' || v_r.n));
+
+        v_tmp := pg_temp.run_as(v_ua, format('update public.profiles set training_reminder_hour = 30 where id = %L', v_ua));
+        v_res := v_res || pg_temp.r(v_tmp is not null, 'Lembrete de treino: horário inválido (30h) é recusado', v_tmp);
+
+        select * into v_r from pg_temp.exec_as(v_p1, format(
+          'with u as (update public.personal_profiles set absence_alert_days = 3 where profile_id = %L returning 1) select count(*) from u', v_p1));
+        v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Aviso de faltas: Personal muda quantas faltas disparam o aviso', coalesce(v_r.err, 'alterados=' || v_r.n));
+
+        select * into v_r from pg_temp.exec_as(v_ua, format(
+          'with u as (update public.personal_profiles set absence_alert_enabled = false where profile_id = %L returning 1) select count(*) from u', v_p1));
+        v_res := v_res || pg_temp.r(v_r.err is not null or v_r.n = 0, 'Aviso de faltas: aluno NÃO desliga o aviso do Personal', coalesce(v_r.err, 'alterados=' || v_r.n));
+
+        v_tmp := pg_temp.run_as(v_p1, 'select private.send_training_reminders(true)');
+        v_res := v_res || pg_temp.r(v_tmp is not null, 'Lembretes: usuário do app NÃO dispara o lembrete de treino', v_tmp);
+        v_tmp := pg_temp.run_as(v_p1, 'select private.send_absence_alerts(true)');
+        v_res := v_res || pg_temp.r(v_tmp is not null, 'Lembretes: usuário do app NÃO dispara o aviso de faltas', v_tmp);
+
+        -- cenário: aluno A treina todos os dias, começou há 10 dias e não registrou nenhum treino
+        update public.students set training_days = '{1,2,3,4,5,6,7}', start_date = v_today - 10 where id = v_sa;
+        delete from public.workout_sessions where student_id = v_sa;
+        delete from public.notifications where user_id in (v_ua, v_p1) and type = 'lembrete';
+        update public.profiles set training_reminder_enabled = true where id = v_ua;
+        update public.personal_profiles set absence_alert_enabled = true, absence_alert_days = 2 where profile_id = v_p1;
+
+        perform private.send_training_reminders(true);
+        perform private.send_training_reminders(true); -- de novo: não pode duplicar
+        execute format(v_cnt, v_ua, 'treino') into v_n;
+        v_res := v_res || pg_temp.r(v_n = 1, 'Lembrete de treino: dia combinado sem check-in gera 1 aviso por dia (sem duplicar)', 'avisos=' || v_n);
+
+        perform private.send_absence_alerts(true);
+        perform private.send_absence_alerts(true); -- de novo: mesma sequência, sem repetir
+        execute format(v_cnt, v_p1, 'faltas') into v_n;
+        v_res := v_res || pg_temp.r(v_n = 1, 'Aviso de faltas: Personal recebe 1 aviso por sequência de faltas', 'avisos=' || v_n);
+
+        -- desligado pelo aluno: não recebe
+        delete from public.notifications where user_id = v_ua and type = 'lembrete';
+        update public.profiles set training_reminder_enabled = false where id = v_ua;
+        perform private.send_training_reminders(true);
+        execute format(v_cnt, v_ua, 'treino') into v_n;
+        v_res := v_res || pg_temp.r(v_n = 0, 'Lembrete de treino: desligado pelo aluno, não recebe', 'avisos=' || v_n);
+
+        -- já fez o check-in hoje: não recebe; e o treino de ontem encerra a sequência de faltas
+        update public.profiles set training_reminder_enabled = true where id = v_ua;
+        insert into public.workout_sessions (student_id, workout_name_snapshot, started_at) values
+          (v_sa, 'Treino teste', now()),
+          (v_sa, 'Treino teste', now() - interval '1 day');
+        perform private.send_training_reminders(true);
+        execute format(v_cnt, v_ua, 'treino') into v_n;
+        v_res := v_res || pg_temp.r(v_n = 0, 'Lembrete de treino: quem já fez o check-in hoje não recebe', 'avisos=' || v_n);
+
+        delete from public.notifications where user_id = v_p1 and type = 'lembrete';
+        perform private.send_absence_alerts(true);
+        execute format(v_cnt, v_p1, 'faltas') into v_n;
+        v_res := v_res || pg_temp.r(v_n = 0, 'Aviso de faltas: treinou ontem, não há sequência de faltas', 'avisos=' || v_n);
+      end;
+
       -- fim: desfaz TUDO (fixtures incluídas)
       raise exception '__rollback__';
     exception when others then

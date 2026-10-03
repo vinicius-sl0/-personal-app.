@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart3, BellRing, FileText, Palette, UserRound } from "lucide-react";
+import { BarChart3, BellRing, CalendarX, FileText, Palette, UserRound } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { SignOutButton } from "@/components/sign-out-button";
@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardHeader } from "@/components/ui/card";
 import { SecondaryWeightSelect } from "@/components/volume-controls";
 import FeedbackReminderForm from "./feedback-reminder-form";
+import AbsenceAlertForm from "./absence-alert-form";
 
 export const metadata = { title: "Configurações" };
 
@@ -19,7 +20,7 @@ export default async function ConfiguracoesPage() {
     loadSecondaryWeight(supabase, profile.id),
     supabase
       .from("personal_profiles")
-      .select("feedback_reminder_enabled, feedback_reminder_dow, feedback_reminder_hour")
+      .select("feedback_reminder_enabled, feedback_reminder_dow, feedback_reminder_hour, absence_alert_enabled, absence_alert_days")
       .eq("profile_id", profile.id)
       .maybeSingle(),
   ]);
@@ -63,6 +64,17 @@ export default async function ConfiguracoesPage() {
               dow: reminder?.feedback_reminder_dow ?? 5,
               hour: reminder?.feedback_reminder_hour ?? 18,
             }}
+          />
+        </Card>
+
+        <Card>
+          <CardHeader
+            icon={<CalendarX className="size-4" />}
+            title="Aviso de faltas"
+            description="Saiba quando um aluno falta a dias de treino combinados seguidos."
+          />
+          <AbsenceAlertForm
+            initial={{ enabled: reminder?.absence_alert_enabled ?? true, days: reminder?.absence_alert_days ?? 2 }}
           />
         </Card>
 

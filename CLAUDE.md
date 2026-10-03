@@ -126,6 +126,17 @@ rodar comandos locais aplica no banco.
   Dias antes de `students.start_date` não contam como falta. Limitação aceita: meses antigos
   usam os dias combinados ATUAIS (não há histórico de mudanças de `training_days`).
   Fuso fixo `America/Sao_Paulo` (-03:00).
+  **Lembrete de treino e aviso de faltas (2026-10-03, migração 20261003000003, `pg_cron` de hora em
+  hora)**: `private.send_training_reminders()` — em dia combinado, na hora que o ALUNO escolhe no
+  Perfil (`profiles.training_reminder_enabled/_hour`, padrão 17h; `aluno/perfil/training-reminder-form.tsx`),
+  quem não tem nenhuma sessão hoje recebe "Hoje é dia de treino" (1 por dia). `private.send_absence_alerts()`
+  — todo dia às 9h, `private.absence_streak()` conta para trás os dias combinados sem NENHUMA sessão
+  (mesma regra do "faltou" da Frequência, respeitando `start_date`, até 60 dias); se chegar a
+  `personal_profiles.absence_alert_days` (padrão 2; Configurações → `absence-alert-form.tsx`), o
+  Personal recebe "Aluno faltando aos treinos" → `/personal/alunos/[id]/frequencia`, 1 por sequência
+  (chave `data.since` = primeiro dia faltado). Ambos usam o tipo `lembrete` com `data.kind`
+  (`treino`/`faltas`) e o título gravado pelo banco. Testar na hora: `select private.send_training_reminders(true);`
+  / `select private.send_absence_alerts(true);` (o `true` ignora a hora).
 - Feedback semanal (`/aluno/feedback`, `/personal/feedback`, `/personal/alunos/[id]/feedback`;
   `lib/feedback.ts`): escalas 1–5 (sentiu nos treinos, disposição, alimentação, progresso) +
   dificuldades, dor, observações. Aluno edita até o Personal responder (regra no banco).
@@ -198,7 +209,7 @@ rodar comandos locais aplica no banco.
   para o pré-carregamento não marcar como lido sozinho. Lembrete agendado de feedback
   (agora existe: ver Feedback semanal). Avisos com o app fechado: ver "Avisos no celular" abaixo.
 - Banco de dados completo (33 tabelas), RLS em 100% das tabelas, 08_testes_permissoes.sql com
-  177 testes (inclui os das migrações 20260923000001, 20260925000001, 20260925000002, 20260926000001, 20260930000001, 20261002000001, 20261003000001 e 20261003000002; se a trava de exclusão do Storage não puder ser liberada, são 175) (isolamento entre alunos, entre Personal e aluno, consentimento
+  190 testes (inclui os das migrações 20260923000001, 20260925000001, 20260925000002, 20260926000001, 20260930000001, 20261002000001, 20261003000001, 20261003000002 e 20261003000003; se a trava de exclusão do Storage não puder ser liberada, são 188) (isolamento entre alunos, entre Personal e aluno, consentimento
   controlando acesso a fotos, etc.). **Rode o 08 de novo sempre que alterar RLS ou triggers.**
 
 ## Pendentes do escopo original

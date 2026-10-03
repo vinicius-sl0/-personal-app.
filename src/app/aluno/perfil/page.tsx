@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Camera, FileText, UserRound } from "lucide-react";
+import { AlarmClock, Camera, FileText, UserRound } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { SignOutButton } from "@/components/sign-out-button";
@@ -12,6 +12,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import ConsentToggle from "@/components/photo-consent-toggle";
+import TrainingReminderForm from "./training-reminder-form";
 
 export const metadata = { title: "Perfil" };
 
@@ -23,7 +24,10 @@ export default async function PerfilPage() {
     .from("students")
     .select("id, goal, start_date, training_days, phone")
     .maybeSingle();
-  const consent = student ? await hasPhotoConsent(supabase, student.id) : { active: false, error: null };
+  const [consent, { data: prefs }] = await Promise.all([
+    student ? hasPhotoConsent(supabase, student.id) : Promise.resolve({ active: false, error: null }),
+    supabase.from("profiles").select("training_reminder_enabled, training_reminder_hour").eq("id", profile.id).maybeSingle(),
+  ]);
 
   return (
     <>
@@ -56,6 +60,19 @@ export default async function PerfilPage() {
             </div>
           </dl>
           <p className="mt-4 text-xs text-muted">Para corrigir algum dado, fale com o seu Personal.</p>
+        </Card>
+
+        <Card>
+          <CardHeader
+            icon={<AlarmClock className="size-4" />}
+            title="Lembrete de treino"
+            description="Um aviso nos seus dias de treino, caso você ainda não tenha treinado."
+          />
+          <TrainingReminderForm
+            initial={{ enabled: prefs?.training_reminder_enabled ?? true, hour: prefs?.training_reminder_hour ?? 17 }}
+            daysText={trainingDaysText(student?.training_days ?? [])}
+            hasDays={(student?.training_days ?? []).length > 0}
+          />
         </Card>
 
         <Card>
