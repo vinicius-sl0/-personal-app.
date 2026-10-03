@@ -734,6 +734,7 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           id: string
+          media_duration_s: number | null
           reply_to_id: string | null
           sender_id: string | null
           type: Database["public"]["Enums"]["message_type"]
@@ -745,6 +746,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
+          media_duration_s?: number | null
           reply_to_id?: string | null
           sender_id?: string | null
           type?: Database["public"]["Enums"]["message_type"]
@@ -756,6 +758,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
+          media_duration_s?: number | null
           reply_to_id?: string | null
           sender_id?: string | null
           type?: Database["public"]["Enums"]["message_type"]

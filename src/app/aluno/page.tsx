@@ -18,7 +18,7 @@ import { loadSeries } from "@/lib/assessment-data";
 import { buildAttendance, formatClock, localDate, STATUS_INFO, WEEKDAYS } from "@/lib/attendance";
 import { currentWeekStart } from "@/lib/feedback";
 import { unreadConversationIds } from "@/lib/chat-data";
-import { formatMessageTime } from "@/lib/chat";
+import { formatMessageTime, messagePreview, type ChatMessage } from "@/lib/chat";
 import { btnPrimaryCls, btnSecondaryCls, cardCls } from "@/lib/ui";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -108,11 +108,11 @@ export default async function AlunoHome() {
   const { data: messages } = conv
     ? await supabase
         .from("messages")
-        .select("id, sender_id, body, created_at, deleted_at")
+        .select("id, sender_id, type, body, media_duration_s, created_at, deleted_at")
         .eq("conversation_id", conv.id)
         .order("created_at", { ascending: false })
         .limit(3)
-    : { data: [] as { id: string; sender_id: string | null; body: string | null; created_at: string; deleted_at: string | null }[] };
+    : { data: [] as (Pick<ChatMessage, "id" | "sender_id" | "type" | "body" | "media_duration_s" | "created_at" | "deleted_at">)[] };
   const hasUnread = conv ? unread.has(conv.id) : false;
 
   const hour = Number(new Date().toLocaleTimeString("en-GB", { timeZone: "America/Sao_Paulo", hour: "2-digit" }));
@@ -327,7 +327,7 @@ export default async function AlunoHome() {
                         mine ? "rounded-br-sm bg-brand text-brand-contrast" : "rounded-bl-sm bg-subtle-strong text-ink"
                       }`}
                     >
-                      {m.deleted_at ? <em className="opacity-70">Mensagem apagada</em> : m.body}
+                      {m.deleted_at ? <em className="opacity-70">Mensagem apagada</em> : messagePreview(m)}
                     </span>
                   </li>
                 );

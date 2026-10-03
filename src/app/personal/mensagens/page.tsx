@@ -3,7 +3,7 @@ import { MessagesSquare } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
 import { unreadConversationIds } from "@/lib/chat-data";
-import { formatMessageTime } from "@/lib/chat";
+import { formatMessageTime, messagePreview } from "@/lib/chat";
 import { cardCls } from "@/lib/ui";
 import { PageHeader } from "@/components/ui/page-header";
 import { Avatar } from "@/components/ui/avatar";
@@ -34,7 +34,7 @@ export default async function MensagensPage() {
   const { data: recent } = ids.length
     ? await supabase
         .from("messages")
-        .select("conversation_id, sender_id, body, deleted_at, created_at")
+        .select("conversation_id, sender_id, type, body, media_duration_s, deleted_at, created_at")
         .in("conversation_id", ids)
         .order("created_at", { ascending: false })
         .limit(Math.min(ids.length * 5, 500))
@@ -62,7 +62,7 @@ export default async function MensagensPage() {
           const isUnread = unread.has(c.id);
           const last = lastByConv.get(c.id);
           const name = c.students?.full_name ?? "Aluno";
-          const preview = !last ? "Sem mensagens" : last.deleted_at ? "Mensagem apagada" : `${last.sender_id === profile.id ? "Você: " : ""}${last.body ?? ""}`;
+          const preview = !last ? "Sem mensagens" : last.deleted_at ? "Mensagem apagada" : `${last.sender_id === profile.id ? "Você: " : ""}${messagePreview(last)}`;
           return (
             <li key={c.id}>
               <Link href={`/personal/alunos/${c.student_id}/mensagens`} className="flex items-center gap-3 px-4 py-3.5 transition hover:bg-subtle">

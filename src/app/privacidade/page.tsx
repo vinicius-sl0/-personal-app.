@@ -61,7 +61,10 @@ const sections: LegalSection[] = [
           </li>
           <li>
             <span className={b}>Mensagens</span> trocadas com o Personal pelo chat, com data, hora e a
-            indicação de lida.
+            indicação de lida, incluindo as <span className={b}>fotos e os áudios</span> que vocês enviarem.
+            Antes do envio, o app reduz a foto e remove a localização (GPS). Os arquivos ficam em área
+            privada, que só os dois participantes da conversa conseguem abrir, por links temporários.
+            Ao apagar uma mensagem, a foto ou o áudio dela também é apagado.
           </li>
           <li>
             <span className={b}>Avisos</span> do app (ex.: “nova mensagem”, “novo treino”).

@@ -158,7 +158,7 @@ rodar comandos locais aplica no banco.
   banco via Server Action; URLs assinadas de 1h; comparação antes/depois. **Só o aluno exclui
   fotos** (regra da RLS/Storage). Se o envio do Personal falhar depois do upload, o arquivo
   fica órfão no bucket (o Personal não tem permissão de apagar) — aceito por ora.
-- Chat Personal↔aluno, só texto (`/aluno/mensagens`, `/personal/mensagens`,
+- Chat Personal↔aluno, texto, foto e áudio (`/aluno/mensagens`, `/personal/mensagens`,
   `/personal/alunos/[id]/mensagens`, componente `chat-room.tsx`): tempo real via Realtime
   (`postgres_changes` em `messages`), ressincroniza ao reconectar/voltar ao app. Id da
   mensagem gerado no navegador → "Tentar de novo" não duplica (23505 = já gravada).
@@ -166,8 +166,21 @@ rodar comandos locais aplica no banco.
   `conversation_reads` gravada com `conversations.last_message_at` (relógio do banco, não do
   servidor); abrir a conversa também marca como lido o aviso `nova_mensagem`. Horários com
   fuso fixo `America/Sao_Paulo`. A bolinha de "Mensagens" no menu vem da central de
-  notificações (avisos `nova_mensagem` não lidos) e atualiza em tempo real. Imagem/áudio
-  ainda não (bucket `chat-attachments` já existe).
+  notificações (avisos `nova_mensagem` não lidos) e atualiza em tempo real.
+  **Foto e áudio no chat (2026-10-03, migração 20261003000001)**: arquivo sobe DIRETO do navegador
+  para o bucket privado `chat-attachments` em `{conversa}/{id da mensagem}.ext` (`lib/chat-media.ts`;
+  usar o id da mensagem deixa o "Tentar de novo" seguro) e depois `sendMessage` grava a mensagem
+  (`type` imagem/audio + `attachment_path`). O trigger `messages_before_insert` (agora security
+  definer) confere: arquivo na pasta da PRÓPRIA conversa, extensão do tipo certo e já existente no
+  Storage. Foto: `compressImage` 1600px (remove GPS), legenda opcional no `body`; tocar abre em
+  tela cheia. Áudio: `components/chat/use-audio-recorder.ts` (MediaRecorder; WebM/Opus no
+  Chrome/Android, MP4/AAC no iPhone), até 3 min, duração medida pelo app em
+  `messages.media_duration_s` (o WebM do navegador não informa a duração); player próprio em
+  `components/chat/chat-media.tsx`. Sem texto/foto, o botão de enviar vira microfone. Apagar
+  mensagem apaga também o arquivo (`deleteMessage` lê o caminho antes; regra de Storage
+  `app_chat_delete`: só quem enviou apaga). Listas mostram "Foto"/"Áudio (0:42)"
+  (`messagePreview` em `lib/chat.ts`). Limitação: iPhone antigo pode não tocar áudio WebM gravado
+  no Android — o player mostra "Abrir o arquivo".
 - Central de notificações (`/aluno/notificacoes`, `/personal/notificacoes`): sino no topo com
   contador em tempo real (`components/notification-badges.tsx`, um canal Realtime em
   `notifications` por página). Os avisos são criados SÓ por triggers do banco
@@ -177,18 +190,18 @@ rodar comandos locais aplica no banco.
   para o pré-carregamento não marcar como lido sozinho. Sem lembrete agendado de feedback
   (precisaria de pg_cron). Avisos com o app fechado: ver "Avisos no celular" abaixo.
 - Banco de dados completo (33 tabelas), RLS em 100% das tabelas, 08_testes_permissoes.sql com
-  158 testes (inclui os das migrações 20260923000001, 20260925000001, 20260925000002, 20260926000001, 20260930000001 e 20261002000001) (isolamento entre alunos, entre Personal e aluno, consentimento
+  168 testes (inclui os das migrações 20260923000001, 20260925000001, 20260925000002, 20260926000001, 20260930000001, 20261002000001 e 20261003000001) (isolamento entre alunos, entre Personal e aluno, consentimento
   controlando acesso a fotos, etc.). **Rode o 08 de novo sempre que alterar RLS ou triggers.**
 
 ## Pendentes do escopo original
 
-Imagem/áudio no chat, landing page final (conteúdo real). **Termos e Política** (`/termos`,
+Landing page final (conteúdo real). **Termos e Política** (`/termos`,
 `/privacidade`, estrutura em `components/legal-page.tsx`) já têm texto completo escrito a partir
 do que o app faz; os dados do Personal (nome, CPF/CNPJ, CREF, e-mail, região do Supabase, prazo de
 guarda) ficam em `src/lib/legal.ts` e aparecem como "a preencher" até serem informados; a faixa
 de rascunho só some com `reviewedByLawyer: true` (revisão por advogado). Se o app passar a guardar
 outro tipo de dado (ex.: imagem/áudio no chat, push), ATUALIZE a Política e suba `CONSENT_VERSION`
-em `lib/consents.ts` (hoje `2026-10-v4`). Não há exclusão de conta pelo app: pedidos são pelo
+em `lib/consents.ts` (hoje `2026-10-v5`). Não há exclusão de conta pelo app: pedidos são pelo
 chat/e-mail (resposta em até 15 dias, prometido na Política).
 `src/types/database.types.ts` foi ajustado à mão para bater com a migração 20260923000001
 (e com `technique_detail`); regenerar com o comando oficial deve dar o mesmo resultado.

@@ -1000,6 +1000,78 @@
         v_res := v_res || pg_temp.r(v_ok, 'Aviso dentro do app continua sendo criado com aparelho inscrito', v_tmp);
       end;
 
+      -- =================================================================
+      -- O. FOTO E ÁUDIO NO CHAT — migração 20261003000001
+      --    (só roda se o bucket chat-attachments e a regra de exclusão existirem)
+      -- =================================================================
+      v_step := 'O. chat foto e audio';
+      if exists (select 1 from storage.buckets where id = 'chat-attachments')
+        and exists (select 1 from pg_policies where schemaname = 'storage' and policyname = 'app_chat_delete') then
+        declare
+          v_img   text := v_conv_a::text || '/' || gen_random_uuid()::text || '.webp';
+          v_aud   text := v_conv_a::text || '/' || gen_random_uuid()::text || '.webm';
+          v_other text := v_conv_b::text || '/' || gen_random_uuid()::text || '.webp';
+          v_ins   text := 'with x as (insert into public.messages (conversation_id, sender_id, type, body, attachment_path, media_duration_s) '
+                       || 'values (%L, %L, %L, %L, %L, %s) returning 1) select count(*) from x';
+        begin
+          -- arquivos "já enviados" (como o Storage grava: com o dono)
+          insert into storage.objects (bucket_id, name, owner_id) values
+            ('chat-attachments', v_img, v_ua::text),
+            ('chat-attachments', v_aud, v_ua::text),
+            ('chat-attachments', v_other, v_ub::text);
+
+          select * into v_r from pg_temp.exec_as(v_ua, format(v_ins, v_conv_a, v_ua, 'imagem', 'Minha legenda', v_img, 'null'));
+          v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Chat: aluno A envia foto da própria conversa', coalesce(v_r.err, 'linhas=' || v_r.n));
+
+          select * into v_r from pg_temp.exec_as(v_ua, format(v_ins, v_conv_a, v_ua, 'imagem', null, v_other, 'null'));
+          v_res := v_res || pg_temp.r(v_r.err like '%ANEXO_INVALIDO%', 'Chat: mensagem NÃO aponta para arquivo de outra conversa', v_r.err);
+
+          select * into v_r from pg_temp.exec_as(v_ua, format(v_ins, v_conv_a, v_ua, 'imagem', null,
+            v_conv_a::text || '/' || gen_random_uuid()::text || '.webp', 'null'));
+          v_res := v_res || pg_temp.r(v_r.err like '%ANEXO_INVALIDO%', 'Chat: mensagem NÃO aponta para arquivo que não foi enviado', v_r.err);
+
+          select * into v_r from pg_temp.exec_as(v_ua, format(v_ins, v_conv_a, v_ua, 'audio', null, v_img, '20'));
+          v_res := v_res || pg_temp.r(v_r.err like '%ANEXO_INVALIDO%', 'Chat: áudio com arquivo de foto é recusado', v_r.err);
+
+          select * into v_r from pg_temp.exec_as(v_ua, format(v_ins, v_conv_a, v_ua, 'audio', null, v_aud, '9999'));
+          v_res := v_res || pg_temp.r(v_r.err is not null, 'Chat: duração de áudio absurda é recusada', v_r.err);
+
+          select * into v_r from pg_temp.exec_as(v_ua, format(v_ins, v_conv_a, v_ua, 'audio', null, v_aud, '30'));
+          v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Chat: aluno A envia áudio de 30 s', coalesce(v_r.err, 'linhas=' || v_r.n));
+
+          select * into v_r from pg_temp.exec_as(v_ua, format(v_ins, v_conv_a, v_ua, 'texto', 'oi', v_img, 'null'));
+          v_res := v_res || pg_temp.r(v_r.err like '%ANEXO_INVALIDO%', 'Chat: mensagem de texto não leva arquivo', v_r.err);
+
+          -- O Supabase bloqueia DELETE direto em storage.objects (só pela API de arquivos).
+          -- Liberamos só nesta transação de teste para conferir a regra app_chat_delete de verdade.
+          perform set_config('storage.allow_delete_query', 'true', true);
+          v_tmp := format('with d as (delete from storage.objects where bucket_id = ''chat-attachments'' and name = %L returning 1) select count(*) from d', v_img);
+          select * into v_r from pg_temp.exec_as(v_p1, v_tmp);
+
+          if v_r.err like '%Direct deletion%' then
+            -- A trava não pôde ser liberada nesta versão: confere a regra pela definição dela.
+            v_ok := exists (
+              select 1 from pg_policies pp
+               where pp.schemaname = 'storage' and pp.tablename = 'objects' and pp.policyname = 'app_chat_delete'
+                 and pp.cmd = 'DELETE'
+                 and pp.qual like '%chat-attachments%' and pp.qual like '%owner_id%' and pp.qual like '%auth.uid()%'
+            );
+            v_res := v_res || pg_temp.r(v_ok,
+              'Chat: só quem enviou apaga o arquivo (regra conferida pela definição; o Supabase não deixa testar a exclusão direto pelo SQL)');
+          else
+            v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 0, 'Chat: o outro participante NÃO apaga arquivo enviado pelo aluno', coalesce(v_r.err, 'apagados=' || v_r.n));
+
+            select * into v_r from pg_temp.exec_as(v_ub, v_tmp);
+            v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 0, 'Chat: aluno B NÃO apaga arquivo de outra conversa', coalesce(v_r.err, 'apagados=' || v_r.n));
+
+            select * into v_r from pg_temp.exec_as(v_ua, v_tmp);
+            v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Chat: quem enviou apaga o próprio arquivo', coalesce(v_r.err, 'apagados=' || v_r.n));
+          end if;
+        end;
+      else
+        v_res := v_res || pg_temp.r(true, 'Chat foto/áudio: testes PULADOS (rode o 04_storage.sql e a migração 20261003000001)');
+      end if;
+
       -- fim: desfaz TUDO (fixtures incluídas)
       raise exception '__rollback__';
     exception when others then

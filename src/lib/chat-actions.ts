@@ -4,19 +4,28 @@ import { z } from "zod";
 import { getSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { loadMessages, loadOtherLastRead } from "@/lib/chat-data";
-import { MESSAGE_COLUMNS, MESSAGE_MAX_LENGTH, type ChatMessage } from "@/lib/chat";
+import { AUDIO_MAX_SECONDS, CHAT_BUCKET, MESSAGE_COLUMNS, MESSAGE_MAX_LENGTH, type ChatMessage } from "@/lib/chat";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
-const sendSchema = z.object({
-  id: z.uuid(),
-  conversation_id: z.uuid(),
-  body: z
-    .string()
-    .trim()
-    .min(1, "Escreva uma mensagem.")
-    .max(MESSAGE_MAX_LENGTH, `A mensagem pode ter no máximo ${MESSAGE_MAX_LENGTH} caracteres.`),
-});
+const bodyText = z
+  .string()
+  .trim()
+  .max(MESSAGE_MAX_LENGTH, `A mensagem pode ter no máximo ${MESSAGE_MAX_LENGTH} caracteres.`);
+const base = { id: z.uuid(), conversation_id: z.uuid() };
+
+// Texto, foto (com legenda opcional) ou áudio. O arquivo já foi enviado pelo navegador para
+// chat-attachments/{conversa}/{id da mensagem}.ext — o banco confere pasta, tipo e existência.
+const sendSchema = z.discriminatedUnion("type", [
+  z.object({ ...base, type: z.literal("texto"), body: bodyText.min(1, "Escreva uma mensagem.") }),
+  z.object({ ...base, type: z.literal("imagem"), body: bodyText.optional(), attachment_path: z.string().max(200) }),
+  z.object({
+    ...base,
+    type: z.literal("audio"),
+    attachment_path: z.string().max(200),
+    media_duration_s: z.number().int().min(1, "Áudio muito curto.").max(AUDIO_MAX_SECONDS + 5, "Áudio muito longo."),
+  }),
+]);
 
 // Marca a conversa como lida até a última mensagem existente.
 // Usa o horário gravado pelo próprio banco (last_message_at) para não depender do relógio do servidor.
@@ -59,10 +68,17 @@ export async function sendMessage(input: unknown): Promise<{ message?: ChatMessa
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Mensagem inválida." };
   const d = parsed.data;
 
+  const row =
+    d.type === "texto"
+      ? { body: d.body }
+      : d.type === "imagem"
+        ? { body: d.body || null, attachment_path: d.attachment_path }
+        : { attachment_path: d.attachment_path, media_duration_s: d.media_duration_s };
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("messages")
-    .insert({ id: d.id, conversation_id: d.conversation_id, sender_id: profile.id, type: "texto", body: d.body })
+    .insert({ id: d.id, conversation_id: d.conversation_id, sender_id: profile.id, type: d.type, ...row })
     .select(MESSAGE_COLUMNS)
     .single();
 
@@ -75,6 +91,9 @@ export async function sendMessage(input: unknown): Promise<{ message?: ChatMessa
     if (error?.code === "42501") {
       return { error: "Não é possível enviar mensagens nesta conversa agora (o aluno precisa estar ativo)." };
     }
+    if (error?.message.includes("ANEXO_INVALIDO")) {
+      return { error: "O arquivo não chegou ao servidor ou não pertence a esta conversa. Tente de novo." };
+    }
     return { error: "Não foi possível enviar a mensagem: " + (error?.message ?? "erro desconhecido") };
   }
 
@@ -84,12 +103,21 @@ export async function sendMessage(input: unknown): Promise<{ message?: ChatMessa
 }
 
 // Apaga uma mensagem própria (o banco remove o texto e mantém só o aviso "mensagem apagada").
+// Se tinha foto ou áudio, o arquivo também é apagado do Storage.
 export async function deleteMessage(id: string): Promise<{ message?: ChatMessage; error?: string }> {
   const { profile } = await getSession();
   if (!profile) return { error: "Sua sessão expirou. Entre novamente." };
   if (!z.uuid().safeParse(id).success) return { error: "Mensagem não encontrada." };
 
   const supabase = await createClient();
+  // O caminho do arquivo é lido ANTES: ao apagar, o banco limpa attachment_path.
+  const { data: before } = await supabase
+    .from("messages")
+    .select("attachment_path")
+    .eq("id", id)
+    .eq("sender_id", profile.id)
+    .maybeSingle();
+
   const { data, error } = await supabase
     .from("messages")
     .update({ deleted_at: new Date().toISOString() })
@@ -98,6 +126,14 @@ export async function deleteMessage(id: string): Promise<{ message?: ChatMessage
     .maybeSingle();
   if (error) return { error: "Não foi possível apagar: " + error.message };
   if (!data) return { error: "Você só pode apagar as suas próprias mensagens." };
+
+  if (before?.attachment_path) {
+    const { error: fileError } = await supabase.storage.from(CHAT_BUCKET).remove([before.attachment_path]);
+    if (fileError) {
+      console.error("deleteMessage (arquivo):", fileError.message);
+      return { message: data, error: "A mensagem foi apagada, mas o arquivo não: " + fileError.message };
+    }
+  }
   return { message: data };
 }
 
