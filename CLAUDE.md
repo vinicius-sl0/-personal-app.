@@ -131,6 +131,14 @@ rodar comandos locais aplica no banco.
   dificuldades, dor, observações. Aluno edita até o Personal responder (regra no banco).
   Colunas antigas (sono, estresse, treinos feitos) não são mais perguntadas, mas aparecem no
   histórico se tiverem valor. Endereços antigos `/…/checkin(s)` redirecionam (`next.config.ts`).
+  **Lembrete automático (2026-10-03, migração 20261003000002)**: `pg_cron` roda
+  `private.send_feedback_reminders()` todo início de hora; no dia/hora do Personal
+  (`personal_profiles.feedback_reminder_enabled/_dow/_hour`, padrão sexta 18h, fuso de Brasília;
+  editável em Configurações → `configuracoes/feedback-reminder-form.tsx`) cria `checkin_pendente`
+  (com `data.week_start`) para aluno ATIVO sem Feedback na semana — no máximo 1 por semana; o push
+  vai junto pelo trigger de push. Mandar o Feedback marca o lembrete da semana como lido (trigger
+  `weekly_checkins_clear_reminder`). Para testar na hora: `select private.send_feedback_reminders(true);`
+  no SQL Editor (o `true` ignora dia/hora — manda para TODOS os alunos ativos sem Feedback).
   Fotos da semana (opcionais) dentro do Feedback: seção `aluno/feedback/weekly-photos.tsx`
   reaproveita `PhotoUploadForm` (com `onDone`/`minDate`) e `photo-consent-toggle.tsx`. Não há
   ligação no banco entre foto e feedback: a semana vem de `progress_photo_sets.taken_at`
@@ -187,10 +195,10 @@ rodar comandos locais aplica no banco.
   (`private.notify`); a tela usa títulos próprios por tipo (`lib/notifications.ts`), porque os
   gravados no banco são antigos/sem acento. Abrir um aviso passa pela rota
   `/…/notificacoes/abrir/[id]` (marca como lido e redireciona) — use `<a>`, nunca `<Link>`,
-  para o pré-carregamento não marcar como lido sozinho. Sem lembrete agendado de feedback
-  (precisaria de pg_cron). Avisos com o app fechado: ver "Avisos no celular" abaixo.
+  para o pré-carregamento não marcar como lido sozinho. Lembrete agendado de feedback
+  (agora existe: ver Feedback semanal). Avisos com o app fechado: ver "Avisos no celular" abaixo.
 - Banco de dados completo (33 tabelas), RLS em 100% das tabelas, 08_testes_permissoes.sql com
-  168 testes (inclui os das migrações 20260923000001, 20260925000001, 20260925000002, 20260926000001, 20260930000001, 20261002000001 e 20261003000001) (isolamento entre alunos, entre Personal e aluno, consentimento
+  177 testes (inclui os das migrações 20260923000001, 20260925000001, 20260925000002, 20260926000001, 20260930000001, 20261002000001, 20261003000001 e 20261003000002; se a trava de exclusão do Storage não puder ser liberada, são 175) (isolamento entre alunos, entre Personal e aluno, consentimento
   controlando acesso a fotos, etc.). **Rode o 08 de novo sempre que alterar RLS ou triggers.**
 
 ## Pendentes do escopo original

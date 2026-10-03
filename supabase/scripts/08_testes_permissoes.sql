@@ -1072,6 +1072,56 @@
         v_res := v_res || pg_temp.r(true, 'Chat foto/áudio: testes PULADOS (rode o 04_storage.sql e a migração 20261003000001)');
       end if;
 
+      -- =================================================================
+      -- P. LEMBRETE DO FEEDBACK SEMANAL — migração 20261003000002
+      -- =================================================================
+      v_step := 'P. lembrete feedback';
+      declare
+        v_week date := (now() at time zone 'America/Sao_Paulo')::date
+                       - (extract(isodow from now() at time zone 'America/Sao_Paulo')::int - 1);
+        v_n    int;
+      begin
+        select * into v_r from pg_temp.exec_as(v_p1, format(
+          'with u as (update public.personal_profiles set feedback_reminder_dow = 7, feedback_reminder_hour = 9 where profile_id = %L returning 1) select count(*) from u', v_p1));
+        v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Lembrete: Personal muda o dia e a hora do próprio lembrete', coalesce(v_r.err, 'alterados=' || v_r.n));
+
+        select * into v_r from pg_temp.exec_as(v_ua, format(
+          'with u as (update public.personal_profiles set feedback_reminder_enabled = false where profile_id = %L returning 1) select count(*) from u', v_p1));
+        v_res := v_res || pg_temp.r(v_r.err is not null or v_r.n = 0, 'Lembrete: aluno NÃO desliga o lembrete do Personal', coalesce(v_r.err, 'alterados=' || v_r.n));
+
+        v_tmp := pg_temp.run_as(v_p1, format('update public.personal_profiles set feedback_reminder_hour = 25 where profile_id = %L', v_p1));
+        v_res := v_res || pg_temp.r(v_tmp is not null, 'Lembrete: horário inválido (25h) é recusado', v_tmp);
+
+        v_tmp := pg_temp.run_as(v_p1, 'select private.send_feedback_reminders(true)');
+        v_res := v_res || pg_temp.r(v_tmp is not null, 'Lembrete: usuário do app NÃO dispara os lembretes', v_tmp);
+
+        -- envio (forçado, ignorando dia/hora): aluno A sem Feedback nesta semana recebe 1 aviso
+        delete from public.weekly_checkins where student_id = v_sa and week_start = v_week;
+        update public.personal_profiles set feedback_reminder_enabled = true where profile_id = v_p1;
+        perform private.send_feedback_reminders(true);
+        perform private.send_feedback_reminders(true); -- de novo: não pode duplicar
+        select count(*) into v_n from public.notifications n
+         where n.user_id = v_ua and n.type = 'checkin_pendente' and n.data ->> 'week_start' = v_week::text;
+        v_res := v_res || pg_temp.r(v_n = 1, 'Lembrete: aluno sem Feedback recebe 1 aviso por semana (sem duplicar)', 'avisos=' || v_n);
+
+        select count(*) into v_n from public.notifications n
+         join public.students s on s.user_id = n.user_id
+         where s.id = v_sd and n.type = 'checkin_pendente' and n.data ->> 'week_start' = v_week::text;
+        v_res := v_res || pg_temp.r(v_n = 0, 'Lembrete: aluno que ainda não ativou a conta não recebe', 'avisos=' || v_n);
+
+        insert into public.weekly_checkins (student_id, week_start, energy) values (v_sa, v_week, 4);
+        select count(*) into v_n from public.notifications n
+         where n.user_id = v_ua and n.type = 'checkin_pendente' and n.data ->> 'week_start' = v_week::text and n.read_at is null;
+        v_res := v_res || pg_temp.r(v_n = 0, 'Lembrete: ao mandar o Feedback, o aviso da semana vira lido', 'nao_lidos=' || v_n);
+
+        update public.personal_profiles set feedback_reminder_enabled = false where profile_id = v_p1;
+        delete from public.notifications n where n.user_id = v_ua and n.type = 'checkin_pendente';
+        delete from public.weekly_checkins where student_id = v_sa and week_start = v_week;
+        perform private.send_feedback_reminders(true);
+        select count(*) into v_n from public.notifications n where n.user_id = v_ua and n.type = 'checkin_pendente';
+        v_res := v_res || pg_temp.r(v_n = 0, 'Lembrete: desligado pelo Personal, ninguém recebe', 'avisos=' || v_n);
+      end;
+
       -- fim: desfaz TUDO (fixtures incluídas)
       raise exception '__rollback__';
     exception when others then

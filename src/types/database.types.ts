@@ -890,6 +890,9 @@ export type Database = {
           business_name: string | null
           created_at: string
           cref: string | null
+          feedback_reminder_dow: number
+          feedback_reminder_enabled: boolean
+          feedback_reminder_hour: number
           profile_id: string
           secondary_muscle_weight: number
           updated_at: string
@@ -899,6 +902,9 @@ export type Database = {
           business_name?: string | null
           created_at?: string
           cref?: string | null
+          feedback_reminder_dow?: number
+          feedback_reminder_enabled?: boolean
+          feedback_reminder_hour?: number
           profile_id: string
           secondary_muscle_weight?: number
           updated_at?: string
@@ -908,6 +914,9 @@ export type Database = {
           business_name?: string | null
           created_at?: string
           cref?: string | null
+          feedback_reminder_dow?: number
+          feedback_reminder_enabled?: boolean
+          feedback_reminder_hour?: number
           profile_id?: string
           secondary_muscle_weight?: number
           updated_at?: string

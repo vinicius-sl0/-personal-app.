@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart3, FileText, Palette, UserRound } from "lucide-react";
+import { BarChart3, BellRing, FileText, Palette, UserRound } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { SignOutButton } from "@/components/sign-out-button";
@@ -8,12 +8,21 @@ import { btnSecondaryCls } from "@/lib/ui";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardHeader } from "@/components/ui/card";
 import { SecondaryWeightSelect } from "@/components/volume-controls";
+import FeedbackReminderForm from "./feedback-reminder-form";
 
 export const metadata = { title: "Configurações" };
 
 export default async function ConfiguracoesPage() {
   const profile = await requireRole("personal");
-  const weight = await loadSecondaryWeight(await createClient(), profile.id);
+  const supabase = await createClient();
+  const [weight, { data: reminder }] = await Promise.all([
+    loadSecondaryWeight(supabase, profile.id),
+    supabase
+      .from("personal_profiles")
+      .select("feedback_reminder_enabled, feedback_reminder_dow, feedback_reminder_hour")
+      .eq("profile_id", profile.id)
+      .maybeSingle(),
+  ]);
 
   return (
     <>
@@ -40,6 +49,21 @@ export default async function ConfiguracoesPage() {
             description="Quanto uma série conta para os grupos musculares secundários do exercício."
           />
           <SecondaryWeightSelect value={weight} />
+        </Card>
+
+        <Card>
+          <CardHeader
+            icon={<BellRing className="size-4" />}
+            title="Lembrete do Feedback semanal"
+            description="Aviso automático para os alunos que ainda não responderam a semana."
+          />
+          <FeedbackReminderForm
+            initial={{
+              enabled: reminder?.feedback_reminder_enabled ?? true,
+              dow: reminder?.feedback_reminder_dow ?? 5,
+              hour: reminder?.feedback_reminder_hour ?? 18,
+            }}
+          />
         </Card>
 
         <Card>
