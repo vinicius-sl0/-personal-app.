@@ -948,6 +948,58 @@
         v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Personal exclui o interessado (pedido de exclusão LGPD)', coalesce(v_r.err, 'excluidos=' || v_r.n));
       end;
 
+      -- =================================================================
+      -- N. AVISOS NO CELULAR (push) — migração 20261002000001
+      -- =================================================================
+      v_step := 'N. avisos push';
+      declare
+        v_ep    text := 'https://push.teste.invalid/aparelho-' || gen_random_uuid();
+        v_claim text;
+      begin
+        v_claim := format('select public.claim_push_subscription(%L, %L, %L, %L)',
+                          v_ep, repeat('k', 87), repeat('a', 22), 'teste');
+
+        v_tmp := pg_temp.run_as(null, v_claim);
+        v_res := v_res || pg_temp.r(v_tmp is not null, 'Visitante ANÔNIMO não inscreve aparelho para avisos', v_tmp);
+
+        v_tmp := pg_temp.run_as(v_ua, v_claim);
+        v_res := v_res || pg_temp.r(
+          v_tmp is null and exists (select 1 from public.push_subscriptions s where s.endpoint = v_ep and s.user_id = v_ua),
+          'Aluno inscreve o próprio aparelho para avisos', v_tmp);
+
+        select * into v_r from pg_temp.exec_as(v_ub, format('select count(*) from public.push_subscriptions where endpoint = %L', v_ep));
+        v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 0, 'Outro aluno não vê o aparelho inscrito de alguém', coalesce(v_r.err, 'visto=' || v_r.n));
+
+        select * into v_r from pg_temp.exec_as(v_p1, format('select count(*) from public.push_subscriptions where endpoint = %L', v_ep));
+        v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 0, 'Personal não vê os aparelhos dos alunos', coalesce(v_r.err, 'visto=' || v_r.n));
+
+        select * into v_r from pg_temp.exec_as(v_ub,
+          format('with d as (delete from public.push_subscriptions where endpoint = %L returning 1) select count(*) from d', v_ep));
+        v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 0, 'Outro aluno não apaga o aparelho inscrito de alguém', coalesce(v_r.err, 'apagados=' || v_r.n));
+
+        -- celular compartilhado: quem entra depois e ativa os avisos passa a ser o dono do aparelho
+        v_tmp := pg_temp.run_as(v_ub, v_claim);
+        v_res := v_res || pg_temp.r(
+          v_tmp is null
+            and exists (select 1 from public.push_subscriptions s where s.endpoint = v_ep and s.user_id = v_ub)
+            and not exists (select 1 from public.push_subscriptions s where s.endpoint = v_ep and s.user_id = v_ua),
+          'Aparelho compartilhado: avisos passam para a conta logada (a anterior deixa de receber)', v_tmp);
+
+        v_tmp := pg_temp.run_as(v_ua, format('select public.claim_push_subscription(%L, %L, %L)',
+                                             'http://inseguro.invalid/x', repeat('k', 87), repeat('a', 22)));
+        v_res := v_res || pg_temp.r(v_tmp like '%PUSH_INVALIDO%', 'Endereço de aviso sem https é recusado', v_tmp);
+
+        -- o trigger de envio nunca pode impedir o aviso dentro do app
+        begin
+          perform private.notify(v_ub, 'sistema', 'Teste de aviso', null, '{}'::jsonb, null);
+          v_ok := exists (select 1 from public.notifications n where n.user_id = v_ub and n.title = 'Teste de aviso');
+          v_tmp := null;
+        exception when others then
+          v_ok := false; v_tmp := sqlerrm;
+        end;
+        v_res := v_res || pg_temp.r(v_ok, 'Aviso dentro do app continua sendo criado com aparelho inscrito', v_tmp);
+      end;
+
       -- fim: desfaz TUDO (fixtures incluídas)
       raise exception '__rollback__';
     exception when others then

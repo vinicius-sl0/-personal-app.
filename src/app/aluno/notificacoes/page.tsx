@@ -4,6 +4,7 @@ import { loadNotifications } from "@/lib/notification-data";
 import { errorCls } from "@/lib/ui";
 import NotificationList from "@/components/notification-list";
 import { PageHeader } from "@/components/ui/page-header";
+import { PushSettings } from "@/components/pwa/push-settings";
 
 export const metadata = { title: "Notificações" };
 
@@ -14,6 +15,7 @@ export default async function NotificacoesAlunoPage() {
   return (
     <section className="space-y-4">
       <PageHeader title="Notificações" />
+      <PushSettings />
       {error ? (
         <p className={errorCls}>Não foi possível carregar os avisos: {error}</p>
       ) : (

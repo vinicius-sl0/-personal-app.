@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { BarChart3, FileText, LogOut, Palette, UserRound } from "lucide-react";
+import { BarChart3, FileText, Palette, UserRound } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { signOut } from "@/app/login/actions";
+import { SignOutButton } from "@/components/sign-out-button";
 import { loadSecondaryWeight } from "@/lib/volume-data";
 import { btnSecondaryCls } from "@/lib/ui";
 import { PageHeader } from "@/components/ui/page-header";
@@ -64,11 +64,9 @@ export default async function ConfiguracoesPage() {
         </Card>
       </div>
 
-      <form action={signOut} className="mt-6">
-        <button type="submit" className={btnSecondaryCls}>
-          <LogOut aria-hidden className="size-4" /> Sair da conta
-        </button>
-      </form>
+      <div className="mt-6">
+        <SignOutButton variant="full" />
+      </div>
     </>
   );
 }

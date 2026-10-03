@@ -1733,6 +1733,15 @@ export type Database = {
       }
     }
     Functions: {
+      claim_push_subscription: {
+        Args: {
+          p_auth: string
+          p_endpoint: string
+          p_p256dh: string
+          p_user_agent?: string
+        }
+        Returns: undefined
+      }
       log_audit: {
         Args: {
           p_action: string

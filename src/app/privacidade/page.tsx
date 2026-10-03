@@ -67,6 +67,11 @@ const sections: LegalSection[] = [
             <span className={b}>Avisos</span> do app (ex.: “nova mensagem”, “novo treino”).
           </li>
           <li>
+            <span className={b}>Avisos no celular</span> (opcional): só se você ativar. Guardamos o
+            endereço técnico que o navegador cria para o seu aparelho receber avisos e o tipo de
+            navegador. Ao desativar ou sair da conta, esse endereço é apagado.
+          </li>
+          <li>
             <span className={b}>Interessados</span> (antes de virar aluno): quem usa o formulário “Quero
             me tornar aluno” da página inicial informa nome, WhatsApp, objetivo, experiência com treino,
             quantos dias por semana pode treinar e se prefere atendimento online ou presencial. O
@@ -153,7 +158,10 @@ const sections: LegalSection[] = [
             <span className={b}>Provedores de tecnologia</span> que fazem o app funcionar e apenas
             processam os dados em nosso nome, sem poder usá-los para outros fins: Supabase (banco de
             dados, arquivos e login) e Vercel (hospedagem do site). Também o provedor de e-mail usado
-            para enviar a recuperação de senha.
+            para enviar a recuperação de senha. Se você ativar os avisos no celular, eles passam pelo
+            serviço de notificações do seu navegador ou aparelho (Google, Apple, Microsoft ou Mozilla),
+            que só entrega o aviso. O aviso mostra o tipo (ex.: “Nova mensagem”) e, no máximo, um nome;
+            nunca o texto das mensagens nem respostas sobre a sua saúde.
           </li>
           <li>
             <span className={b}>Autoridades</span>, somente quando houver obrigação legal ou ordem

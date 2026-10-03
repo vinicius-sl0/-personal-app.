@@ -38,7 +38,7 @@ supabase/
                   09 (importou a biblioteca de exercícios validada pelo Personal; NÃO reexecutar)
 src/
   lib/supabase/ → client.ts (browser), server.ts (Server Components/Actions), admin.ts
-                  (service_role, "server-only", só para o convite de alunos)
+                  (service_role, "server-only", só para o convite de alunos e o envio de push)
   lib/auth.ts   → getSession(), requireRole() — guarda de papel usada nos layouts
   lib/ui.ts     → classes Tailwind reaproveitadas (inputCls, btnPrimaryCls, btnSecondaryCls, errorCls)
   lib/workout-labels.ts → rótulos e a técnica de exercício (normal/dropset/biset/restpause)
@@ -175,20 +175,20 @@ rodar comandos locais aplica no banco.
   gravados no banco são antigos/sem acento. Abrir um aviso passa pela rota
   `/…/notificacoes/abrir/[id]` (marca como lido e redireciona) — use `<a>`, nunca `<Link>`,
   para o pré-carregamento não marcar como lido sozinho. Sem lembrete agendado de feedback
-  (precisaria de pg_cron) e sem push com o app fechado (etapa PWA).
+  (precisaria de pg_cron). Avisos com o app fechado: ver "Avisos no celular" abaixo.
 - Banco de dados completo (33 tabelas), RLS em 100% das tabelas, 08_testes_permissoes.sql com
-  150 testes (inclui os das migrações 20260923000001, 20260925000001, 20260925000002, 20260926000001 e 20260930000001) (isolamento entre alunos, entre Personal e aluno, consentimento
+  158 testes (inclui os das migrações 20260923000001, 20260925000001, 20260925000002, 20260926000001, 20260930000001 e 20261002000001) (isolamento entre alunos, entre Personal e aluno, consentimento
   controlando acesso a fotos, etc.). **Rode o 08 de novo sempre que alterar RLS ou triggers.**
 
 ## Pendentes do escopo original
 
-Imagem/áudio no chat, landing page final (conteúdo real), avisos push do PWA (parte 2). **Termos e Política** (`/termos`,
+Imagem/áudio no chat, landing page final (conteúdo real). **Termos e Política** (`/termos`,
 `/privacidade`, estrutura em `components/legal-page.tsx`) já têm texto completo escrito a partir
 do que o app faz; os dados do Personal (nome, CPF/CNPJ, CREF, e-mail, região do Supabase, prazo de
 guarda) ficam em `src/lib/legal.ts` e aparecem como "a preencher" até serem informados; a faixa
 de rascunho só some com `reviewedByLawyer: true` (revisão por advogado). Se o app passar a guardar
 outro tipo de dado (ex.: imagem/áudio no chat, push), ATUALIZE a Política e suba `CONSENT_VERSION`
-em `lib/consents.ts` (hoje `2026-09-v3`). Não há exclusão de conta pelo app: pedidos são pelo
+em `lib/consents.ts` (hoje `2026-10-v4`). Não há exclusão de conta pelo app: pedidos são pelo
 chat/e-mail (resposta em até 15 dias, prometido na Política).
 `src/types/database.types.ts` foi ajustado à mão para bater com a migração 20260923000001
 (e com `technique_detail`); regenerar com o comando oficial deve dar o mesmo resultado.
@@ -239,9 +239,24 @@ chat/e-mail (resposta em até 15 dias, prometido na Política).
   exporia dados de saúde). Mudou o `sw.js`? suba a versão em `CACHE`. Botão "Instalar o app"
   (`components/pwa/install-app.tsx` + `lib/pwa-install.ts`): no menu (ambos os papéis) e cartão
   dispensável no início do aluno; Android/Chrome/Edge abre a janela do navegador, iPhone mostra
-  instruções (Compartilhar → Adicionar à Tela de Início). Parte 2 (avisos push com o app fechado,
-  tabela `push_subscriptions` já existe) ainda não feita — exige chaves VAPID na Vercel, envio
-  disparado pelo banco e atualizar a Política + `CONSENT_VERSION`.
+  instruções (Compartilhar → Adicionar à Tela de Início).
+- **Avisos no celular (PWA parte 2, push — 2026-10-02)**: migração 20261002000001 (liga `pg_net`;
+  `public.claim_push_subscription()` grava a inscrição do aparelho e TIRA de outra conta se o mesmo
+  aparelho estava inscrito nela — celular compartilhado; trigger `notifications_push` em
+  `notifications` chama `/api/push` via `net.http_post` com só o id do aviso; erro nunca impede o
+  aviso no app). URL e senha da rota ficam no **Vault** do Supabase (`push_webhook_url`,
+  `push_webhook_secret`), gravados por `supabase/.local/10_configurar_push.sql` (pasta fora do Git).
+  `/api/push` (`app/api/push/route.ts`, senha `PUSH_WEBHOOK_SECRET`) → `lib/push.ts` com o cliente
+  ADMIN (**decisão: `admin.ts` agora também é usado no envio de push**, porque não há ninguém logado)
+  → `web-push` com chaves VAPID (`NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`; "subject" =
+  `APP_URL`, que precisa ser https — a Apple recusa localhost). A notificação leva só o título do
+  tipo + o texto curto do banco (nome), NUNCA conteúdo de mensagem/saúde; ao tocar, abre
+  `/…/notificacoes/abrir/[id]`. Inscrições recusadas (404/410) são apagadas. Tela: cartão "Avisos no
+  celular" em `/…/notificacoes` (`components/pwa/push-settings.tsx`: ativar, testar, desativar;
+  iPhone só com o app instalado). "Enviar aviso de teste" usa a sessão da pessoa (sem admin).
+  **Sair da conta desinscreve o aparelho antes** (`components/sign-out-button.tsx`, usado no menu,
+  Perfil e Configurações). Ícone da barra do Android: `public/icons/badge-96.png` (branco/transparente,
+  gerado pelo `pnpm fotos`). `CONSENT_VERSION` → `2026-10-v4` (Política fala dos avisos).
 - **Landing nova (etapa 4)**: nome em Saira larga (`[font-stretch:125%]`) sobre a foto; topo da foto em
   preto e branco/escurecido (letreiro vermelho da academia brigava com o laranja); "Como eu trabalho"
   numerado (é sequência de verdade); recursos do app em lista, não cartões. Com `draft: false`,

@@ -45,3 +45,6 @@ supabase/.temp/
 
 # Originais das fotos (podem ter GPS) — só as versões limpas em /public vão para o Git
 /material/
+
+# scripts SQL com segredos (ex.: senha dos avisos push) — só no seu computador
+/supabase/.local/

@@ -12,7 +12,6 @@ import {
   LayoutDashboard,
   Library,
   LineChart,
-  LogOut,
   Menu,
   MessageSquareText,
   MessagesSquare,
@@ -24,12 +23,12 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { signOut } from "@/app/login/actions";
 import { BRAND } from "@/lib/brand";
 import { Avatar } from "@/components/ui/avatar";
 import { MessagesDot, NotificationBell } from "@/components/notification-badges";
 import { BrandMark } from "@/components/brand-mark";
 import { InstallAppMenuButton } from "@/components/pwa/install-app";
+import { SignOutButton } from "@/components/sign-out-button";
 
 // Ícones por nome (o layout do servidor não pode passar componentes para cá).
 const ICONS = {
@@ -152,11 +151,7 @@ function SidebarContent({
             <p className="truncate text-sm font-medium">{userName}</p>
             <p className="text-xs text-muted">{roleLabel}</p>
           </div>
-          <form action={signOut}>
-            <button type="submit" aria-label="Sair" title="Sair" className="rounded-lg p-2 text-muted transition hover:bg-subtle hover:text-ink">
-              <LogOut aria-hidden className="size-4" />
-            </button>
-          </form>
+          <SignOutButton />
         </div>
       </div>
     </div>

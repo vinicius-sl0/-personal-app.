@@ -92,6 +92,31 @@ async function main() {
     }
   }
 
+  if (iconSrc) {
+    // Ícone pequeno da barra de status do Android nos avisos (push): o símbolo em BRANCO sobre
+    // fundo transparente (o Android pinta por cima; colorido vira um quadrado cinza).
+    const size = 96;
+    const inner = Math.round(size * 0.84);
+    const { data, info } = await sharp(iconSrc, { density: 300 })
+      .resize({ width: inner, height: inner, fit: "contain", background: "#ffffff" })
+      .flatten({ background: "#ffffff" })
+      .greyscale()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    const rgba = Buffer.alloc(info.width * info.height * 4);
+    for (let i = 0; i < info.width * info.height; i++) {
+      rgba.fill(255, i * 4, i * 4 + 3);
+      rgba[i * 4 + 3] = data[i * info.channels] < 200 ? 255 : 0; // tudo que não é fundo branco vira branco opaco
+    }
+    const pad = Math.round((size - inner) / 2);
+    const dest = path.join(OUT, "icons", "badge-96.png");
+    await sharp(rgba, { raw: { width: info.width, height: info.height, channels: 4 } })
+      .extend({ top: pad, bottom: size - inner - pad, left: pad, right: size - inner - pad, background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .png()
+      .toFile(dest);
+    done.push({ arquivo: path.relative(ROOT, dest), largura: size, altura: size });
+  }
+
   const resDir = path.join(IN, "resultados");
   if (fs.existsSync(resDir)) {
     for (const f of fs.readdirSync(resDir).filter((n) => PHOTO_EXT.test(n))) {

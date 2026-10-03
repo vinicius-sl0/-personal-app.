@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Camera, FileText, LogOut, UserRound } from "lucide-react";
+import { Camera, FileText, UserRound } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { signOut } from "@/app/login/actions";
+import { SignOutButton } from "@/components/sign-out-button";
 import { hasPhotoConsent } from "@/lib/photo-data";
 import { formatDate } from "@/lib/assessment";
 import { trainingDaysText } from "@/lib/attendance";
@@ -82,11 +82,7 @@ export default async function PerfilPage() {
 
         <Card>
           <CardHeader icon={<UserRound className="size-4" />} title="Sessão" description="Sair deste aparelho." />
-          <form action={signOut}>
-            <button type="submit" className={btnSecondaryCls}>
-              <LogOut aria-hidden className="size-4" /> Sair da conta
-            </button>
-          </form>
+          <SignOutButton variant="full" />
         </Card>
       </div>
     </>
