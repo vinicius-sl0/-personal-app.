@@ -695,7 +695,7 @@ export type Database = {
           id?: string
           modality: string
           notes?: string | null
-          personal_id?: string
+          personal_id: string
           privacy_version: string
           status?: string
           updated_at?: string
@@ -886,6 +886,8 @@ export type Database = {
       }
       personal_profiles: {
         Row: {
+          absence_alert_days: number
+          absence_alert_enabled: boolean
           bio: string | null
           business_name: string | null
           created_at: string
@@ -894,12 +896,12 @@ export type Database = {
           feedback_reminder_enabled: boolean
           feedback_reminder_hour: number
           profile_id: string
-          absence_alert_days: number
-          absence_alert_enabled: boolean
           secondary_muscle_weight: number
           updated_at: string
         }
         Insert: {
+          absence_alert_days?: number
+          absence_alert_enabled?: boolean
           bio?: string | null
           business_name?: string | null
           created_at?: string
@@ -908,12 +910,12 @@ export type Database = {
           feedback_reminder_enabled?: boolean
           feedback_reminder_hour?: number
           profile_id: string
-          absence_alert_days?: number
-          absence_alert_enabled?: boolean
           secondary_muscle_weight?: number
           updated_at?: string
         }
         Update: {
+          absence_alert_days?: number
+          absence_alert_enabled?: boolean
           bio?: string | null
           business_name?: string | null
           created_at?: string
@@ -922,8 +924,6 @@ export type Database = {
           feedback_reminder_enabled?: boolean
           feedback_reminder_hour?: number
           profile_id?: string
-          absence_alert_days?: number
-          absence_alert_enabled?: boolean
           secondary_muscle_weight?: number
           updated_at?: string
         }
@@ -948,9 +948,9 @@ export type Database = {
           locale: string
           phone: string | null
           role: Database["public"]["Enums"]["user_role"]
+          timezone: string
           training_reminder_enabled: boolean
           training_reminder_hour: number
-          timezone: string
           updated_at: string
         }
         Insert: {
@@ -963,9 +963,9 @@ export type Database = {
           locale?: string
           phone?: string | null
           role: Database["public"]["Enums"]["user_role"]
+          timezone?: string
           training_reminder_enabled?: boolean
           training_reminder_hour?: number
-          timezone?: string
           updated_at?: string
         }
         Update: {
@@ -978,9 +978,9 @@ export type Database = {
           locale?: string
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          timezone?: string
           training_reminder_enabled?: boolean
           training_reminder_hour?: number
-          timezone?: string
           updated_at?: string
         }
         Relationships: []
@@ -1778,7 +1778,6 @@ export type Database = {
       }
     }
     Enums: {
-      exercise_technique: "normal" | "dropset" | "biset" | "restpause"
       consent_type:
         | "termos_uso"
         | "politica_privacidade"
@@ -1787,6 +1786,7 @@ export type Database = {
         | "responsavel_legal"
         | "uso_imagem_marketing"
       difficulty_level: "iniciante" | "intermediario" | "avancado"
+      exercise_technique: "normal" | "dropset" | "biset" | "restpause"
       media_kind: "video" | "imagem"
       media_source: "upload" | "youtube" | "vimeo" | "stream" | "externo"
       message_type: "texto" | "imagem" | "audio" | "sistema"
@@ -1947,7 +1947,6 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      exercise_technique: ["normal", "dropset", "biset", "restpause"],
       consent_type: [
         "termos_uso",
         "politica_privacidade",
@@ -1957,6 +1956,7 @@ export const Constants = {
         "uso_imagem_marketing",
       ],
       difficulty_level: ["iniciante", "intermediario", "avancado"],
+      exercise_technique: ["normal", "dropset", "biset", "restpause"],
       media_kind: ["video", "imagem"],
       media_source: ["upload", "youtube", "vimeo", "stream", "externo"],
       message_type: ["texto", "imagem", "audio", "sistema"],

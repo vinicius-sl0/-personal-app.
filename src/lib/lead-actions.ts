@@ -6,6 +6,9 @@ import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { CONSENT_VERSION } from "@/lib/consents";
 import { LEAD_STATUSES, leadSchema, type LeadInput } from "@/lib/leads";
+import type { Database } from "@/types/database.types";
+
+type LeadInsert = Database["public"]["Tables"]["leads"]["Insert"];
 
 type Result = { ok?: boolean; error?: string; repeated?: boolean };
 
@@ -19,9 +22,10 @@ export async function submitLead(input: LeadInput, website?: string): Promise<Re
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Confira as respostas." };
   const l = parsed.data;
 
-  const supabase = await createClient();
-  // Sem .select() depois do insert: o visitante não tem permissão de LER a tabela.
-  const { error } = await supabase.from("leads").insert({
+  // personal_id NÃO vai daqui, de propósito: o visitante não tem permissão nessa coluna e o
+  // trigger leads_before_insert preenche com o Personal do sistema. O tipo gerado pelo Supabase
+  // pede o campo (ele é obrigatório na tabela), por isso a conversão de tipo no insert.
+  const row = {
     full_name: l.fullName,
     whatsapp: l.whatsapp,
     goal: l.goal,
@@ -29,7 +33,11 @@ export async function submitLead(input: LeadInput, website?: string): Promise<Re
     days_per_week: l.daysPerWeek,
     modality: l.modality,
     privacy_version: CONSENT_VERSION,
-  });
+  } satisfies Omit<LeadInsert, "personal_id">;
+
+  const supabase = await createClient();
+  // Sem .select() depois do insert: o visitante não tem permissão de LER a tabela.
+  const { error } = await supabase.from("leads").insert(row as LeadInsert);
 
   if (error) {
     if (error.message.includes("LEAD_REPETIDO")) return { ok: true, repeated: true };

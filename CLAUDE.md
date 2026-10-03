@@ -222,8 +222,10 @@ de rascunho só some com `reviewedByLawyer: true` (revisão por advogado). Se o 
 outro tipo de dado (ex.: imagem/áudio no chat, push), ATUALIZE a Política e suba `CONSENT_VERSION`
 em `lib/consents.ts` (hoje `2026-10-v5`). Não há exclusão de conta pelo app: pedidos são pelo
 chat/e-mail (resposta em até 15 dias, prometido na Política).
-`src/types/database.types.ts` foi ajustado à mão para bater com a migração 20260923000001
-(e com `technique_detail`); regenerar com o comando oficial deve dar o mesmo resultado.
+`src/types/database.types.ts` é o arquivo OFICIAL gerado pelo Supabase (regenerado em 2026-10-03,
+depois da migração 20261003000003). Única diferença em relação ao que se escrevia à mão:
+`leads.Insert.personal_id` é obrigatório no tipo, mas o formulário público NÃO o envia (o trigger
+preenche; o visitante nem tem permissão na coluna) — por isso a conversão de tipo em `lead-actions.ts`.
 
 
 ## Convenções ao gerar código
@@ -360,7 +362,9 @@ chat/e-mail (resposta em até 15 dias, prometido na Política).
 - Ao adicionar coluna/tabela nova, gere uma migração numerada (`YYYYMMDDNNNNNN_nome.sql`) em
   vez de pedir para editar tabelas direto pelo painel do Supabase.
 - Depois de qualquer mudança de schema, lembre a pessoa de rodar
-  `pnpm exec supabase gen types typescript --project-id <id> --schema public > src/types/database.types.ts`.
+  `pnpm exec supabase gen types typescript --project-id higslvtcdxvbcdjvbqdf --schema public > src/types/database.types.ts`
+  (o id é a parte inicial do NEXT_PUBLIC_SUPABASE_URL; não é segredo). Gere primeiro num arquivo
+  temporário e compare com `diff` antes de substituir.
 - Nunca coloque a chave `service_role`/`secret` em variável com prefixo `NEXT_PUBLIC_`, nem em
   código que rode no navegador. Ela só é usada via `lib/supabase/admin.ts` ("server-only").
 - `.env.local` nunca vai para o Git — confirme com `git status` antes de qualquer commit.
