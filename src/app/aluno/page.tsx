@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { InstallAppCard } from "@/components/pwa/install-app";
 import {
   ArrowRight,
   CalendarCheck,
@@ -122,6 +123,10 @@ export default async function AlunoHome() {
   return (
     <>
       <PageHeader eyebrow={dateLabel} title={`${greeting}, ${profile.full_name.split(" ")[0]}!`} />
+
+      <div className="mb-6 empty:hidden">
+        <InstallAppCard />
+      </div>
 
       {/* TREINO DE HOJE */}
       <section

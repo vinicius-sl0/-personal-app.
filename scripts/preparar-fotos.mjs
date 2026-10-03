@@ -6,8 +6,9 @@
 //
 //   material/personal.jpg              → public/landing/personal.webp   (foto principal)
 //   material/logo.png  (ou .svg)       → public/logo.png / logo.svg (logo completo)
-//   material/logo-icone.png (opcional) → public/logo-icone.png + ícones do app (símbolo quadrado;
-//                                        sem ele, os ícones usam o logo completo)
+//   material/logo-icone.png (opcional) → public/logo-icone.png + ícones do app (src/app/icon.png,
+//                                        apple-icon.png e public/icons/ do app instalável); sem
+//                                        ele, os ícones usam o logo completo
 //   material/resultados/nome-antes.jpg → public/landing/resultados/nome-antes.webp
 //   material/resultados/nome-depois.jpg
 //
@@ -68,9 +69,19 @@ async function main() {
   if (iconSrc) {
     // Ícones do app (aba do navegador e tela inicial do celular): símbolo centralizado em quadrado
     // branco (o logo foi desenhado para fundo claro).
-    for (const [name, size] of [["icon.png", 512], ["apple-icon.png", 180]]) {
-      const dest = path.join(ROOT, "src", "app", name);
-      const pad = Math.round(size * 0.08);
+    // App instalável (PWA, src/app/manifest.ts): public/icons/. O "maskable" tem margem maior porque
+    // o Android recorta o ícone em círculo/gota — o símbolo precisa caber no miolo de 80%.
+    const icons = [
+      [path.join("src", "app", "icon.png"), 512, 0.08],
+      [path.join("src", "app", "apple-icon.png"), 180, 0.08],
+      [path.join("public", "icons", "icon-192.png"), 192, 0.08],
+      [path.join("public", "icons", "icon-512.png"), 512, 0.08],
+      [path.join("public", "icons", "icon-maskable-512.png"), 512, 0.2],
+    ];
+    for (const [file, size, padRatio] of icons) {
+      const dest = path.join(ROOT, file);
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      const pad = Math.round(size * padRatio);
       await sharp(iconSrc, { density: 300 })
         .resize({ width: size - pad * 2, height: size - pad * 2, fit: "contain", background: "#ffffff" })
         .extend({ top: pad, bottom: pad, left: pad, right: pad, background: "#ffffff" })

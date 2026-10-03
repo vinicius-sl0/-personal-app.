@@ -29,6 +29,7 @@ import { BRAND } from "@/lib/brand";
 import { Avatar } from "@/components/ui/avatar";
 import { MessagesDot, NotificationBell } from "@/components/notification-badges";
 import { BrandMark } from "@/components/brand-mark";
+import { InstallAppMenuButton } from "@/components/pwa/install-app";
 
 // Ícones por nome (o layout do servidor não pode passar componentes para cá).
 const ICONS = {
@@ -144,6 +145,7 @@ function SidebarContent({
       </div>
 
       <div className="border-t border-line p-3">
+        <InstallAppMenuButton />
         <div className="flex items-center gap-3 rounded-xl px-2 py-2">
           <Avatar name={userName} size="sm" />
           <div className="min-w-0 flex-1">

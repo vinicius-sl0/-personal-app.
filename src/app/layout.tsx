@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Barlow, Geist_Mono, Saira } from "next/font/google";
 import "./globals.css";
 import { BRAND } from "@/lib/brand";
 import { ToastProvider } from "@/components/ui/toast";
+import PwaRegister from "@/components/pwa/pwa-register";
 
 // Tipografia da marca: Saira (larga e esportiva, ecoa o "MARILIA FERREIRA" do logo) em títulos e
 // números grandes; Barlow nos textos. A Saira é variável também na largura (eixo wdth), usada
@@ -28,6 +29,16 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: { default: BRAND.name, template: `%s · ${BRAND.name}` },
   description: BRAND.tagline,
+  // App instalável no iPhone (o manifesto em src/app/manifest.ts cobre Android e computador).
+  appleWebApp: { capable: true, title: BRAND.name.split(" ")[0], statusBarStyle: "default" },
+};
+
+// Cor da barra do navegador/sistema, acompanhando o tema do aparelho (tokens --surface).
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f6f7" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0b" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -38,6 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <ToastProvider>{children}</ToastProvider>
+        <PwaRegister />
       </body>
     </html>
   );

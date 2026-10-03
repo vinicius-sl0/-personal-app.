@@ -182,7 +182,7 @@ rodar comandos locais aplica no banco.
 
 ## Pendentes do escopo original
 
-Imagem/áudio no chat, landing page final, PWA/offline. **Termos e Política** (`/termos`,
+Imagem/áudio no chat, landing page final (conteúdo real), avisos push do PWA (parte 2). **Termos e Política** (`/termos`,
 `/privacidade`, estrutura em `components/legal-page.tsx`) já têm texto completo escrito a partir
 do que o app faz; os dados do Personal (nome, CPF/CNPJ, CREF, e-mail, região do Supabase, prazo de
 guarda) ficam em `src/lib/legal.ts` e aparecem como "a preencher" até serem informados; a faixa
@@ -230,6 +230,18 @@ chat/e-mail (resposta em até 15 dias, prometido na Política).
   rótulos em MAIÚSCULAS acima de títulos, setas → em botões. Build local: o PC tem 3,4 GB de RAM
   e o `next build` pode estourar memória na fase paralela — rode com `experimental: { cpus: 1 }`
   temporário no next.config (não commitar; a Vercel não precisa).
+- **App instalável (PWA, parte 1 — 2026-10-02)**: `src/app/manifest.ts` (abre em `/login`, que leva
+  quem já entrou ao painel), ícones em `public/icons/` gerados pelo `pnpm fotos` (o "maskable" tem
+  margem de 20% para o recorte do Android), `appleWebApp` + `viewport.themeColor` no `layout.tsx`.
+  `public/sw.js` (registrado por `components/pwa/pwa-register.tsx`, SÓ em produção) faz uma coisa:
+  sem internet, abrir página mostra `public/offline.html` (HTML com estilo embutido). **Decisão: o
+  service worker NÃO guarda páginas nem dados de alunos no aparelho** (celular compartilhado
+  exporia dados de saúde). Mudou o `sw.js`? suba a versão em `CACHE`. Botão "Instalar o app"
+  (`components/pwa/install-app.tsx` + `lib/pwa-install.ts`): no menu (ambos os papéis) e cartão
+  dispensável no início do aluno; Android/Chrome/Edge abre a janela do navegador, iPhone mostra
+  instruções (Compartilhar → Adicionar à Tela de Início). Parte 2 (avisos push com o app fechado,
+  tabela `push_subscriptions` já existe) ainda não feita — exige chaves VAPID na Vercel, envio
+  disparado pelo banco e atualizar a Política + `CONSENT_VERSION`.
 - **Landing nova (etapa 4)**: nome em Saira larga (`[font-stretch:125%]`) sobre a foto; topo da foto em
   preto e branco/escurecido (letreiro vermelho da academia brigava com o laranja); "Como eu trabalho"
   numerado (é sequência de verdade); recursos do app em lista, não cartões. Com `draft: false`,
