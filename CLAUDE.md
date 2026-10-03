@@ -291,10 +291,29 @@ preenche; o visitante nem tem permissão na coluna) — por isso a conversão de
   **Sair da conta desinscreve o aparelho antes** (`components/sign-out-button.tsx`, usado no menu,
   Perfil e Configurações). Ícone da barra do Android: `public/icons/badge-96.png` (branco/transparente,
   gerado pelo `pnpm fotos`). `CONSENT_VERSION` → `2026-10-v4` (Política fala dos avisos).
-- **Landing nova (etapa 4)**: nome em Saira larga (`[font-stretch:125%]`) sobre a foto; topo da foto em
-  preto e branco/escurecido (letreiro vermelho da academia brigava com o laranja); "Como eu trabalho"
-  numerado (é sequência de verdade); recursos do app em lista, não cartões. Com `draft: false`,
-  resultados/depoimentos `example: true` SOMEM da página (nunca publicar exemplo por engano).
+- **Landing — apresentação de venda (2026-10-03, inspirada em icarolermen.com.br/consultoria; só a
+  estrutura, não o visual nem os conteúdos)**: página pública SEMPRE escura (`theme-dark` no invólucro
+  de `page.tsx`; o resto do app segue o tema do aparelho). Ordem: topo (`components/landing/landing-header.tsx`,
+  client: transparente sobre a foto, fundo ao rolar, "Quero ser aluno" + "Entrar", menu do celular com
+  Esc) → primeira tela (foto de fundo; no celular fica em cima com o rosto livre, texto a partir de
+  `pt-[46svh]`; nome em Saira larga `[font-stretch:125%]`; topo da foto em preto e branco/escurecido
+  por causa do letreiro vermelho da academia; faixa de números de `about.stats`) → Sobre mim (história
+  + frase + cartão de credenciais) → "Como eu trabalho" (cartões alternando laranja/preto, ícones em
+  `STEP_ICONS` por posição) → Resultados (`results-carousel.tsx`: passa sozinho a cada 4,5 s e volta
+  ao início; pausa com mouse/toque/foco por 8 s, fora da tela e com botão Pausar; 2 por vez no
+  computador; setas/pontinhos só se há cartão fora da tela; parado com "reduzir movimento") → "O que
+  você recebe" (`benefits`) → Depoimentos → Perguntas frequentes (`components/landing/faq.tsx`,
+  `<details>`; SÓ respostas verdadeiras sobre o funcionamento — sem preço/planos até o Personal
+  responder) → chamada final em faixa laranja (`#contato`) → rodapé. Botão "Quero me tornar aluno"
+  repetido (`CtaBand`), sempre para `/quero-ser-aluno`; "Entrar"/"Já sou aluno" → `/login`. Âncoras
+  `#sobre #resultados #no-app #depoimentos #duvidas #contato` não mudam (links divulgados). Entrada
+  das seções: `components/landing/reveal.tsx` (servidor manda visível; só esconde o que está fora da
+  tela depois de carregar; nada com "reduzir movimento"). Arquivos SÓ da landing — não mexer em
+  `brand-mark.tsx`, `social-icons.tsx`, `globals.css`, `ui.ts` por causa dela (são compartilhados).
+  Com `draft: false`, resultados/depoimentos `example: true` SOMEM da página (nunca publicar exemplo
+  por engano). Fotos de tela de celular de verdade: Edge com `--remote-debugging-port` +
+  `Emulation.setDeviceMetricsOverride` (390×844) e `captureBeyondViewport` — iframe alto distorce
+  o que usa `svh`.
 - **"Quero me tornar aluno" (etapa 5)**: botão na landing → `/quero-ser-aluno` (público, uma pergunta
   por tela: objetivo, experiência, dias/semana, presencial/online, nome+WhatsApp+aceite da Política) →
   grava em `leads` (migração 20260930000001; visitante anônimo só INSERE colunas das respostas; trigger
@@ -308,7 +327,7 @@ preenche; o visitante nem tem permissão na coluna) — por isso a conversão de
   `src/lib/landing-content.ts`. Itens com `example: true` aparecem com a etiqueta "Exemplo" e
   `draft: true` mostra faixa de "página em construção". NUNCA publicar resultados/depoimentos
   inventados; fotos de alunos só com consentimento `uso_imagem_marketing`. Contatos null = botão
-  não aparece. Carrossel em `components/landing/results-carousel.tsx`.
+  não aparece. Estrutura e componentes da página: ver "Landing — apresentação de venda" acima.
 - **Dashboards (Fase 2)**: `personal/page.tsx` (6 indicadores, gráfico de treinos concluídos
   por dia em 28 dias, "Precisa da sua atenção", situação da semana por aluno, treinos e
   avaliações recentes) e `aluno/page.tsx` (treino de hoje/próximo na sequência A→B→C com
