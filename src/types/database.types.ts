@@ -1481,6 +1481,7 @@ export type Database = {
           reps_text: string | null
           rest_seconds: number | null
           rpe_target: number | null
+          set_notes: string[] | null
           sets: number
           superset_group: number | null
           target_load_kg: number | null
@@ -1501,6 +1502,7 @@ export type Database = {
           reps_text?: string | null
           rest_seconds?: number | null
           rpe_target?: number | null
+          set_notes?: string[] | null
           sets?: number
           superset_group?: number | null
           target_load_kg?: number | null
@@ -1521,6 +1523,7 @@ export type Database = {
           reps_text?: string | null
           rest_seconds?: number | null
           rpe_target?: number | null
+          set_notes?: string[] | null
           sets?: number
           superset_group?: number | null
           target_load_kg?: number | null

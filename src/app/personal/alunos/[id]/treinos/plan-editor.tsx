@@ -41,6 +41,7 @@ function emptyExercise(exercise_id: string): EditorExercise {
     technique: "normal",
     technique_detail: null,
     notes: null,
+    set_notes: null,
   };
 }
 

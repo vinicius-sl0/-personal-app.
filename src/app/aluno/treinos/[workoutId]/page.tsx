@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SetNoteButton, setNoteAt } from "@/components/set-note";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { loadExerciseImages } from "@/lib/exercise-image-data";
@@ -21,7 +22,7 @@ export default async function TreinoDetalhePage({
   const { data: workout } = await supabase
     .from("workouts")
     .select(
-      "id, name, notes, workout_exercises(id, sets, reps_min, reps_max, reps_text, target_load_kg, rest_seconds, technique, technique_detail, notes, position, exercises(id, name, instructions))",
+      "id, name, notes, workout_exercises(id, sets, reps_min, reps_max, reps_text, target_load_kg, rest_seconds, technique, technique_detail, notes, set_notes, position, exercises(id, name, instructions))",
     )
     .eq("id", workoutId)
     .maybeSingle();
@@ -88,6 +89,19 @@ export default async function TreinoDetalhePage({
                     </p>
                   )}
                   {we.notes && <p className="mt-2 text-xs text-soft">Obs.: {we.notes}</p>}
+                  {/* Séries com observação do Personal: toque no ícone para ler */}
+                  {(we.set_notes ?? []).some((n) => n.trim()) && (
+                    <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Séries com observação">
+                      {(we.set_notes ?? []).map((n, si) =>
+                        setNoteAt(we.set_notes, si) ? (
+                          <li key={si} className="flex items-center gap-0.5 rounded-lg bg-subtle pl-2 text-xs">
+                            <span className="text-muted">Série</span> <strong>{si + 1}</strong>
+                            <SetNoteButton note={setNoteAt(we.set_notes, si)!} setNumber={si + 1} />
+                          </li>
+                        ) : null,
+                      )}
+                    </ul>
+                  )}
                 </div>
               </div>
             </li>

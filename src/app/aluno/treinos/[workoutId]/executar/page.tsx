@@ -17,7 +17,7 @@ export default async function ExecutarTreinoPage({
   const { data: workout } = await supabase
     .from("workouts")
     .select(
-      "id, name, workout_exercises(id, exercise_id, sets, reps_min, reps_max, reps_text, target_load_kg, rest_seconds, technique, technique_detail, notes, position, exercises(id, name, instructions, exercise_media(url, position)))",
+      "id, name, workout_exercises(id, exercise_id, sets, reps_min, reps_max, reps_text, target_load_kg, rest_seconds, technique, technique_detail, notes, set_notes, position, exercises(id, name, instructions, exercise_media(url, position)))",
     )
     .eq("id", workoutId)
     .maybeSingle();
@@ -45,6 +45,7 @@ export default async function ExecutarTreinoPage({
         technique: we.technique as Technique,
         technique_detail: we.technique_detail,
         notes: we.notes,
+        set_notes: we.set_notes,
       };
     });
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { SetNoteButton, setNoteAt } from "@/components/set-note";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ExerciseVideo from "@/components/exercise-video";
@@ -26,6 +27,7 @@ export type ExecExercise = {
   technique: Technique;
   technique_detail: string | null;
   notes: string | null;
+  set_notes: string[] | null; // observação de cada série (posição 0 = série 1)
 };
 
 // Colunas da ficha do exercício no computador, conforme quantas informações existem.
@@ -170,6 +172,8 @@ export default function ExecuteWorkout({
   const exercise = exercises[current];
   const sets = setsByExercise[exercise.workout_exercise_id];
   const explanation = techniqueExplanation(exercise.technique, exercise.technique_detail);
+  const hasSetNotes = (exercise.set_notes ?? []).some((n) => n.trim());
+  const setCols = hasSetNotes ? "grid-cols-[2.25rem_2rem_1fr_1fr_auto]" : "grid-cols-[2.25rem_1fr_1fr_auto]";
   // Ficha do exercício: sempre séries e repetições; carga e descanso só quando a Personal definiu.
   const meta: { label: string; value: React.ReactNode; unit?: string }[] = [
     { label: "Séries", value: exercise.sets },
@@ -451,10 +455,11 @@ export default function ExecuteWorkout({
           </details>
         )}
 
-        {/* Séries */}
+        {/* Séries (com a coluna do ícone de observação só quando alguma série tem observação) */}
         <div className="space-y-2">
-          <div className="grid grid-cols-[2.25rem_1fr_1fr_auto] items-center gap-2 px-1 text-xs font-medium text-muted">
+          <div className={`grid ${setCols} items-center gap-2 px-1 text-xs font-medium text-muted`}>
             <span>Série</span>
+            {hasSetNotes && <span className="sr-only">Observação</span>}
             <span>Reps</span>
             <span>Carga (kg)</span>
             <span className="sr-only">Ação</span>
@@ -462,13 +467,19 @@ export default function ExecuteWorkout({
           {sets.map((s, i) => (
             <div key={i} className="space-y-1">
               <div
-                className={`grid grid-cols-[2.25rem_1fr_1fr_auto] items-center gap-2 rounded-2xl border p-2 transition ${
+                className={`grid ${setCols} items-center gap-2 rounded-2xl border p-2 transition ${
                   s.done ? "border-emerald-500/40 bg-emerald-500/10" : "border-line bg-card"
                 }`}
               >
                 <span className={`grid size-9 place-items-center rounded-xl text-sm font-bold ${s.done ? "bg-emerald-600 text-white" : "bg-subtle-strong text-soft"}`}>
                   {s.done ? <Check aria-hidden className="size-4" /> : i + 1}
                 </span>
+                {hasSetNotes &&
+                  (setNoteAt(exercise.set_notes, i) ? (
+                    <SetNoteButton note={setNoteAt(exercise.set_notes, i)!} setNumber={i + 1} />
+                  ) : (
+                    <span aria-hidden />
+                  ))}
                 <input
                   type="number"
                   inputMode="numeric"

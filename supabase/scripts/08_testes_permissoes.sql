@@ -1195,6 +1195,40 @@
         v_res := v_res || pg_temp.r(v_n = 0, 'Aviso de faltas: treinou ontem, não há sequência de faltas', 'avisos=' || v_n);
       end;
 
+      -- =================================================================
+      -- R. OBSERVAÇÃO POR SÉRIE — migração 20261012000001
+      -- =================================================================
+      v_step := 'R. observacao por serie';
+      update public.workout_exercises set sets = 3, set_notes = null where id = v_wea1;
+
+      select * into v_r from pg_temp.exec_as(v_p1, format(
+        $q$with u as (update public.workout_exercises set set_notes = '{"Aquecimento, carga leve","","Até a falha"}' where id = %L returning 1) select count(*) from u$q$, v_wea1));
+      v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Série: Personal grava observações por série', coalesce(v_r.err, 'alterados=' || v_r.n));
+
+      select * into v_r from pg_temp.exec_as(v_ua, format(
+        $q$select count(*) from public.workout_exercises where id = %L and set_notes[1] = 'Aquecimento, carga leve' and set_notes[3] = 'Até a falha'$q$, v_wea1));
+      v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Série: aluno lê as observações da própria ficha', coalesce(v_r.err, 'visto=' || v_r.n));
+
+      select * into v_r from pg_temp.exec_as(v_ua, format(
+        $q$with u as (update public.workout_exercises set set_notes = '{"mudei"}' where id = %L returning 1) select count(*) from u$q$, v_wea1));
+      v_res := v_res || pg_temp.r(v_r.err is not null or v_r.n = 0, 'Série: aluno NÃO altera as observações', coalesce(v_r.err, 'alterados=' || v_r.n));
+
+      select * into v_r from pg_temp.exec_as(v_ub, format(
+        $q$select count(*) from public.workout_exercises where id = %L$q$, v_wea1));
+      v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 0, 'Série: outro aluno não vê a ficha (nem as observações)', coalesce(v_r.err, 'visto=' || v_r.n));
+
+      v_tmp := pg_temp.run_as(v_p1, format(
+        $q$update public.workout_exercises set set_notes = '{"a","b","c","d"}' where id = %L$q$, v_wea1));
+      v_res := v_res || pg_temp.r(v_tmp is not null, 'Série: mais observações do que séries é recusado', v_tmp);
+
+      v_tmp := pg_temp.run_as(v_p1, format(
+        $q$update public.workout_exercises set set_notes = array[repeat('x', 301)] where id = %L$q$, v_wea1));
+      v_res := v_res || pg_temp.r(v_tmp is not null, 'Série: observação com mais de 300 caracteres é recusada', v_tmp);
+
+      select * into v_r from pg_temp.exec_as(v_p1, format(
+        $q$with u as (update public.workout_exercises set set_notes = null where id = %L returning 1) select count(*) from u$q$, v_wea1));
+      v_res := v_res || pg_temp.r(v_r.err is null and v_r.n = 1, 'Série: Personal remove todas as observações', coalesce(v_r.err, 'alterados=' || v_r.n));
+
       -- fim: desfaz TUDO (fixtures incluídas)
       raise exception '__rollback__';
     exception when others then

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { planSchema } from "./schema";
+import { cleanSetNotes, planSchema } from "./schema";
 
 export type PlanFormState = { error?: string };
 
@@ -85,6 +85,7 @@ async function savePlan(
       technique: ex.technique,
       technique_detail: ex.technique_detail,
       notes: ex.notes,
+      set_notes: cleanSetNotes(ex.set_notes, ex.sets),
     }));
     const { error: eErr } = await supabase.from("workout_exercises").insert(rows);
     if (eErr) return { error: "Não foi possível salvar os exercícios: " + eErr.message };

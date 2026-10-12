@@ -111,6 +111,15 @@ rodar comandos locais aplica no banco.
 - Editor de ficha por aluno: múltiplos treinos, exercícios com séries/reps(min-max ou
   texto)/carga/descanso/técnica, salvar rascunho ou publicar (publicar encerra a ficha ativa
   anterior automaticamente — regra no banco, trigger `plans_before_write`).
+- **Observação por série (2026-10-12, migração 20261012000001)**: `workout_exercises.set_notes text[]`
+  (posição 1 = série 1; texto vazio = série sem observação; NULL = nenhuma). CHECK: no máximo uma
+  por série (`cardinality <= sets`) e até 300 caracteres (`private.set_notes_ok`). Mesmas permissões
+  da linha (só o Personal escreve; aluno lê a própria ficha). Editor: "Observações por série" em
+  `treinos/exercise-card.tsx` (diminuir séries corta as observações das séries removidas);
+  `cleanSetNotes()` em `schema.ts` limpa antes de gravar. Aluno: ícone `components/set-note.tsx`
+  (`SetNoteButton`: abre abaixo, fecha ao tocar de novo/fora/Esc, vira para dentro perto da borda)
+  só nas séries com observação — na execução (coluna extra só se o exercício tem alguma) e no
+  detalhe do treino ("Série N 💬").
 - Execução do treino pelo aluno: um exercício por vez, vídeo, instruções, explicação da
   técnica, registro de série (reps/carga) com confirmação real no banco, cronômetro de
   descanso, histórico. Tela de **check-in** antes do treino e botão **Finalizar treino /
@@ -209,7 +218,7 @@ rodar comandos locais aplica no banco.
   para o pré-carregamento não marcar como lido sozinho. Lembrete agendado de feedback
   (agora existe: ver Feedback semanal). Avisos com o app fechado: ver "Avisos no celular" abaixo.
 - Banco de dados completo (33 tabelas), RLS em 100% das tabelas, 08_testes_permissoes.sql com
-  190 testes (inclui os das migrações 20260923000001, 20260925000001, 20260925000002, 20260926000001, 20260930000001, 20261002000001, 20261003000001, 20261003000002 e 20261003000003; se a trava de exclusão do Storage não puder ser liberada, são 188) (isolamento entre alunos, entre Personal e aluno, consentimento
+  197 testes (inclui os das migrações 20260923000001, 20260925000001, 20260925000002, 20260926000001, 20260930000001, 20261002000001, 20261003000001, 20261003000002, 20261003000003 e 20261012000001; se a trava de exclusão do Storage não puder ser liberada, são 195) (isolamento entre alunos, entre Personal e aluno, consentimento
   controlando acesso a fotos, etc.). **Rode o 08 de novo sempre que alterar RLS ou triggers.**
 
 ## Pendentes do escopo original

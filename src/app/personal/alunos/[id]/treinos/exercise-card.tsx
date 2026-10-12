@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ArrowDown, ArrowUp, ChevronDown, GripVertical, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, GripVertical, MessageSquareText, Trash2, X } from "lucide-react";
 import type { ExerciseOption } from "@/components/exercise-picker";
 import { inputCls } from "@/lib/ui";
 import { repsLabel, TECHNIQUE_DETAIL_FIELD, TECHNIQUE_LABEL, techniqueExplanation, type Technique } from "@/lib/workout-labels";
@@ -40,10 +41,29 @@ export default function ExerciseCard({
   const detailField = TECHNIQUE_DETAIL_FIELD[item.technique];
   const explanation = techniqueExplanation(item.technique, item.technique_detail);
   const name = info?.name ?? "Exercício";
+  const setNotes = item.set_notes ?? [];
+  const setNoteCount = setNotes.slice(0, item.sets).filter((n) => n.trim()).length;
+  // Começa aberta se já houver observação; depois só abre/fecha pelo toque (não fecha sozinha
+  // quando a última observação é apagada).
+  const [setNotesOpen] = useState(setNoteCount > 0);
+
+  // Observação de uma série (posição 0 = série 1). A lista acompanha o número de séries.
+  function changeSetNote(i: number, text: string) {
+    const next = Array.from({ length: item.sets }, (_, k) => setNotes[k] ?? "");
+    next[i] = text;
+    onChange({ set_notes: next.some((n) => n.trim()) ? next : null });
+  }
+
+  // Menos séries: as observações das séries removidas saem junto.
+  function changeSets(n: number) {
+    const trimmed = setNotes.slice(0, Math.max(n, 0));
+    onChange({ sets: n, set_notes: trimmed.some((t) => t.trim()) ? trimmed : null });
+  }
   const summary = [
     `${item.sets}× ${repsLabel(item.reps_min, item.reps_max, item.reps_text)}`,
     item.target_load_kg ? `${item.target_load_kg} kg` : null,
     item.rest_seconds ? `${item.rest_seconds}s descanso` : null,
+    setNoteCount ? `${setNoteCount} ${setNoteCount === 1 ? "obs. de série" : "obs. de séries"}` : null,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -96,7 +116,7 @@ export default function ExerciseCard({
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
             <label className="space-y-1 text-xs text-muted">
               Séries
-              <input type="number" inputMode="numeric" min={1} max={50} value={item.sets} onChange={(e) => onChange({ sets: Number(e.target.value) })} className={fieldCls} />
+              <input type="number" inputMode="numeric" min={1} max={50} value={item.sets} onChange={(e) => changeSets(Number(e.target.value))} className={fieldCls} />
             </label>
             <label className="space-y-1 text-xs text-muted">
               Reps. mín.
@@ -150,6 +170,47 @@ export default function ExerciseCard({
             Observação (opcional)
             <input value={item.notes ?? ""} onChange={(e) => onChange({ notes: e.target.value || null })} placeholder="Ex.: cadência lenta na descida" className={fieldCls} />
           </label>
+
+          {/* Observação individual de cada série: o aluno vê um ícone ao lado da série que tiver. */}
+          <details open={setNotesOpen} className="group rounded-xl border border-line">
+            <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2.5 text-xs font-medium text-soft [&::-webkit-details-marker]:hidden">
+              <MessageSquareText aria-hidden className="size-4 text-brand-ink" />
+              Observações por série (opcional)
+              {setNoteCount > 0 && <Badge tone="brand">{setNoteCount}</Badge>}
+              <ChevronDown aria-hidden className="ml-auto size-4 transition group-open:rotate-180" />
+            </summary>
+            <div className="space-y-2 border-t border-line p-3">
+              <p className="text-xs text-muted">
+                Ex.: &quot;série de aquecimento, carga leve&quot; ou &quot;última série até a falha&quot;. Só as séries com
+                observação mostram o ícone para o aluno.
+              </p>
+              {Array.from({ length: Math.min(item.sets, 50) }, (_, i) => {
+                const value = setNotes[i] ?? "";
+                return (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="w-14 shrink-0 text-xs font-medium text-soft">Série {i + 1}</span>
+                    <input
+                      value={value}
+                      maxLength={300}
+                      onChange={(e) => changeSetNote(i, e.target.value)}
+                      aria-label={`Observação da série ${i + 1}`}
+                      placeholder="Sem observação"
+                      className={`${fieldCls} flex-1`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => changeSetNote(i, "")}
+                      disabled={!value}
+                      aria-label={`Remover a observação da série ${i + 1}`}
+                      className="grid size-9 shrink-0 place-items-center rounded-lg text-muted hover:bg-subtle hover:text-ink disabled:invisible"
+                    >
+                      <X aria-hidden className="size-4" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </details>
 
           {explanation && (
             <p className="rounded-xl bg-brand-soft px-3 py-2 text-xs text-ink">

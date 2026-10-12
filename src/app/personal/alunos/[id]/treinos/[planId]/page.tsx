@@ -41,7 +41,7 @@ export default async function FichaPage({
   const { data: workouts } = await supabase
     .from("workouts")
     .select(
-      "id, name, notes, position, workout_exercises(id, exercise_id, position, sets, reps_min, reps_max, reps_text, target_load_kg, rest_seconds, technique, technique_detail, notes)",
+      "id, name, notes, position, workout_exercises(id, exercise_id, position, sets, reps_min, reps_max, reps_text, target_load_kg, rest_seconds, technique, technique_detail, notes, set_notes)",
     )
     .eq("plan_id", planId)
     .order("position");
@@ -82,6 +82,7 @@ export default async function FichaPage({
             technique: we.technique as "normal" | "dropset" | "biset" | "restpause",
             technique_detail: we.technique_detail,
             notes: we.notes,
+            set_notes: we.set_notes,
           })),
       })),
   };

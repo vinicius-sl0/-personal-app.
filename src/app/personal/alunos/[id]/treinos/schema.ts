@@ -15,6 +15,8 @@ export const exerciseItemSchema = z
     technique: techniqueEnum,
     technique_detail: z.string().trim().max(300).nullable(),
     notes: z.string().trim().max(500).nullable(),
+    // Observação de cada série (posição 0 = série 1). Texto vazio = série sem observação.
+    set_notes: z.array(z.string().trim().max(300, "Cada observação de série pode ter até 300 caracteres.")).max(50).nullable().default(null),
   })
   .refine((v) => v.reps_min === null || v.reps_max === null || v.reps_max >= v.reps_min, {
     message: "A repetição máxima precisa ser maior ou igual à mínima.",
@@ -42,3 +44,12 @@ export const planSchema = z.object({
 export type PlanInput = z.infer<typeof planSchema>;
 export type WorkoutInput = z.infer<typeof workoutSchema>;
 export type ExerciseItemInput = z.infer<typeof exerciseItemSchema>;
+
+// Deixa a lista de observações por série pronta para o banco: só até o número de séries,
+// sem espaços sobrando e, se nenhuma série tiver observação, nada é gravado (NULL).
+export function cleanSetNotes(notes: string[] | null | undefined, sets: number): string[] | null {
+  if (!notes) return null;
+  const list = notes.slice(0, sets).map((n) => (n ?? "").trim());
+  while (list.length && list[list.length - 1] === "") list.pop();
+  return list.length ? list : null;
+}
