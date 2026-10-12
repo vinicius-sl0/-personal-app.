@@ -226,7 +226,11 @@ rodar comandos locais aplica no banco.
 Landing page final (conteúdo real). **Termos e Política** (`/termos`,
 `/privacidade`, estrutura em `components/legal-page.tsx`) já têm texto completo escrito a partir
 do que o app faz; os dados do Personal (nome, CPF/CNPJ, CREF, e-mail, região do Supabase, prazo de
-guarda) ficam em `src/lib/legal.ts` e aparecem como "a preencher" até serem informados; a faixa
+guarda) ficam em `src/lib/legal.ts` e aparecem como "a preencher" até serem informados (região
+conferida em 2026-10-08 com `pnpm exec supabase projects list`: o projeto usado pelo app,
+`desenvolvimento` / `higslvtcdxvbcdjvbqdf`, está em **us-east-1 — Norte da Virgínia, EUA**; migrar
+para São Paulo `sa-east-1` exigiria projeto novo — decisão pendente com o advogado; existe outro
+projeto na conta, "vinicius-sl0's Project", sem uso pelo app; prazo de guarda também pendente); a faixa
 de rascunho só some com `reviewedByLawyer: true` (revisão por advogado). Se o app passar a guardar
 outro tipo de dado (ex.: imagem/áudio no chat, push), ATUALIZE a Política e suba `CONSENT_VERSION`
 em `lib/consents.ts` (hoje `2026-10-v5`). Não há exclusão de conta pelo app: pedidos são pelo
@@ -273,6 +277,17 @@ preenche; o visitante nem tem permissão na coluna) — por isso a conversão de
   rótulos em MAIÚSCULAS acima de títulos, setas → em botões. Build local: o PC tem 3,4 GB de RAM
   e o `next build` pode estourar memória na fase paralela — rode com `experimental: { cpus: 1 }`
   temporário no next.config (não commitar; a Vercel não precisa).
+- **Memória do PC e testes (2026-10-12)**: com ~0,4 GB livres, o `pnpm dev` CAI nas telas grandes
+  (ex.: editor da ficha `/personal/alunos/[id]/treinos/[planId]`) com "Jest worker encountered 2
+  child process exceptions, exceeding retry limit" / "An unexpected response was received from
+  the server" / `write EPIPE` no `.next/dev/logs/next-development.log` — é falta de memória, NÃO
+  bug do código (o `next build` com `cpus: 1` passa). O Claude Code também pode encerrar o
+  `pnpm dev` em segundo plano por pouca memória. Caminho que funciona: conferir com
+  `tsc --noEmit` + `eslint` + `next build` (cpus: 1) e o usuário TESTAR NO SITE DA VERCEL
+  (rodar a migração no Supabase ANTES do push quando a tela lê coluna nova). Testes de componente
+  isolado: página temporária em `src/app/<nome>-temp/` + Edge headless, apagada antes do commit.
+  A tela "Runtime Error" (fundo escuro) é do modo dev — se o usuário diz que é "na Vercel", confira
+  a barra de endereço (costuma ser `localhost:3000`).
 - **App instalável (PWA, parte 1 — 2026-10-02)**: `src/app/manifest.ts` (abre em `/login`, que leva
   quem já entrou ao painel), ícones em `public/icons/` gerados pelo `pnpm fotos` (o "maskable" tem
   margem de 20% para o recorte do Android), `appleWebApp` + `viewport.themeColor` no `layout.tsx`.
