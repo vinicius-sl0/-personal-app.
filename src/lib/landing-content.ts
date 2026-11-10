@@ -17,15 +17,22 @@ export const LANDING = {
 
   hero: {
     name: BRAND.name,
-    headline: "Treino personalizado para quem quer resultado de verdade.",
+    // Nome da marca na landing (rótulo acima do título e topo da página).
+    brand: "Marília Ferreira Team",
+    // Título comercial: "accent" aparece em laranja.
+    headline: { lead: "Treino pensado", accent: "para você.", tail: "Acompanhamento de perto." },
     description:
-      "Acompanhamento individual, treino montado para o seu objetivo e evolução medida semana a semana — tudo em uma plataforma no seu celular.",
-    photo: { src: "/landing/personal.webp", alt: "Marília Ferreira, Personal Trainer, na academia" } as Photo,
+      "Treino individualizado, avaliações físicas e feedback semanal, com a sua evolução acompanhada pelo app no seu celular.",
+    photo: { src: "/landing/personal-2.webp", alt: "Marília Ferreira, Personal Trainer, apontando para quem vê, na academia" } as Photo,
     example: false,
   },
 
+  // Faixas de texto que passam entre a primeira tela e os benefícios (só o que o serviço oferece).
+  ribbon: ["Treino individualizado", "Avaliação física", "Feedback semanal", "Evolução medida", "Acompanhamento contínuo"],
+
   about: {
-    title: "Sobre mim",
+    title: "Conheça a Marília",
+    photo: { src: "/landing/personal.webp", alt: "Marília Ferreira sorrindo na academia" } as Photo,
     // Parágrafos da história profissional.
     story: [
       "Olá! Sou Marília Ferreira, personal trainer formada, CREF 013060-G/CE, e há mais de 10 anos transformo vidas por meio do exercício físico personalizado e da construção de hábitos mais saudáveis.",
@@ -39,11 +46,6 @@ export const LANDING = {
       { value: "013060-G/CE", label: "CREF" },
     ],
     specialties: ["Hipertrofia", "Emagrecimento", "Condicionamento físico", "Treino para iniciantes"],
-    methodology: [
-      { title: "Avaliação", text: "Entendo seu ponto de partida: medidas, composição corporal, histórico e objetivo." },
-      { title: "Planejamento", text: "Monto seu treino sob medida, com séries, cargas e técnicas adequadas a você." },
-      { title: "Acompanhamento", text: "Acompanho cada treino, seu feedback semanal e ajusto o plano quando preciso." },
-    ],
     goals: "Meu compromisso é ajudar você a superar seus limites, desenvolver sua melhor versão e construir resultados que façam sentido não apenas hoje, mas ao longo da sua vida.",
     example: false,
   },
@@ -68,7 +70,7 @@ export const LANDING = {
       description: "Descrição curta do resultado alcançado, com números reais da avaliação.",
       before: { src: "/landing/resultados/resultado2-antes.webp", alt: "Resultado de aluno: antes" } as Photo,
       after: { src: "/landing/resultados/resultado2-depois.webp", alt: "Resultado de aluno: depois" } as Photo,
-      example: true,
+      example: false,
     },
     {
       name: "Aluno(a) exemplo 3",
@@ -77,21 +79,51 @@ export const LANDING = {
       description: "Descrição curta do resultado alcançado, com números reais da avaliação.",
       before: { src: "/landing/resultados/resultado3-antes.webp", alt: "Resultado de aluno: antes" } as Photo,
       after: { src: "/landing/resultados/resultado3-depois.webp", alt: "Resultado de aluno: depois" } as Photo,
-      example: true,
+      example: false,
     },
   ],
 
-  // Benefícios: descrevem o que a plataforma realmente oferece (não são exemplos).
+  // Benefícios: descrevem o que o acompanhamento e a plataforma realmente oferecem (não são exemplos).
+  // "icon" escolhe o ícone em src/components/landing/sections/benefits.tsx.
   benefits: [
-    { icon: "target", title: "Treino sob medida", text: "Fichas montadas para o seu objetivo, nível e rotina — nada de treino genérico." },
-    { icon: "video", title: "Vídeo de cada exercício", text: "Veja como executar cada movimento, com a técnica explicada na hora do treino." },
-    { icon: "check", title: "Check-in do treino", text: "Registre cada treino, séries e cargas. Sua frequência fica visível semana a semana." },
-    { icon: "chart", title: "Evolução medida", text: "Avaliações físicas, gráficos, fotos de progresso e volume de treino por grupo muscular." },
-    { icon: "message", title: "Contato direto", text: "Converse com seu Personal pelo app e envie seu feedback semanal." },
-    { icon: "shield", title: "Seus dados protegidos", text: "Informações de saúde e fotos só com a sua autorização, seguindo a LGPD." },
+    { icon: "target", title: "Treinos individualizados", text: "Fichas montadas para o seu objetivo, o seu nível e a sua rotina, com o vídeo de cada exercício. Nada de treino genérico." },
+    { icon: "assessment", title: "Avaliações físicas", text: "Medidas e composição corporal registradas, com gráficos de uma avaliação para a outra." },
+    { icon: "chat", title: "Acompanhamento contínuo", text: "Contato direto pelo chat do app, com texto, foto e áudio." },
+    { icon: "plan", title: "Planejamento personalizado", text: "Séries, cargas, descanso e técnicas definidos para você e ajustados quando preciso." },
+    { icon: "feedback", title: "Feedback semanal", text: "Toda semana você conta como foram os treinos, a disposição e as dificuldades. Eu respondo e ajusto." },
+    { icon: "chart", title: "Monitoramento da evolução", text: "Frequência dos treinos, fotos de progresso (só com a sua autorização), volume de treino e avaliações em um só lugar." },
   ],
 
-  // Depoimentos reais de alunos (com autorização). Enquanto exemplos, aparecem marcados.
+  // Comparativo "O jeito comum de treinar X Marília Team". Sem citar nem depreciar outros profissionais.
+  comparison: {
+    common: [
+      "Treinos genéricos, iguais para todo mundo",
+      "Sem alguém acompanhando de perto",
+      "Sem planejamento para o seu objetivo",
+      "Difícil saber se está evoluindo",
+      "Dúvidas sem ter a quem perguntar",
+    ],
+    team: [
+      "Treinos individualizados",
+      "Planejamento de acordo com os seus objetivos",
+      "Avaliações físicas com acompanhamento dos números",
+      "Evolução acompanhada com gráficos e fotos",
+      "Feedback semanal e orientação contínua",
+    ],
+  },
+
+  // "Como funciona o acompanhamento": a jornada do aluno, na ordem real. "icon" em sections/journey.tsx.
+  journey: [
+    { icon: "signup", title: "Cadastro inicial", text: "Você responde 4 perguntas rápidas e continuamos a conversa pelo WhatsApp. Combinado o acompanhamento, você recebe o convite para ativar a sua conta." },
+    { icon: "assessment", title: "Avaliação física", text: "Registro o seu ponto de partida: medidas, composição corporal, histórico e objetivo." },
+    { icon: "plan", title: "Planejamento individualizado", text: "Monto a sua ficha sob medida, com séries, repetições, cargas, descanso e técnicas adequadas a você." },
+    { icon: "workout", title: "Execução dos treinos", text: "No app, você faz o check-in, vê o vídeo de cada exercício e registra cada série." },
+    { icon: "feedback", title: "Feedback e acompanhamento", text: "Toda semana você responde o Feedback semanal, e a gente conversa pelo chat sempre que precisar." },
+    { icon: "chart", title: "Monitoramento da evolução", text: "Avaliações, gráficos, fotos de progresso e frequência mostram a sua evolução, e o plano é ajustado quando preciso." },
+  ],
+
+  // Depoimentos reais de alunos (com autorização). A seção só aparece quando houver pelo menos um
+  // com `example: false` (os exemplos ficam ocultos mesmo com draft: true).
   testimonials: [
     { quote: "Espaço para um depoimento real de aluno sobre a experiência com o acompanhamento.", name: "Nome do aluno", detail: "Aluno há 0 meses", example: true },
     { quote: "Outro depoimento real, de preferência mencionando o resultado e a forma de trabalho.", name: "Nome do aluno", detail: "Aluno há 0 meses", example: true },
@@ -100,8 +132,8 @@ export const LANDING = {
 
   // Contatos: deixe null o que não for usar (o botão não aparece).
   contact: {
-    instagram: null as string | null, // ex.: "https://instagram.com/usuario"
-    whatsapp: "5585992971823" as string | null, // só números com DDI e DDD, ex.: "5511999999999"
+    instagram: "https://www.instagram.com/mariliaferreira_trainer/" as string | null, // ex.: "https://instagram.com/usuario"
+    whatsapp: "5585986729270" as string | null, // só números com DDI e DDD, ex.: "5511999999999"
     whatsappMessage: "Olá! Vim pelo site e quero saber mais sobre o acompanhamento.",
     email: null as string | null,
     city: null as string | null, // ex.: "São Paulo · SP" ou "Online e presencial"

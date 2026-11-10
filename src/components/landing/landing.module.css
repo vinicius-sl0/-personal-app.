@@ -1,0 +1,422 @@
+/* ESTILOS SÓ DA PÁGINA INICIAL (landing). CSS Module: as classes ganham nome único e não vazam
+   para o app. Cores sempre pelos tokens do tema (var(--brand), var(--line)...), que valem aqui
+   porque a página inteira está dentro de .theme-dark.
+
+   Inspiração de acabamento: botões em pílula com luz que segue o mouse, faixas de texto
+   inclinadas e cortes diagonais (tirados das pontas recortadas do monograma MF).
+   Tudo respeita "reduzir movimento": sem animação, a página fica completa e parada. */
+
+.root {
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  overflow-x: clip; /* faixas inclinadas e camadas nunca criam rolagem lateral */
+}
+
+/* ---------------------------------------------------------------- botões */
+
+.btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  min-height: 3.25rem;
+  padding: 0 1.9em;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-weight: 650;
+  font-size: 1.0625rem;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  user-select: none;
+  transition:
+    transform 0.45s var(--ease),
+    box-shadow 0.45s var(--ease),
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+.btn:active {
+  transform: translateY(0) scale(0.985);
+}
+.lg {
+  min-height: 3.75rem;
+  padding: 0 2.3em;
+  font-size: 1.125rem;
+}
+.sm {
+  min-height: 2.5rem;
+  padding: 0 1.15em;
+  font-size: 0.9rem;
+}
+.block {
+  width: 100%;
+}
+
+/* Laranja da marca em degradê, texto preto (contraste ≥ 4,7:1 até na ponta mais escura). */
+.primary {
+  color: #0a0a0b;
+  background: linear-gradient(135deg, #fb923c, var(--brand) 55%, #ea580c);
+  box-shadow:
+    0 0 0 1px rgb(251 146 60 / 0.5),
+    0 12px 34px -14px rgb(249 115 22 / 0.65),
+    inset 0 1px 0 rgb(255 255 255 / 0.35);
+}
+/* luz que acompanha o mouse (posição vem do PointerGlow) */
+.primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  background: radial-gradient(9rem circle at var(--mx, 50%) var(--my, 50%), rgb(255 255 255 / 0.45), transparent 60%);
+  transition: opacity 0.4s ease;
+}
+/* reflexo que atravessa o botão uma vez no hover */
+.primary::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -45%;
+  z-index: -1;
+  width: 32%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.5), transparent);
+  transform: skewX(-18deg);
+  opacity: 0;
+}
+
+.ghost {
+  color: var(--ink);
+  background: rgb(255 255 255 / 0.02);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+@media (hover: hover) {
+  .primary:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 0 0 1px rgb(251 146 60 / 0.75),
+      0 18px 42px -14px rgb(249 115 22 / 0.8),
+      inset 0 1px 0 rgb(255 255 255 / 0.4);
+  }
+  .primary:hover::before {
+    opacity: 1;
+  }
+  .primary:hover::after {
+    animation: sweep 0.9s var(--ease) 1;
+  }
+  .ghost:hover {
+    transform: translateY(-2px);
+    background: rgb(255 255 255 / 0.06);
+    box-shadow: inset 0 0 0 1px var(--chrome);
+  }
+}
+
+@keyframes sweep {
+  from {
+    left: -45%;
+    opacity: 1;
+  }
+  to {
+    left: 125%;
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------- primeira tela */
+
+.rise {
+  animation: rise 0.9s var(--ease) both;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.heroZoom {
+  animation: heroZoom 1.8s var(--ease) both;
+}
+@keyframes heroZoom {
+  from {
+    transform: scale(1.08);
+    opacity: 0.4;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Luz laranja discreta atrás da Personal: degradê, não desfoque (leve no celular). */
+.heroGlow {
+  background:
+    radial-gradient(42% 46% at 50% 40%, rgb(249 115 22 / 0.28), transparent 70%),
+    radial-gradient(30% 30% at 50% 45%, rgb(251 146 60 / 0.12), transparent 70%);
+}
+
+/* Dois cortes diagonais finos, ecoando as pontas recortadas do monograma. */
+.slashes {
+  background:
+    linear-gradient(115deg, transparent 49.85%, rgb(249 115 22 / 0.35) 50%, transparent 50.15%),
+    linear-gradient(115deg, transparent 49.9%, rgb(185 189 196 / 0.16) 50%, transparent 50.1%);
+  background-size: 100% 100%, 100% 100%;
+  background-position: 0 0, 7rem 0;
+  background-repeat: no-repeat;
+}
+
+/* ---------------------------------------------------------------- faixas de texto */
+
+.ribbons {
+  position: relative;
+  z-index: 5;
+  height: clamp(118px, 14vw, 168px);
+  margin-top: clamp(-4.5rem, -6vw, -2.5rem);
+  pointer-events: none;
+}
+.ribbon {
+  position: absolute;
+  left: -6%;
+  right: -6%;
+  top: 50%;
+  display: flex;
+  overflow: hidden;
+  height: clamp(44px, 5vw, 56px);
+  align-items: center;
+}
+.ribbonA {
+  z-index: 2;
+  transform: translateY(-50%) rotate(-3deg);
+  background: linear-gradient(180deg, #fb923c, var(--brand) 60%, #ea580c);
+  color: #0a0a0b;
+  box-shadow: 0 18px 40px -18px rgb(0 0 0 / 0.9);
+}
+.ribbonB {
+  z-index: 1;
+  transform: translateY(-50%) rotate(2.5deg);
+  background:
+    repeating-linear-gradient(45deg, rgb(255 255 255 / 0.03) 0 1px, transparent 1px 8px),
+    var(--steel);
+  color: var(--chrome);
+}
+.track {
+  display: flex;
+  width: max-content;
+  animation: marquee 48s linear infinite;
+}
+.ribbonB .track {
+  animation-direction: reverse;
+  animation-duration: 60s;
+}
+.set {
+  display: flex;
+  align-items: center;
+}
+.word {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.1em;
+  padding-right: 1.1em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(0.85rem, 1.3vw, 1.05rem);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+.word::after {
+  content: "";
+  width: 0.5em;
+  height: 0.5em;
+  background: currentColor;
+  clip-path: polygon(30% 0, 100% 0, 70% 100%, 0 100%); /* paralelogramo, como os cortes do MF */
+  opacity: 0.7;
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------------------------------------------------------------- camadas de fundo */
+
+/* grade fina que some nas bordas */
+.gridBg {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(70% 60% at 50% 40%, #000 30%, transparent 75%);
+}
+
+/* luz laranja vinda de baixo (chamada final) */
+.bottomGlow {
+  background:
+    radial-gradient(60% 70% at 50% 110%, rgb(249 115 22 / 0.42), transparent 70%),
+    radial-gradient(35% 40% at 50% 105%, rgb(251 146 60 / 0.25), transparent 70%);
+}
+
+/* luz suave de canto */
+.cornerGlow {
+  background: radial-gradient(45% 55% at 0% 0%, rgb(249 115 22 / 0.1), transparent 70%);
+}
+
+/* ---------------------------------------------------------------- cartões */
+
+/* Cartão com linha laranja que cresce no topo e um foco de luz que segue o mouse. */
+.card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition:
+    transform 0.5s var(--ease),
+    border-color 0.3s ease,
+    background-color 0.3s ease;
+}
+.card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 2px;
+  width: 0;
+  background: linear-gradient(90deg, var(--brand), #fb923c);
+  transition: width 0.6s var(--ease);
+}
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  background: radial-gradient(16rem circle at var(--mx, 50%) var(--my, 0%), rgb(249 115 22 / 0.09), transparent 65%);
+  transition: opacity 0.4s ease;
+}
+@media (hover: hover) {
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: var(--line-strong);
+  }
+  .card:hover::before {
+    width: 100%;
+  }
+  .card:hover::after {
+    opacity: 1;
+  }
+}
+
+/* número grande vazado no canto dos cartões largos */
+.outlineNum {
+  color: transparent;
+  -webkit-text-stroke: 1px rgb(249 115 22 / 0.28);
+  font-stretch: 125%;
+}
+
+/* ---------------------------------------------------------------- comparativo */
+
+.teamPanel {
+  background:
+    radial-gradient(80% 60% at 100% 0%, rgb(249 115 22 / 0.14), transparent 70%),
+    linear-gradient(180deg, #17120f, var(--card));
+  box-shadow:
+    0 0 0 1px rgb(249 115 22 / 0.55),
+    0 30px 60px -30px rgb(249 115 22 / 0.45);
+}
+.checkIcon {
+  box-shadow:
+    0 0 0 1px rgb(249 115 22 / 0.6),
+    0 0 14px -3px rgb(249 115 22 / 0.7);
+}
+
+/* ---------------------------------------------------------------- como funciona */
+
+/* Linha que se enche de laranja conforme a pessoa rola (navegadores com scroll-driven
+   animations). Nos outros, e com "reduzir movimento", a linha já aparece cheia. */
+.lineFill {
+  transform-origin: top;
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .lineFill {
+      animation: fill linear both;
+      animation-timeline: view();
+      animation-range: entry 30% cover 65%;
+    }
+  }
+}
+@keyframes fill {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+.stepNode {
+  box-shadow:
+    0 0 0 6px var(--surface),
+    0 0 18px -4px rgb(249 115 22 / 0.7);
+}
+
+/* ---------------------------------------------------------------- resultados */
+
+.fadeSwap {
+  animation: fadeSwap 0.6s var(--ease) both;
+}
+@keyframes fadeSwap {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.handle {
+  box-shadow:
+    0 0 0 4px rgb(0 0 0 / 0.25),
+    0 8px 22px rgb(0 0 0 / 0.5);
+}
+
+/* ---------------------------------------------------------------- perguntas frequentes */
+
+/* Abre e fecha com transição de altura onde o navegador permite (::details-content).
+   Nos demais, abre na hora, como antes. */
+.faq {
+  interpolate-size: allow-keywords;
+}
+.faq details::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition:
+    block-size 0.45s var(--ease),
+    content-visibility 0.45s allow-discrete;
+}
+.faq details[open]::details-content {
+  block-size: auto;
+}
+
+/* ---------------------------------------------------------------- movimento reduzido */
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .heroZoom,
+  .fadeSwap,
+  .track,
+  .primary:hover::after {
+    animation: none !important;
+  }
+  .btn,
+  .card,
+  .faq details::details-content {
+    transition: none;
+  }
+}

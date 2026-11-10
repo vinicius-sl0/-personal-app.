@@ -4,7 +4,9 @@
 // Como usar: coloque os originais na pasta "material/" (ela NÃO vai para o Git) e rode:
 //   pnpm fotos
 //
-//   material/personal.jpg              → public/landing/personal.webp   (foto principal)
+//   material/personal.jpg              → public/landing/personal.webp   (foto do "Sobre")
+//   material/personal-2.jpg            → public/landing/personal-2.webp (primeira tela)
+//   material/monograma.png             → public/landing/monograma.webp  (MF transparente)
 //   material/logo.png  (ou .svg)       → public/logo.png / logo.svg (logo completo)
 //   material/logo-icone.png (opcional) → public/logo-icone.png + ícones do app (src/app/icon.png,
 //                                        apple-icon.png e public/icons/ do app instalável); sem
@@ -49,6 +51,24 @@ async function main() {
 
   const personal = find(IN, "personal");
   if (personal) await photo(personal, path.join(OUT, "landing", "personal.webp"), 1400);
+
+  // Segunda foto da Personal (primeira tela da landing).
+  const personal2 = find(IN, "personal-2");
+  if (personal2) await photo(personal2, path.join(OUT, "landing", "personal-2.webp"), 1400);
+
+  // Monograma MF (laranja e branco, fundo transparente com brilho): corta a margem vazia em volta.
+  // Usado no topo da landing e como marca d’água.
+  const monograma = find(IN, "monograma");
+  if (monograma) {
+    const dest = path.join(OUT, "landing", "monograma.webp");
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    const info = await sharp(monograma)
+      .trim({ threshold: 4 })
+      .resize({ width: 900, height: 900, fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 85 })
+      .toFile(dest);
+    done.push({ arquivo: path.relative(ROOT, dest), largura: info.width, altura: info.height, kb: Math.round(info.size / 1024) });
+  }
 
   const logo = find(IN, "logo");
   if (logo && logo.endsWith(".svg")) {
