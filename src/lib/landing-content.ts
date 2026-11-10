@@ -14,6 +14,9 @@ export type Photo = { src: string; alt: string } | null; // null = mostra espaç
 export const LANDING = {
   // Enquanto true, aparece uma faixa avisando que a página ainda tem conteúdo de exemplo.
   draft: true,
+  // Faixa amarela "Página em construção" no topo. Desligada a pedido do usuário (2026-11-09) mesmo com
+  // draft: true — o rascunho continua valendo para mostrar os itens marcados como "Exemplo".
+  draftBanner: false,
 
   hero: {
     name: BRAND.name,

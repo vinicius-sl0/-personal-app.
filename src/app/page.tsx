@@ -50,7 +50,7 @@ export default function Home() {
   return (
     // Página pública sempre escura (identidade preto + laranja), independente do tema do aparelho.
     <div className={`theme-dark min-h-dvh bg-surface text-ink ${s.root}`}>
-      {LANDING.draft && (
+      {LANDING.draft && LANDING.draftBanner && (
         <p className="relative z-50 bg-amber-400 px-4 py-2 text-center text-xs font-medium text-black">
           Página em construção: textos e imagens marcados como “Exemplo” serão trocados pelo conteúdo real.
         </p>
